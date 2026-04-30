@@ -53,6 +53,11 @@ benchmarks = [
   "datasets>=3.0",
   "huggingface-hub>=0.26",
 ]
+integrations = [
+  # Live `rf-mcp` MCP server — exercised by tests/integration/test_rf_mcp_integration.py.
+  # Pinned loose so we follow upstream releases.
+  "rf-mcp>=0.30",
+]
 
 [project.entry-points."robot.listener"]
 otel = "AgentGuard.telemetry.otel_listener:OTelListener"
