@@ -79,7 +79,7 @@ def _resolve_model(model: str | None) -> str:
     if model:
         return model
     try:
-        from AgentGuard import config as cfg  # type: ignore[attr-defined]
+        from AgentGuard import config as cfg
     except ImportError:
         return "mockllm/model"
     getter = getattr(cfg, "default_model", None)
@@ -97,7 +97,7 @@ def _resolve_judge_model(judge_model: str | None, model: str) -> str:
     if judge_model:
         return judge_model
     try:
-        from AgentGuard import config as cfg  # type: ignore[attr-defined]
+        from AgentGuard import config as cfg
     except ImportError:
         return model
     getter = getattr(cfg, "default_judge_model", None)

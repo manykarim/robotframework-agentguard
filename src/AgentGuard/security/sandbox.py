@@ -85,7 +85,7 @@ def policy_from_env() -> SandboxPolicy:
             return default
 
     backend_raw = os.getenv("AGENTGUARD_SANDBOX_BACKEND", "docker").strip().lower()
-    backend: Backend = backend_raw if backend_raw in _BACKENDS else "docker"  # type: ignore[assignment]
+    backend: Backend = backend_raw if backend_raw in _BACKENDS else "docker"
 
     mounts_raw = os.getenv("AGENTGUARD_SANDBOX_MOUNTS", "")
     mounts: tuple[Path, ...] = tuple(Path(p).expanduser() for p in mounts_raw.split(":") if p.strip())

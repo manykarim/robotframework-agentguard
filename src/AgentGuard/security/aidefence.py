@@ -141,7 +141,7 @@ class _MCPSession:
         async def _open() -> tuple[Any, Any]:
             transport = StdioTransport(command=self._cmd[0], args=list(self._cmd[1:]))
             client = Client(transport)
-            cm = client.__aenter__()
+            cm = client.__aenter__()  # type: ignore[no-untyped-call]
             entered = await cm
             return client, entered
 

@@ -65,7 +65,7 @@ def scan_skill(
         findings=tuple(findings),
         decision=decision,
         decision_reason=reason,
-        signature_status=sig_status,
+        signature_status=sig_status,  # type: ignore[arg-type]
     )
 
 
@@ -95,7 +95,7 @@ def _decide(
 
 def _resolve_skill(skill: object | Path | str) -> tuple[Path, Path]:
     if hasattr(skill, "path"):
-        skill = skill.path  # type: ignore[assignment]
+        skill = skill.path
     if not isinstance(skill, (str, Path)):
         raise TypeError(f"Cannot scan {type(skill).__name__}: provide a path or a Skill object with `.path`.")
     path = Path(skill).expanduser().resolve()

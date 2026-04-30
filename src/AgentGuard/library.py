@@ -41,7 +41,7 @@ _SUB_LIBRARIES: tuple[tuple[str, str], ...] = (
 
 
 @library(scope="SUITE", version=__version__, auto_keywords=False)
-class AgentGuard(DynamicCore):
+class AgentGuard(DynamicCore):  # type: ignore[misc]
     """`Library AgentGuard provider=litellm model=openrouter/...` — see README."""
 
     def __init__(

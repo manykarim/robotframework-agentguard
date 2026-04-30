@@ -62,7 +62,8 @@ def scan_file(path: Path, host_allowlist: Iterable[str] | None = None) -> list[F
 
 
 def _iter_findings(text: str, path: Path, allowlist: frozenset[str]) -> Iterator[Finding]:
-    location_for_line = lambda lineno: f"{path}:L{lineno}"  # noqa: E731
+    def location_for_line(lineno: int) -> str:
+        return f"{path}:L{lineno}"
 
     for match in _PIPE_TO_SHELL.finditer(text):
         yield Finding(
