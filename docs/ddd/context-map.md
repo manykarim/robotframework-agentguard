@@ -74,6 +74,17 @@ flowchart LR
     SE -.->|PL events| TL
     PR -.->|PL events| TL
     ST -.->|PL events| TL
+
+    %% Phase 4-A/B/C — TestHarness / MCPScenario (proposed by ADR-021).
+    TH[TestHarness / MCPScenario]
+    MC -->|CS supplier: ServerHandle, Call MCP Tool| TH
+    CA -->|CS supplier: Driver, Session| TH
+    SK_C -.->|CS supplier (extension): Skill body as system msg| TH
+    TC -.->|OHS: optional per-call AST validation| TH
+    SE -->|CS supplier: Generated Robot suite scan| TH
+    JD -.->|OHS: validates expected_outcome| TH
+    ST -->|SK: Mann-Whitney + Cliff δ + pass@k| TH
+    TH -.->|PL events: ScenarioStarted, ToolCallRecorded, ScenarioCompleted| TL
 ```
 
 ## Pattern Catalogue
@@ -95,6 +106,16 @@ flowchart LR
 ### Open Host Service — ToolCallCorrectness exposes BFCL matchers to many
 
 - **ToolCallCorrectness → {MCP, Skills, SubAgents}:** the BFCL AST matcher and trajectory matcher are surfaced through a stable API (`match_call`, `match_trajectory`, `score_dataset`) that takes published `ActualCall` / `ExpectedCall` value objects (§3.1, §6.6). MCP, Skills, and SubAgents each translate their native call shape into `ActualCall`. ToolCallCorrectness does not need to know whether the call came from a tool invocation, a graded skill prompt, or an A2A delegated trajectory — only that the published shape is satisfied.
+- **TestHarness ↔ ToolCallCorrectness (ADR-021):** TestHarness's per-call `ExpectedToolCall(name, min_calls, max_calls, required_params)` is *aggregate semantics*; ToolCallCorrectness's `ExpectedCall` is *per-call AST equality*. Both coexist — users reach for the aggregate shape when they only know multiplicity bounds, and the per-call shape when they can name the exact call to expect. TestHarness optionally calls into ToolCallCorrectness to upgrade the looser hit-rate gate to strict per-call AST equality (e.g., for replays of a known-good run).
+
+### TestHarness / MCPScenario as workflow orchestrator (ADR-021, proposed)
+
+- **MCP → TestHarness (Customer/Supplier):** MCP is the supplier; TestHarness is the customer. TestHarness wraps MCP's `ServerHandle` with a recording overlay so every `Call MCP Tool` invoked during a `Run MCP Scenario` emits a `ToolCallRecorded` event into the per-suite collector. MCP keeps its narrow protocol responsibility; TestHarness owns the recording-and-aggregation layer. Tracked recording is opt-in: callers who don't `Start Tracked MCP Session` keep the existing behaviour.
+- **CodingAgent → TestHarness (Customer/Supplier):** TestHarness uses any `CodingAgentDriver` (LocalDriver, ClaudeCodeDriver, …) as the autonomous-agent loop that drives the scenario prompt. The `Session` returned by a driver is mapped into a `ScenarioResult` via a tiny ACL — fields drop, `success` is derived from `tool_response.is_error`, the rest carries through.
+- **Security → TestHarness (Customer/Supplier):** when TestHarness's `Generated Robot Suite Should Pass` keyword is invoked, Security's scanner pre-flights the agent-emitted suite per ADR-006 and the sandbox per ADR-013 gates any actual execution. Default mode is `--dryrun` (no execution).
+- **Stats → TestHarness (Shared Kernel):** the cross-scenario comparison keywords (`Tool Hit Rate Distribution Should Stochastically Dominate`, `Compare Scenarios Pass Rate`) reach into Statistics for `mann_whitney_u`, `cliffs_delta`, `pass_at_k`. No new statistics math.
+- **TestHarness → Telemetry (Published Language):** every domain event (`ScenarioStarted`, `ToolCallRecorded`, `ScenarioCompleted`, `ArtifactProduced`, `ScenarioBaselineDrifted`) is an OTel span tagged with `scenario.id` so traces from multiple runs aggregate cleanly in Grafana / Jaeger / Honeycomb.
+- **TestHarness ⇄ Skills (extension, Phase 4-B):** when a scenario is run with `skill=<Skill>`, the skill's body is injected as the system message in the driver's prompt. Skills' invariants (frontmatter validation, security scan) still apply. The hit-rate then measures "given this skill is loaded, did the agent invoke the right MCP tools?" — a useful generalization unique to the unified-harness vision.
 
 ### Vertical (MCP) and Horizontal (A2A) Split
 

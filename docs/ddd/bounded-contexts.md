@@ -1,8 +1,15 @@
 # Bounded Contexts — robotframework-agentguard
 
-Twelve contexts. Each section lists: **purpose**, **aggregates**, **value objects**, **domain events**, **repositories**, and **ACL** required at every boundary with adjacent contexts. Aggregates are described conceptually — no Python class definitions.
+Twelve contexts (Phase 1–3 baseline) plus **TestHarness / MCPScenario** as a 13th
+context proposed by **ADR-021** (status: Proposed; full spec in
+`docs/ddd/MCPScenario-bounded-context.md`). Each section lists: **purpose**,
+**aggregates**, **value objects**, **domain events**, **repositories**, and
+**ACL** required at every boundary with adjacent contexts. Aggregates are
+described conceptually — no Python class definitions.
 
-Research citations point to `docs/research/research.md`.
+Research citations point to `docs/research/research.md`. ADR-021 cites
+`manykarim/rf-mcp/tests/e2e/` as the load-bearing prior art for the
+TestHarness context's shape.
 
 ---
 

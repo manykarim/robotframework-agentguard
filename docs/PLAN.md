@@ -181,6 +181,30 @@ Deliverable: `robotframework-agentguard 0.1` on PyPI; ten reference `.robot` sui
 - **Benchmark integration**: SWE-bench Verified, Aider, LiveCodeBench, HumanEval, MBPP — each producing pass@1/pass@3 keywords.
 - **Replay/time-travel** for LangGraph and CrewAI bridges from Phase 2.
 
+### Phase 4-A/B/C — Unified Scenario Test Harness (≈ 2.5 months) — proposed by ADR-021
+
+**Driver**: drop-in replacement for `manykarim/rf-mcp` `tests/e2e/`; unify the
+"agent runs scenario, tool calls recorded, hit rate asserted" workflow across
+MCP servers, Agent Skills, and Coding Agents.
+
+- **Phase 4-A** (1 month, MVP) — `MCPScenarioKeywords` (12 of 23 keywords):
+  Scenario YAML loader (rf-mcp v1 schema verbatim), `TrackedMCPSession`,
+  `Tool Hit Rate Should Be Above`, `Tool Call Statistics`, `Save/Load
+  Scenario Result` (byte-equivalent JSON artifacts). Gate: AgentGuard runs
+  all 17 rf-mcp scenarios against rf-mcp itself.
+- **Phase 4-B** (1 month, autonomous + artifacts) — `LocalDriver(mcp_server=...)`,
+  `Get Generated Robot Suite Path` + `Generated Robot Suite Should Pass`,
+  Claude Code `--mcp-config` injection. Gate: live OpenRouter run reproduces
+  three rf-mcp scenarios with a generated suite that passes `robot --dryrun`.
+- **Phase 4-C** (½ month, statistical comparison) — Mann-Whitney + Cliff's δ
+  on hit-rate distributions across N runs (delegates to existing Stats
+  module); OTel `scenario.id` tagging; libdoc HTML; `examples/12_mcp_scenario_replacement.robot`.
+
+Adds the **TestHarness / MCPScenario** bounded context (13th overall — see
+`docs/ddd/MCPScenario-bounded-context.md`). Detailed proposal:
+`docs/proposals/PROPOSAL-rf-mcp-test-harness-replacement.md`. Decision record:
+`docs/adr/ADR-021-unified-scenario-test-harness.md`.
+
 ### Phase 4 — OSS hardening + RuFlo full integration
 
 - **AIDefence** wired over MCP per exp_10 / ADR-020.
