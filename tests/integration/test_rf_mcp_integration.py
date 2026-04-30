@@ -15,6 +15,7 @@ import importlib
 import importlib.util
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -41,7 +42,8 @@ if importlib.util.find_spec("robotmcp") is None:
 
 
 @pytest.fixture(scope="module")
-def rf_mcp_server():  # type: ignore[no-untyped-def]
+def rf_mcp_server() -> Any:
+    # FastMCP instance type varies across rf-mcp releases — keep as Any.
     server_mod = importlib.import_module("robotmcp.server")
     return server_mod.mcp
 
@@ -54,7 +56,7 @@ def kw() -> MCPKeywords:
 # ---- protocol-compliance smoke tests ---------------------------------------
 
 
-def test_in_memory_connect_lists_tools(kw: MCPKeywords, rf_mcp_server) -> None:  # type: ignore[no-untyped-def]
+def test_in_memory_connect_lists_tools(kw: MCPKeywords, rf_mcp_server: Any) -> None:
     handle = kw.connect_to_mcp_server(rf_mcp_server, transport="memory")
     try:
         tools = kw.list_mcp_tools(handle)
@@ -77,8 +79,8 @@ def test_in_memory_connect_lists_tools(kw: MCPKeywords, rf_mcp_server) -> None: 
     ],
 )
 def test_documented_tool_is_present(
-    kw: MCPKeywords, rf_mcp_server, expected: str
-) -> None:  # type: ignore[no-untyped-def]
+    kw: MCPKeywords, rf_mcp_server: Any, expected: str
+) -> None:
     handle = kw.connect_to_mcp_server(rf_mcp_server, transport="memory")
     try:
         names = {t["name"] for t in kw.list_mcp_tools(handle)}
@@ -87,7 +89,7 @@ def test_documented_tool_is_present(
         kw.stop_mcp_server(handle)
 
 
-def test_get_capabilities_returns_dict(kw: MCPKeywords, rf_mcp_server) -> None:  # type: ignore[no-untyped-def]
+def test_get_capabilities_returns_dict(kw: MCPKeywords, rf_mcp_server: Any) -> None:
     handle = kw.connect_to_mcp_server(rf_mcp_server, transport="memory")
     try:
         caps = kw.get_mcp_capabilities(handle)
@@ -102,7 +104,7 @@ def test_get_capabilities_returns_dict(kw: MCPKeywords, rf_mcp_server) -> None: 
 # ---- representative tool call (deterministic, no LLM required) -------------
 
 
-def test_find_keywords_returns_results(kw: MCPKeywords, rf_mcp_server) -> None:  # type: ignore[no-untyped-def]
+def test_find_keywords_returns_results(kw: MCPKeywords, rf_mcp_server: Any) -> None:
     handle = kw.connect_to_mcp_server(rf_mcp_server, transport="memory")
     try:
         # `find_keywords` is a discovery tool — it scans the loaded RF libraries for
@@ -117,8 +119,8 @@ def test_find_keywords_returns_results(kw: MCPKeywords, rf_mcp_server) -> None: 
 
 
 def test_in_memory_latency_within_budget(
-    kw: MCPKeywords, rf_mcp_server
-) -> None:  # type: ignore[no-untyped-def]
+    kw: MCPKeywords, rf_mcp_server: Any
+) -> None:
     handle = kw.connect_to_mcp_server(rf_mcp_server, transport="memory")
     try:
         # Tool with the smallest payload — `find_keywords` is acceptable.
