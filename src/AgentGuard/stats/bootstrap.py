@@ -39,10 +39,7 @@ def _resolve_statistic(statistic: Statistic) -> tuple[Callable[[np.ndarray], flo
         return statistic, getattr(statistic, "__name__", "callable")
     name = statistic.lower()
     if name not in _NAMED_STATS:
-        raise ValueError(
-            f"Unknown statistic {statistic!r}. "
-            f"Choose one of {sorted(_NAMED_STATS)} or pass a callable."
-        )
+        raise ValueError(f"Unknown statistic {statistic!r}. Choose one of {sorted(_NAMED_STATS)} or pass a callable.")
     return _NAMED_STATS[name], name
 
 

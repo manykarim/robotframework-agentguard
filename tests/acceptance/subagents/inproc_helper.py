@@ -8,8 +8,6 @@ module-level functions.
 
 from __future__ import annotations
 
-from typing import Any
-
 from AgentGuard.subagents import a2a_client, a2a_server
 from AgentGuard.subagents.types import (
     Artifact,
@@ -31,9 +29,7 @@ def setup_travel_planner_agents() -> None:
     )
     a2a_server.start_server(
         "places",
-        handler=lambda msg: text_artifact(
-            f"places near {msg}: Belém, Alfama, Jerónimos"
-        ),
+        handler=lambda msg: text_artifact(f"places near {msg}: Belém, Alfama, Jerónimos"),
         skills=[{"id": "places.search", "name": "Places"}],
     )
 

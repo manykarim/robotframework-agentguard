@@ -3,16 +3,18 @@
 Assumption: The official MCP Inspector ships a `--cli` mode that lists/calls tools
 against a stdio MCP server, suitable for CI compliance testing.
 """
+
 import os
 import subprocess
-import sys
 
 
 def run_help() -> tuple[int, str]:
     try:
         proc = subprocess.run(
             ["npx", "-y", "@modelcontextprotocol/inspector", "--cli", "--help"],
-            capture_output=True, text=True, timeout=120,
+            capture_output=True,
+            text=True,
+            timeout=120,
             env={**os.environ, "CI": "1"},
         )
         return proc.returncode, (proc.stdout + "\n--- STDERR ---\n" + proc.stderr)

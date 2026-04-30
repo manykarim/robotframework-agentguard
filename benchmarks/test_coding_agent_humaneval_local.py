@@ -81,21 +81,17 @@ def test_humaneval_local_one_task_live(benchmark: Any) -> None:
         cost_holder["last_duration"] = time.perf_counter() - start
         return bool(result)
 
-    ok = benchmark.pedantic(
-        _run_once, rounds=1, iterations=1, warmup_rounds=0
-    )
+    ok = benchmark.pedantic(_run_once, rounds=1, iterations=1, warmup_rounds=0)
     assert ok, "LocalDriver returned a falsy result"
 
     duration_s = float(benchmark.stats.stats.mean)
     if duration_s > BUDGET_TOTAL_S:
         pytest.fail(
-            f"HumanEval live total {duration_s:.2f} s exceeds budget "
-            f"{BUDGET_TOTAL_S} s (Phase-3 HumanEval live)"
+            f"HumanEval live total {duration_s:.2f} s exceeds budget {BUDGET_TOTAL_S} s (Phase-3 HumanEval live)"
         )
 
     last_cost = cost_holder.get("last_cost", 0.0)
     if last_cost > BUDGET_COST_USD:
         pytest.fail(
-            f"HumanEval live cost ${last_cost:.5f} exceeds budget "
-            f"${BUDGET_COST_USD:.5f} (Phase-3 HumanEval live)"
+            f"HumanEval live cost ${last_cost:.5f} exceeds budget ${BUDGET_COST_USD:.5f} (Phase-3 HumanEval live)"
         )

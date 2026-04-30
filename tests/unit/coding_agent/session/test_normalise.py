@@ -4,7 +4,7 @@ parser helpers (`parse_iso8601`, `coerce_content`, `extract_usage`).
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC
 
 import pytest
 
@@ -33,7 +33,7 @@ def test_parse_iso_handles_z_suffix() -> None:
 def test_parse_iso_handles_explicit_offset() -> None:
     out = parse_iso8601("2026-04-29T10:00:00+00:00")
     assert out is not None
-    assert out.utcoffset() == timezone.utc.utcoffset(None)
+    assert out.utcoffset() == UTC.utcoffset(None)
 
 
 def test_parse_iso_naive_string_is_assumed_utc() -> None:

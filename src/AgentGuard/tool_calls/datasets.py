@@ -49,13 +49,7 @@ DEFAULT_CACHE_DIR = Path(
     )
 )
 
-_BUNDLED_FALLBACK = (
-    Path(__file__).resolve().parents[3]
-    / "tests"
-    / "fixtures"
-    / "tool_calls"
-    / "golden_calls.json"
-)
+_BUNDLED_FALLBACK = Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "tool_calls" / "golden_calls.json"
 
 # Mapping of Phase-1 short names → BFCL category names. Keeps Robot tests
 # pleasant ("simple", "parallel") instead of ("simple_python", ...).
@@ -154,9 +148,7 @@ class BFCLAdapter:
             _FALLBACK_WARNED = True
 
         if not _BUNDLED_FALLBACK.exists():
-            raise FileNotFoundError(
-                f"BFCL fallback fixtures missing: {_BUNDLED_FALLBACK}"
-            )
+            raise FileNotFoundError(f"BFCL fallback fixtures missing: {_BUNDLED_FALLBACK}")
         with _BUNDLED_FALLBACK.open(encoding="utf-8") as fh:
             raw = json.load(fh)
 
@@ -222,8 +214,7 @@ def _record_to_case(record_id: str, record: Any, category: str) -> BFCLCase:
 def _fixture_to_case(entry: dict[str, Any]) -> BFCLCase:
     tools = tuple(_func_doc_to_tool(fd) for fd in entry.get("tools", []))
     expected = tuple(
-        ExpectedCall(name=ec["name"], arguments=ec.get("arguments", {}))
-        for ec in entry.get("expected_calls", [])
+        ExpectedCall(name=ec["name"], arguments=ec.get("arguments", {})) for ec in entry.get("expected_calls", [])
     )
     return BFCLCase(
         prompt=entry["prompt"],

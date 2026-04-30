@@ -72,7 +72,6 @@ class JudgeKeywords:
         """Load a rubric from a path (.md / .yaml), a dict, or pass-through."""
         return load_rubric(source)
 
-
     @keyword(name="LLM Judge Should Score At Least")
     def llm_judge_should_score_at_least(
         self,
@@ -92,7 +91,9 @@ class JudgeKeywords:
         for resp in items:
             run_scores = [
                 self._judge_one(
-                    response=str(resp), rubric=rubric_obj, model=model,
+                    response=str(resp),
+                    rubric=rubric_obj,
+                    model=model,
                     mock_response=mock_response,
                 ).score
                 for _ in range(int(runs))
@@ -104,9 +105,7 @@ class JudgeKeywords:
             f"{len(items)} response(s) × {runs} run(s)  (threshold {threshold:g})"
         )
         if mean_score < float(threshold):
-            raise AssertionError(
-                f"Mean judge score {mean_score:.4f} is below threshold {threshold:g}."
-            )
+            raise AssertionError(f"Mean judge score {mean_score:.4f} is below threshold {threshold:g}.")
         return mean_score
 
     @keyword(name="Tool Output Should Be Semantically Equal")
@@ -129,9 +128,7 @@ class JudgeKeywords:
         )
         if judgment.score < 1.0:
             label = ", ".join(f"{k}={v}" for k, v in judgment.labels.items())
-            raise AssertionError(
-                f"Output not semantically equivalent (score={judgment.score:.2f}, {label})."
-            )
+            raise AssertionError(f"Output not semantically equivalent (score={judgment.score:.2f}, {label}).")
         return judgment
 
     @keyword(name="LLM Judge Pairwise")
@@ -164,9 +161,7 @@ class JudgeKeywords:
         resps = [responses] if isinstance(responses, str) else list(responses)
         refs = [references] if isinstance(references, str) else list(references)
         if len(resps) != len(refs):
-            raise ValueError(
-                f"responses ({len(resps)}) and references ({len(refs)}) must align 1:1."
-            )
+            raise ValueError(f"responses ({len(resps)}) and references ({len(refs)}) must align 1:1.")
         return [
             self._judge_one(
                 response=r,
@@ -197,21 +192,18 @@ class JudgeKeywords:
         samples = load_calibration_set(calibration_set)
         if not samples:
             raise ValueError("Calibration set is empty.")
-        rubric_obj = (
-            load_rubric(rubric) if rubric is not None
-            else infer_rubric_from_samples(samples)
-        )
+        rubric_obj = load_rubric(rubric) if rubric is not None else infer_rubric_from_samples(samples)
         judgments = [
             self._judge_one(
-                response=s.response, rubric=rubric_obj, model=model,
+                response=s.response,
+                rubric=rubric_obj,
+                model=model,
                 reference=s.input or None,
                 mock_response=mock_responses[i] if mock_responses else None,
             )
             for i, s in enumerate(samples)
         ]
-        report = build_calibration_report(
-            model, samples, judgments, rubric_obj, min_kappa, record_only
-        )
+        report = build_calibration_report(model, samples, judgments, rubric_obj, min_kappa, record_only)
         save_calibration(report, cache_path=self._cache_path)
         logger.info(
             f"Calibrate Judge: model={model} κ={report.kappa:.4f} "
@@ -219,9 +211,7 @@ class JudgeKeywords:
             f"{'PASS' if report.passed else 'FAIL'}"
         )
         if not record_only and not report.passed:
-            raise AssertionError(
-                f"Judge {model!r} κ={report.kappa:.4f} is below required {min_kappa:g}."
-            )
+            raise AssertionError(f"Judge {model!r} κ={report.kappa:.4f} is below required {min_kappa:g}.")
         return report
 
     @keyword(name="Judge Should Be Calibrated")
@@ -243,26 +233,20 @@ class JudgeKeywords:
             )
             if cached is None:
                 raise JudgeNotCalibratedError(
-                    f"No fresh calibration cached for model={model!r}; "
-                    f"run `Calibrate Judge` first."
+                    f"No fresh calibration cached for model={model!r}; run `Calibrate Judge` first."
                 )
             if cached.kappa < self._kappa_threshold:
                 raise JudgeNotCalibratedError(
-                    f"Cached κ={cached.kappa:.4f} for {model!r} is below "
-                    f"{self._kappa_threshold:g}."
+                    f"Cached κ={cached.kappa:.4f} for {model!r} is below {self._kappa_threshold:g}."
                 )
             return cached
 
-        cached = find_any_fresh_for_model(
-            model, self._cache_path, expiry_seconds, self._kappa_threshold
-        )
+        cached = find_any_fresh_for_model(model, self._cache_path, expiry_seconds, self._kappa_threshold)
         if cached is None:
             raise JudgeNotCalibratedError(
-                f"No fresh calibration with κ ≥ {self._kappa_threshold:g} "
-                f"found for model={model!r}."
+                f"No fresh calibration with κ ≥ {self._kappa_threshold:g} found for model={model!r}."
             )
         return cached
-
 
     def _judge_one(
         self,

@@ -112,18 +112,33 @@ markers = [
 ]
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "S", "N"]
 # N999: package is intentionally PascalCase to match Robot Framework `Library AgentGuard` convention.
 # S110: empty try/except is the documented pattern for FastMCP capability probing (see _helpers.py).
-ignore = ["S101", "N999", "S110"]
+# N818: AgentGuard's exception hierarchy uses status-tagged names (SessionParseFailed,
+#       SandboxUnavailable, MetricThresholdViolated) where the status IS the meaningful suffix.
+# B017: blind `except Exception` is intentional in tests that assert *any* validation failure.
+# E731: lambda-assignment is acceptable for tiny test helpers.
+# UP007: legacy `Optional[X]` / `Union[X, Y]` annotations remain valid in public surfaces.
+ignore = ["S101", "N999", "S110", "N818", "B017", "E731", "UP007"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S", "N"]
-"benchmarks/**/*.py" = ["S"]
+"benchmarks/**/*.py" = ["S", "N"]
+# Experiments are throwaway dependency-validation scripts — looser rules.
+"tests/experiments/*.py" = ["UP031", "F841", "B007", "E402", "F401"]
+# Integration tests for upstream packages do sys.path manipulation BEFORE imports.
+"tests/integration/test_rf_mcp_*.py" = ["E402"]
+"tests/integration/test_agentskills_live.py" = ["E402"]
+"tests/conftest.py" = ["E402"]
+# Re-export of `ToolCall` for convenience in metric tests; intentional.
+"tests/unit/coding_agent/metrics/test_pack.py" = ["F401"]
+# Test helper that builds a rubric for negative-path coverage; analyzer can't see use.
+"tests/unit/judge/test_judge_keywords.py" = ["F841"]
 
 [tool.mypy]
 python_version = "3.12"

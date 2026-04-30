@@ -37,9 +37,7 @@ DEFAULT_PREMATURE_PASS_PHRASES: tuple[str, ...] = (
 )
 
 #: Default forbidden file-write paths (root-level dumping, per CLAUDE.md).
-ROOT_WRITE_RE = re.compile(
-    r"(?:^|[/\s])(?:Write|Edit)\s*\([^)]*['\"]\./[^/'\"]+\.[a-zA-Z]+['\"]"
-)
+ROOT_WRITE_RE = re.compile(r"(?:^|[/\s])(?:Write|Edit)\s*\([^)]*['\"]\./[^/'\"]+\.[a-zA-Z]+['\"]")
 
 
 @dataclass(slots=True)

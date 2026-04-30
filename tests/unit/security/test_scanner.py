@@ -12,13 +12,11 @@ import pytest
 
 from AgentGuard.security import scanner
 from AgentGuard.security.types import (
-    Decision,
     Finding,
     ScannerStage,
     Severity,
     SkillSecurityReport,
 )
-
 
 FIXTURES = Path(__file__).parent.parent.parent / "fixtures" / "security"
 
@@ -52,16 +50,18 @@ class TestSkillSecurityReportProperties:
 
     def test_max_severity_with_mix(self, tmp_path: Path) -> None:
         f1 = Finding(
-            stage=ScannerStage.FRONTMATTER, severity=Severity.MEDIUM,
-            message="m", remediation="r",
+            stage=ScannerStage.FRONTMATTER,
+            severity=Severity.MEDIUM,
+            message="m",
+            remediation="r",
         )
         f2 = Finding(
-            stage=ScannerStage.PII_SCAN, severity=Severity.HIGH,
-            message="m", remediation="r",
+            stage=ScannerStage.PII_SCAN,
+            severity=Severity.HIGH,
+            message="m",
+            remediation="r",
         )
-        report = SkillSecurityReport(
-            skill_name="x", skill_path=tmp_path, findings=(f1, f2)
-        )
+        report = SkillSecurityReport(skill_name="x", skill_path=tmp_path, findings=(f1, f2))
         assert report.max_severity == Severity.HIGH
 
 
@@ -73,24 +73,16 @@ class TestScanSkillFixtures:
         assert all(f.severity != Severity.CRITICAL for f in report.findings)
 
     def test_curl_pipe_denies_or_warns(self) -> None:
-        report = scanner.scan_skill(
-            FIXTURES / "curl-pipe-skill", allow_unsigned=True
-        )
+        report = scanner.scan_skill(FIXTURES / "curl-pipe-skill", allow_unsigned=True)
         # The static analyser must flag a curl|sh pattern as HIGH or CRITICAL.
         assert report.decision in ("warn", "deny")
-        assert any(
-            f.stage == ScannerStage.SCRIPTS_STATIC for f in report.findings
-        )
+        assert any(f.stage == ScannerStage.SCRIPTS_STATIC for f in report.findings)
 
     def test_injection_skill_findings(self) -> None:
         # Locally fall back to regex (no MCP) — should still flag the injection.
-        report = scanner.scan_skill(
-            FIXTURES / "injection-skill", allow_unsigned=True
-        )
+        report = scanner.scan_skill(FIXTURES / "injection-skill", allow_unsigned=True)
         # AIDefence stage emits at least one finding (HIGH or CRITICAL).
-        injection_findings = [
-            f for f in report.findings if f.stage == ScannerStage.AIDEFENCE_INJECTION
-        ]
+        injection_findings = [f for f in report.findings if f.stage == ScannerStage.AIDEFENCE_INJECTION]
         assert injection_findings, "expected AIDefence to flag the injection skill"
 
 
@@ -122,8 +114,10 @@ class TestScanSkillResolution:
 class TestDecisionMatrix:
     def test_critical_finding_denies(self) -> None:
         critical = Finding(
-            stage=ScannerStage.AIDEFENCE_INJECTION, severity=Severity.CRITICAL,
-            message="m", remediation="r",
+            stage=ScannerStage.AIDEFENCE_INJECTION,
+            severity=Severity.CRITICAL,
+            message="m",
+            remediation="r",
         )
         decision, reason = scanner._decide(
             findings=[critical],
@@ -135,8 +129,10 @@ class TestDecisionMatrix:
 
     def test_high_finding_warns(self) -> None:
         high = Finding(
-            stage=ScannerStage.PII_SCAN, severity=Severity.HIGH,
-            message="m", remediation="r",
+            stage=ScannerStage.PII_SCAN,
+            severity=Severity.HIGH,
+            message="m",
+            remediation="r",
         )
         decision, _ = scanner._decide(
             findings=[high],
@@ -179,9 +175,7 @@ class TestSecurityKeywords:
         from AgentGuard.security.library import SecurityKeywords
 
         kw = SecurityKeywords()
-        report = kw.skill_should_pass_security_scan(
-            FIXTURES / "clean-skill", allow_unsigned=True, max_severity="HIGH"
-        )
+        report = kw.skill_should_pass_security_scan(FIXTURES / "clean-skill", allow_unsigned=True, max_severity="HIGH")
         assert isinstance(report, SkillSecurityReport)
 
     def test_skill_should_pass_security_scan_critical_raises(self, tmp_path: Path) -> None:

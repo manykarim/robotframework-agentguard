@@ -154,9 +154,7 @@ def test_bfcl_score_raises_on_empty(kw: ToolCallKeywords) -> None:
 
 
 def test_bfcl_score_raises_on_invalid_threshold(kw: ToolCallKeywords) -> None:
-    case = BFCLCase(
-        case_id="x", prompt="", tools=[], expected=[], category="simple"
-    )
+    case = BFCLCase(case_id="x", prompt="", tools=[], expected=[], category="simple")
     pred = Prediction(case=case, actual=[])
     with pytest.raises(ValueError, match="threshold"):
         kw.bfcl_score_should_be_above([pred], threshold=1.5)

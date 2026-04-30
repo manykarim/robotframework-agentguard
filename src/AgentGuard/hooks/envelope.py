@@ -80,9 +80,7 @@ def synthesize_envelope(event: str | HookEvent, **fields: Any) -> dict[str, Any]
 
     envelope: dict[str, Any] = {
         "session_id": fields.pop("session_id", str(uuid.uuid4())),
-        "transcript_path": fields.pop(
-            "transcript_path", _default_transcript_path()
-        ),
+        "transcript_path": fields.pop("transcript_path", _default_transcript_path()),
         "cwd": fields.pop("cwd", os.getcwd()),
         "hook_event_name": ev.value,
     }

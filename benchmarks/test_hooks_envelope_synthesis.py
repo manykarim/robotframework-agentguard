@@ -92,9 +92,7 @@ def test_hooks_envelope_synthesis_12x100(benchmark: Any) -> None:
         iterations=1,
         warmup_rounds=2,
     )
-    assert result == envelopes_per_round, (
-        f"expected {envelopes_per_round} envelopes built, got {result}"
-    )
+    assert result == envelopes_per_round, f"expected {envelopes_per_round} envelopes built, got {result}"
 
     mean_round_s = float(benchmark.stats.stats.mean)
     mean_per_env_ms = (mean_round_s * 1000.0) / envelopes_per_round

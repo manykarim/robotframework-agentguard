@@ -22,7 +22,11 @@ import pytest
 try:
     from AgentGuard.coding_agent.drivers import (
         aider as aider_mod,
+    )
+    from AgentGuard.coding_agent.drivers import (
         claude_code as claude_mod,
+    )
+    from AgentGuard.coding_agent.drivers import (
         codex as codex_mod,
     )
     from AgentGuard.coding_agent.drivers.base import CodingAgentDriver, DriverConfig
@@ -85,9 +89,7 @@ def _binary_missing(name: str) -> bool:
         (aider_mod.AiderDriver, "aider"),
     ],
 )
-def test_run_raises_driver_unavailable_when_binary_missing(
-    driver_cls: type[Any], binary: str
-) -> None:
+def test_run_raises_driver_unavailable_when_binary_missing(driver_cls: type[Any], binary: str) -> None:
     if not _binary_missing(binary):
         pytest.skip(f"{binary} present on PATH; cannot test missing-binary path")
     drv = driver_cls()

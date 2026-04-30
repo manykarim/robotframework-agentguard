@@ -44,9 +44,7 @@ def test_default_max_output_bytes_constant() -> None:
 
 
 def test_sandbox_result_dataclass() -> None:
-    res = SandboxResult(
-        exit_code=0, stdout="ok", stderr="", duration_ms=1.0, backend="process"
-    )
+    res = SandboxResult(exit_code=0, stdout="ok", stderr="", duration_ms=1.0, backend="process")
     assert res.exit_code == 0
     assert res.image is None
     assert res.truncated is False

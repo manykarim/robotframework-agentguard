@@ -20,7 +20,6 @@ from AgentGuard.stats.pass_at_k import pass_at_k
 from AgentGuard.stats.tar import tar_a, tar_r
 from AgentGuard.stats.vargha_delaney import vargha_delaney_a12
 
-
 # ---------------------------------------------------------------------------
 # Cliff's delta
 # ---------------------------------------------------------------------------

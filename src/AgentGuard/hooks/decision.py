@@ -91,9 +91,7 @@ def parse_decision(stdout: str, exit_code: int) -> HookDecision:
     return HookDecision(
         decision=decision,
         reason=reason_val,
-        permission_decision=(
-            permission_val.lower() if isinstance(permission_val, str) else None
-        ),
+        permission_decision=(permission_val.lower() if isinstance(permission_val, str) else None),
         additional_context=context_val,
         modified_tool_input=modified_input,
         raw=payload,

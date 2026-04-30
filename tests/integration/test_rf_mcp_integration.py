@@ -78,9 +78,7 @@ def test_in_memory_connect_lists_tools(kw: MCPKeywords, rf_mcp_server: Any) -> N
         "get_session_state",
     ],
 )
-def test_documented_tool_is_present(
-    kw: MCPKeywords, rf_mcp_server: Any, expected: str
-) -> None:
+def test_documented_tool_is_present(kw: MCPKeywords, rf_mcp_server: Any, expected: str) -> None:
     handle = kw.connect_to_mcp_server(rf_mcp_server, transport="memory")
     try:
         names = {t["name"] for t in kw.list_mcp_tools(handle)}
@@ -118,15 +116,11 @@ def test_find_keywords_returns_results(kw: MCPKeywords, rf_mcp_server: Any) -> N
         kw.stop_mcp_server(handle)
 
 
-def test_in_memory_latency_within_budget(
-    kw: MCPKeywords, rf_mcp_server: Any
-) -> None:
+def test_in_memory_latency_within_budget(kw: MCPKeywords, rf_mcp_server: Any) -> None:
     handle = kw.connect_to_mcp_server(rf_mcp_server, transport="memory")
     try:
         # Tool with the smallest payload — `find_keywords` is acceptable.
-        stats = kw.measure_mcp_tool_latency(
-            handle, "find_keywords", runs=10, arguments={"query": "x"}
-        )
+        stats = kw.measure_mcp_tool_latency(handle, "find_keywords", runs=10, arguments={"query": "x"})
         # rf-mcp does heavier work than the trivial echo fixture so we relax the budget
         # vs the in-memory baseline (5 ms): allow 250 ms p50 for find_keywords.
         assert stats["p50"] < 250, stats

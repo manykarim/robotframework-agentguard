@@ -29,13 +29,8 @@ def get_backend(name: str) -> SandboxBackend:
     """Instantiate the named backend; raise ``SandboxUnavailable`` if unusable."""
     cls = BACKENDS.get(name)
     if cls is None:
-        raise SandboxUnavailable(
-            f"Unknown sandbox backend {name!r}; "
-            f"known: {sorted(BACKENDS.keys())}"
-        )
+        raise SandboxUnavailable(f"Unknown sandbox backend {name!r}; known: {sorted(BACKENDS.keys())}")
     backend = cls()
     if not backend.is_available():
-        raise SandboxUnavailable(
-            f"Sandbox backend {name!r} is not available on this host."
-        )
+        raise SandboxUnavailable(f"Sandbox backend {name!r} is not available on this host.")
     return backend

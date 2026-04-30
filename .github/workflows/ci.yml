@@ -105,11 +105,12 @@ jobs:
       - name: robot tests/acceptance
         run: |
           if [ -d tests/acceptance ]; then
-            PYTHONPATH=. uv run robot --exclude live --outputdir _robot_out tests/acceptance/
+            # Exclude `docker` (no DinD on the runner) and `live` (requires API key).
+            PYTHONPATH=. uv run robot --exclude live --exclude docker --outputdir _robot_out tests/acceptance/
           fi
       - name: robot examples (Phase-1+2+3 + integrations)
         run: |
-          PYTHONPATH=. uv run robot --exclude live --outputdir _robot_out examples/
+          PYTHONPATH=. uv run robot --exclude live --exclude docker --outputdir _robot_out examples/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -119,10 +120,12 @@ jobs:
 
   test-live:
     name: live (real OpenRouter LLM)
-    # Run on push to main AND on PRs from same-repo branches (forks have no
-    # secret access by GitHub policy).
+    # Run on push to main, PRs from same-repo branches (forks have no secret
+    # access per GitHub policy), and any manual `workflow_dispatch` trigger so
+    # we can dry-run the live suite on a feature branch before opening a PR.
     if: |
       github.event_name == 'push'
+      || github.event_name == 'workflow_dispatch'
       || (github.event_name == 'pull_request'
           && github.event.pull_request.head.repo.fork == false)
     runs-on: ubuntu-latest

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
 
 import pytest
 
@@ -17,7 +16,6 @@ from AgentGuard.subagents.exceptions import (
 from AgentGuard.subagents.library import SubAgentsKeywords
 from AgentGuard.subagents.types import (
     AgentCard,
-    AgentInterface,
     AgentSkill,
     Task,
     TaskStatus,
@@ -76,11 +74,13 @@ def test_validate_agent_card_missing_url_and_interfaces_raises(kw: SubAgentsKeyw
 
 def test_validate_agent_card_skill_missing_id(kw: SubAgentsKeywords) -> None:
     with pytest.raises(AgentCardInvalid, match="skill"):
-        kw.validate_agent_card({
-            "name": "x",
-            "url": "inproc://x",
-            "skills": [{"name": "s"}],  # missing id
-        })
+        kw.validate_agent_card(
+            {
+                "name": "x",
+                "url": "inproc://x",
+                "skills": [{"name": "s"}],  # missing id
+            }
+        )
 
 
 def test_validate_agent_card_bad_input_type(kw: SubAgentsKeywords) -> None:

@@ -28,9 +28,7 @@ def score_from_labels(labels: dict[str, str], rubric: Rubric) -> float:
 
 def build_pairwise_prompt(a: str, b: str, rubric: Rubric) -> str:
     """Build the pairwise-comparison judge prompt."""
-    criteria_block = "\n".join(
-        f"- {c.name}: {c.description}" for c in rubric.criteria
-    )
+    criteria_block = "\n".join(f"- {c.name}: {c.description}" for c in rubric.criteria)
     return (
         "You are an impartial pairwise judge. Compare RESPONSE_A and RESPONSE_B "
         "against the rubric below; reason briefly, then on the LAST line output "

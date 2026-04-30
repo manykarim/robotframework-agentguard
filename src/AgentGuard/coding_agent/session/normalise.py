@@ -99,12 +99,8 @@ def extract_usage(message: dict[str, Any] | None) -> Usage:
     if not isinstance(usage, dict):
         return Usage()
     return Usage(
-        prompt_tokens=int(
-            usage.get("input_tokens") or usage.get("prompt_tokens") or 0
-        ),
-        completion_tokens=int(
-            usage.get("output_tokens") or usage.get("completion_tokens") or 0
-        ),
+        prompt_tokens=int(usage.get("input_tokens") or usage.get("prompt_tokens") or 0),
+        completion_tokens=int(usage.get("output_tokens") or usage.get("completion_tokens") or 0),
         cache_read_tokens=int(usage.get("cache_read_input_tokens") or 0),
         cache_write_tokens=int(usage.get("cache_creation_input_tokens") or 0),
         cost_usd=_safe_float(usage.get("cost_usd")),

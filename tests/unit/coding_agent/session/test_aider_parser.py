@@ -59,10 +59,7 @@ def test_parse_marks_low_or_medium_confidence(tmp_path: Path) -> None:
 
 
 def test_parse_respects_max_lines(tmp_path: Path) -> None:
-    md = "\n".join(
-        ["# aider chat started at 2026-04-29T10:00:00Z"]
-        + [f"#### prompt {i}" for i in range(20)]
-    )
+    md = "\n".join(["# aider chat started at 2026-04-29T10:00:00Z"] + [f"#### prompt {i}" for i in range(20)])
     p = tmp_path / "h.md"
     p.write_text(md)
     s_full = parse(p)

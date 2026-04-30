@@ -87,9 +87,7 @@ def cohens_kappa(predicted: Sequence[str], human: Sequence[str]) -> float:
       return ``1.0`` by convention (perfect, trivial agreement).
     """
     if len(predicted) != len(human):
-        raise ValueError(
-            f"cohens_kappa requires equal-length inputs (got {len(predicted)} vs {len(human)})."
-        )
+        raise ValueError(f"cohens_kappa requires equal-length inputs (got {len(predicted)} vs {len(human)}).")
     n = len(predicted)
     if n == 0:
         raise ValueError("cohens_kappa requires at least one item.")
@@ -168,12 +166,7 @@ def krippendorff_alpha(
 
     # Disagreement (nominal): D_o = Σ_{a≠b} o_ab; D_e = (Σ n_a · n_b for a≠b) / (n − 1)
     d_o = sum(c for (a, b), c in coincidences.items() if a != b)
-    d_e_num = sum(
-        value_totals[a] * value_totals[b]
-        for a in value_totals
-        for b in value_totals
-        if a != b
-    )
+    d_e_num = sum(value_totals[a] * value_totals[b] for a in value_totals for b in value_totals if a != b)
     d_e = d_e_num / (n - 1)
 
     if d_e == 0:

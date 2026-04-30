@@ -7,7 +7,7 @@ metrics or driver agent that depends on an attribute name can rely on it.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -106,7 +106,7 @@ def test_thinking_block_carries_signature_length() -> None:
 
 
 def test_interrupt_accepts_only_timestamp() -> None:
-    iv = Interrupt(timestamp=datetime.now(tz=timezone.utc))
+    iv = Interrupt(timestamp=datetime.now(tz=UTC))
     assert iv.reason is None
 
 
@@ -168,9 +168,7 @@ def test_session_text_skips_tool_use_blocks() -> None:
     # (User asked the assistant to "read x.py" so the literal substring is
     # present in the user message, but the assistant's tool_use block must
     # not contribute its name field.)
-    assistant_only = "\n".join(
-        c if isinstance(c, str) else "" for c in (out,)
-    )
+    assistant_only = "\n".join(c if isinstance(c, str) else "" for c in (out,))
     assert "tool_use" not in assistant_only
 
 

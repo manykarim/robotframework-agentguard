@@ -85,10 +85,7 @@ def resolve_driver(name: str, provider: Any | None) -> CodingAgentDriver:
     except ImportError:  # pragma: no cover - drivers always shipped Phase-3
         pass
     if name != "local":
-        raise RuntimeError(
-            f"Driver factory not available; only 'local' is wired in this build "
-            f"(requested {name!r})."
-        )
+        raise RuntimeError(f"Driver factory not available; only 'local' is wired in this build (requested {name!r}).")
     from AgentGuard.coding_agent.drivers.local import LocalDriver
 
     return LocalDriver(provider=provider)
@@ -107,9 +104,7 @@ def _run_subprocess_python(
     timeout: int = EXEC_TIMEOUT,
 ) -> tuple[bool, str]:
     """Run ``code`` in a subprocess; return ``(ok, stdout-or-stderr)``."""
-    with tempfile.NamedTemporaryFile(
-        "w", suffix=".py", delete=False, encoding="utf-8"
-    ) as tmp:
+    with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False, encoding="utf-8") as tmp:
         tmp.write(code)
         path = tmp.name
     try:
@@ -136,10 +131,7 @@ def humaneval_validate(candidate_code: str, task: Task) -> tuple[bool, str]:
     entry = str(task.metadata.get("entry_point") or "")
     if not test or not entry:
         return False, "missing test or entry_point in fixture metadata"
-    program = (
-        f"{candidate_code}\n\n{test}\n\n"
-        f"check({entry})\nprint('AGENTGUARD_OK')\n"
-    )
+    program = f"{candidate_code}\n\n{test}\n\ncheck({entry})\nprint('AGENTGUARD_OK')\n"
     return _run_subprocess_python(program)
 
 
@@ -160,17 +152,13 @@ def aider_validate(candidate_code: str, task: Task) -> tuple[bool, str]:
     entry = str(task.metadata.get("entry_point") or "")
     if not test or not entry:
         return False, "missing test or entry_point in fixture metadata"
-    program = (
-        f"{candidate_code}\n\n{test}\n\ncheck({entry})\nprint('AGENTGUARD_OK')\n"
-    )
+    program = f"{candidate_code}\n\n{test}\n\ncheck({entry})\nprint('AGENTGUARD_OK')\n"
     return _run_subprocess_python(program)
 
 
 def lcb_validate(candidate_code: str, task: Task) -> tuple[bool, str]:
     """Run all public+private LCB test cases (stdin/stdout)."""
-    cases = list(task.metadata.get("public_test_cases") or []) + list(
-        task.metadata.get("private_test_cases") or []
-    )
+    cases = list(task.metadata.get("public_test_cases") or []) + list(task.metadata.get("private_test_cases") or [])
     if not cases:
         return False, "no test cases in fixture metadata"
     for idx, case in enumerate(cases):
@@ -196,11 +184,7 @@ def swe_bench_plausibility(text: str) -> tuple[bool, str]:
     under Docker; for now we approximate "made a non-trivial attempt" with a
     diff-format check so the keyword surface is exercisable in CI.
     """
-    looks_like_diff = (
-        "diff --git" in text
-        or text.lstrip().startswith("--- ")
-        or text.lstrip().startswith("+++ ")
-    )
+    looks_like_diff = "diff --git" in text or text.lstrip().startswith("--- ") or text.lstrip().startswith("+++ ")
     if looks_like_diff:
         return True, "plausible diff emitted (Phase-3 scorer)"
     return False, "no diff in agent output (Phase-3 scorer)"
@@ -222,9 +206,7 @@ def make_run_result(
         diff=diff,
         test_output=test_output,
         cost_usd=getattr(driver_result, "cost_usd", None) if driver_result else None,
-        session_jsonl_path=(
-            getattr(driver_result, "jsonl_path", None) if driver_result else None
-        ),
+        session_jsonl_path=(getattr(driver_result, "jsonl_path", None) if driver_result else None),
     )
 
 

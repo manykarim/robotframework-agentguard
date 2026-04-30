@@ -58,10 +58,7 @@ def _maybe_skip_capdrop_unsupported(stderr: str) -> None:
     behaviour when the runtime can support it.
     """
     if "operation not permitted" in stderr:
-        pytest.skip(
-            "host kernel/runtime refuses exec under cap-drop=ALL "
-            "(this is the documented hardened posture)"
-        )
+        pytest.skip("host kernel/runtime refuses exec under cap-drop=ALL (this is the documented hardened posture)")
 
 
 def test_docker_backend_echo_hello(docker_backend: DockerBackend) -> None:
@@ -92,9 +89,6 @@ def test_docker_backend_via_registry() -> None:
 
 def test_docker_backend_nonzero_exit(docker_backend: DockerBackend) -> None:
     policy = SandboxPolicy(allow_code_execution=True)
-    result = docker_backend.run(
-        policy, ["python", "-c", "import sys; sys.exit(7)"]
-    )
+    result = docker_backend.run(policy, ["python", "-c", "import sys; sys.exit(7)"])
     _maybe_skip_capdrop_unsupported(result.stderr)
     assert result.exit_code == 7
-

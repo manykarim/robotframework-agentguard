@@ -109,9 +109,7 @@ def match_sequence(
     if not wildcards:
         if len(actual_norm) != len(expected_seq):
             return False
-        return all(
-            _matches_expected(a, e, wildcards=False) for a, e in zip(actual_norm, expected_seq, strict=False)
-        )
+        return all(_matches_expected(a, e, wildcards=False) for a, e in zip(actual_norm, expected_seq, strict=False))
 
     # Subsequence walk with wildcard support.
     i = 0

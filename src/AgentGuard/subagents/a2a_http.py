@@ -31,9 +31,7 @@ def import_sdk() -> tuple[Any, Any]:
         import a2a.client as a2a_client
         import a2a.types as a2a_types
     except ImportError as exc:  # pragma: no cover
-        raise TransportError(
-            "a2a-sdk is not installed; pip install 'a2a-sdk>=1.0.2'"
-        ) from exc
+        raise TransportError("a2a-sdk is not installed; pip install 'a2a-sdk>=1.0.2'") from exc
     return a2a_client, a2a_types
 
 
@@ -56,9 +54,7 @@ def fetch_http_card(url: str, *, timeout: float) -> AgentCard:
                     relative_card_path=relative_path,
                 )
             except Exception as exc:
-                raise TransportError(
-                    f"failed to fetch agent card from {url!r}: {exc}"
-                ) from exc
+                raise TransportError(f"failed to fetch agent card from {url!r}: {exc}") from exc
         from AgentGuard.subagents.types_pb import from_pb_card
 
         return from_pb_card(pb_card)
@@ -126,9 +122,7 @@ def http_wait_for_completion(
         deadline = asyncio.get_event_loop().time() + timeout
         while True:
             try:
-                pb_task = await client.get_task(
-                    a2a_types.GetTaskRequest(name=task.id)
-                )
+                pb_task = await client.get_task(a2a_types.GetTaskRequest(name=task.id))
             except Exception as exc:  # noqa: BLE001
                 raise TransportError(f"get_task failed: {exc}") from exc
             from AgentGuard.subagents.types_pb import from_pb_task
@@ -142,8 +136,7 @@ def http_wait_for_completion(
                 return task
             if asyncio.get_event_loop().time() > deadline:
                 raise TaskTimeout(
-                    f"task {task.id} did not complete within {timeout}s "
-                    f"(last status: {task.status.value})",
+                    f"task {task.id} did not complete within {timeout}s (last status: {task.status.value})",
                     task=task,
                 )
             await asyncio.sleep(poll_interval)
@@ -180,9 +173,7 @@ async def ensure_sdk_client(handle: A2AClientHandle) -> Any:
     try:
         client = await a2a_client_mod.create_client(handle.url)
     except Exception as exc:  # noqa: BLE001
-        raise TransportError(
-            f"could not create a2a-sdk client for {handle.url!r}: {exc}"
-        ) from exc
+        raise TransportError(f"could not create a2a-sdk client for {handle.url!r}: {exc}") from exc
     handle.sdk_client = client
     return client
 

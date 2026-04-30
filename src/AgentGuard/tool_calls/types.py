@@ -10,9 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
-JSON = (
-    str | int | float | bool | None | list["JSON"] | dict[str, "JSON"]
-)
+JSON = str | int | float | bool | None | list["JSON"] | dict[str, "JSON"]
 """Recursive JSON-compatible value type used by tool arguments."""
 
 MatchMode = Literal["strict", "ast", "semantic"]

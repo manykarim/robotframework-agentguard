@@ -52,9 +52,7 @@ HOOK_LIFECYCLE_TYPES: frozenset[str] = frozenset(
 )
 
 # Permission modes that signal an interrupt-like state.
-INTERRUPT_PERMISSION_MODES: frozenset[str] = frozenset(
-    {"stopped", "denied", "cancelled", "interrupted"}
-)
+INTERRUPT_PERMISSION_MODES: frozenset[str] = frozenset({"stopped", "denied", "cancelled", "interrupted"})
 
 INTERRUPT_TEXT_MARKER = "[Request interrupted by user]"
 
@@ -69,9 +67,7 @@ def build_tool_call(part: dict[str, Any], ts: datetime | None) -> ToolCall:
     )
 
 
-def build_thinking_block(
-    part: dict[str, Any], ts: datetime | None
-) -> ThinkingBlock:
+def build_thinking_block(part: dict[str, Any], ts: datetime | None) -> ThinkingBlock:
     """Construct a :class:`ThinkingBlock`. Captures ``signature_length``
     via the ``signature`` field, falling back to the text length when the
     signature is absent (older Claude Code versions)."""
@@ -87,9 +83,7 @@ def build_thinking_block(
     )
 
 
-def build_tool_response(
-    tool_call_id: str, result: Any, ts: datetime | None
-) -> ToolResponse:
+def build_tool_response(tool_call_id: str, result: Any, ts: datetime | None) -> ToolResponse:
     """Construct a :class:`ToolResponse` from a paired ``toolUseResult``
     payload. Handles both dict and bare-string content."""
     is_error = False
@@ -116,16 +110,12 @@ def interrupt_from_text(text: str, ts: datetime | None) -> Interrupt | None:
     return None
 
 
-def build_user_message(
-    content: str | list[Any], ts: datetime | None
-) -> Message:
+def build_user_message(content: str | list[Any], ts: datetime | None) -> Message:
     """Construct a user :class:`Message`, normalising content shape."""
     return Message(role="user", content=coerce_content(content), timestamp=ts)
 
 
-def build_simple_message(
-    role: str, content: str | list[Any], ts: datetime | None
-) -> Message:
+def build_simple_message(role: str, content: str | list[Any], ts: datetime | None) -> Message:
     """Construct a non-assistant :class:`Message` (system, tool)."""
     return Message(role=role, content=coerce_content(content), timestamp=ts)
 
@@ -146,8 +136,6 @@ def hook_event_decision(record: dict[str, Any]) -> str | None:
     return None
 
 
-def make_hook_event(
-    rtype: str, record: dict[str, Any], ts: datetime | None
-) -> HookEvent:
+def make_hook_event(rtype: str, record: dict[str, Any], ts: datetime | None) -> HookEvent:
     """Build a :class:`HookEvent` from a lifecycle-typed record."""
     return HookEvent(event=rtype, decision=hook_event_decision(record), timestamp=ts)

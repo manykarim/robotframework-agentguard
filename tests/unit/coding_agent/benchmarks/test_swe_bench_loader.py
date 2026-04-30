@@ -48,6 +48,7 @@ def test_fixture_tasks_have_test_command() -> None:
     Some live HF rows omit ``test_cmd``; we only assert this for fixture mode.
     """
     import json
+
     raw = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
     assert any(row.get("test_cmd") for row in raw)
 

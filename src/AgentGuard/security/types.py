@@ -83,9 +83,7 @@ class SkillSecurityReport:
     decision_reason: str = ""
     scanned_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     scanner_version: str = "phase1"
-    signature_status: Literal[
-        "valid", "invalid", "missing", "expired", "untrusted_root", "stub"
-    ] = "stub"
+    signature_status: Literal["valid", "invalid", "missing", "expired", "untrusted_root", "stub"] = "stub"
 
     @property
     def counts(self) -> dict[str, int]:
@@ -130,9 +128,7 @@ class SkillSecurityError(SecurityError):
 
     def __init__(self, report: SkillSecurityReport) -> None:
         self.report = report
-        super().__init__(
-            f"Skill {report.skill_name!r} failed security scan: {report.decision_reason}"
-        )
+        super().__init__(f"Skill {report.skill_name!r} failed security scan: {report.decision_reason}")
 
 
 class SandboxUnavailable(SecurityError):

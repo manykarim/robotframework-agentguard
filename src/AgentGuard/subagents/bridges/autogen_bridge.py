@@ -67,9 +67,7 @@ class AutoGenBridge:
         for participant in participants:
             agent_name = getattr(participant, "name", None) or type(participant).__name__
             agent_description = (
-                getattr(participant, "description", None)
-                or getattr(participant, "system_message", "")
-                or ""
+                getattr(participant, "description", None) or getattr(participant, "system_message", "") or ""
             )
             skills.append(
                 make_agent_skill(

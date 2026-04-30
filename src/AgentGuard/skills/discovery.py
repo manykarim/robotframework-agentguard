@@ -144,11 +144,7 @@ def discover(
                 )
                 logger.warning(warning_lines[-1])
                 continue
-            if (
-                enforce_allowlist
-                and not trusted
-                and not allowlist
-            ):
+            if enforce_allowlist and not trusted and not allowlist:
                 warning_lines.append(
                     f"third-party skill '{skill.name}' at {skill_dir} loaded without "
                     f"{ALLOWLIST_FILENAME} (ADR-006 — security agent will scan)"

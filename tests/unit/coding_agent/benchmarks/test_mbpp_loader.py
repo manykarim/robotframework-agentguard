@@ -44,10 +44,7 @@ def test_score_empty_returns_zero() -> None:
 
 
 def test_score_all_pass() -> None:
-    results = [
-        RunResult(task_id=f"mbpp/{i}", passed=True, duration_seconds=0.1)
-        for i in range(2)
-    ]
+    results = [RunResult(task_id=f"mbpp/{i}", passed=True, duration_seconds=0.1) for i in range(2)]
     out = MBPPLoader.score(results)
     assert out["pass_rate"] == pytest.approx(1.0)
 

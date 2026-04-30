@@ -107,9 +107,7 @@ def test_mbpp_validate_fails_with_no_tests() -> None:
 
 
 def test_swe_bench_plausibility_detects_diff() -> None:
-    ok, _ = runner.swe_bench_plausibility(
-        "diff --git a/foo.py b/foo.py\n--- a/foo.py\n+++ b/foo.py\n"
-    )
+    ok, _ = runner.swe_bench_plausibility("diff --git a/foo.py b/foo.py\n--- a/foo.py\n+++ b/foo.py\n")
     assert ok is True
 
 
@@ -148,9 +146,7 @@ def test_coerce_task_builds_from_dict() -> None:
 
 def test_make_run_result_builds_with_no_driver() -> None:
     t = Task(id="x", prompt="")
-    r = runner.make_run_result(
-        t, passed=True, duration_s=0.1, diff=None, test_output="ok", driver_result=None
-    )
+    r = runner.make_run_result(t, passed=True, duration_s=0.1, diff=None, test_output="ok", driver_result=None)
     assert r.task_id == "x"
     assert r.passed is True
     assert r.cost_usd is None

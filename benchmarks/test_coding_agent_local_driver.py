@@ -54,9 +54,7 @@ def _build_mock_provider() -> Any:
 
 
 @pytest.mark.benchmark(group="coding-agent-driver")
-def test_local_driver_5turn_mock_budget(
-    benchmark: Any, tmp_path: Path
-) -> None:
+def test_local_driver_5turn_mock_budget(benchmark: Any, tmp_path: Path) -> None:
     """LocalDriver 5-turn run + JSONL parse — total ≤ 1 s."""
     try:
         from AgentGuard.coding_agent.drivers.base import DriverConfig
@@ -85,9 +83,7 @@ def test_local_driver_5turn_mock_budget(
             return 0
         return len(sess.messages)
 
-    nmsgs = benchmark.pedantic(
-        _run_once, rounds=3, iterations=1, warmup_rounds=1
-    )
+    nmsgs = benchmark.pedantic(_run_once, rounds=3, iterations=1, warmup_rounds=1)
     assert nmsgs > 0, "LocalDriver produced no parsed messages"
 
     mean_s = float(benchmark.stats.stats.mean)

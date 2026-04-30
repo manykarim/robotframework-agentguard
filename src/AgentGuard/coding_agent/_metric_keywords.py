@@ -26,6 +26,7 @@ class _MetricKeywordsMixin:
     # The helpers below are injected by ``library.py`` (same module) so we do
     # not create an import cycle. Type stubs only:
     if TYPE_CHECKING:  # pragma: no cover
+
         @staticmethod
         def _value(session: Session, key: str) -> float: ...
 
@@ -131,7 +132,9 @@ class _MetricKeywordsMixin:
     @keyword(name="Self Admitted Errors Per 1K Should Be Below")
     def self_admitted_errors_per_1k_should_be_below(self, session: Session, threshold: float = 0.2) -> float:
         v = self.self_admitted_errors_per_1k(session)
-        return self._assert(metric="self_admitted_errors_per_1k", value=v, threshold=float(threshold), direction="below")
+        return self._assert(
+            metric="self_admitted_errors_per_1k", value=v, threshold=float(threshold), direction="below"
+        )
 
     # ---- Write / repeat / simplest (6 keywords) -------------------------
     @keyword(name="Write Mutation Ratio")

@@ -133,7 +133,7 @@ class OTelListener:
     def _render_html(payload: dict[str, Any]) -> str:
         body = json.dumps(payload, default=str, indent=2, sort_keys=True)
         return (
-            '<details><summary>AgentGuard OTel spans</summary>'
+            "<details><summary>AgentGuard OTel spans</summary>"
             f'<pre style="white-space:pre-wrap">{escape(body)}</pre>'
             "</details>"
         )

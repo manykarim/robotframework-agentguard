@@ -99,9 +99,7 @@ def test_codex_invalid_arguments_falls_back_to_raw(tmp_path: Path) -> None:
             {
                 "role": "assistant",
                 "session_id": "s1",
-                "tool_calls": [
-                    {"id": "c1", "function": {"name": "f", "arguments": "not-json"}}
-                ],
+                "tool_calls": [{"id": "c1", "function": {"name": "f", "arguments": "not-json"}}],
             }
         ],
     )
@@ -129,12 +127,7 @@ def test_codex_unknown_id_returns_unknown(tmp_path: Path) -> None:
 
 def test_codex_skips_non_dict_records(tmp_path: Path) -> None:
     p = tmp_path / "weird.jsonl"
-    p.write_text(
-        json.dumps({"role": "user", "content": "ok", "session_id": "s"})
-        + "\n"
-        + json.dumps([1, 2])
-        + "\n"
-    )
+    p.write_text(json.dumps({"role": "user", "content": "ok", "session_id": "s"}) + "\n" + json.dumps([1, 2]) + "\n")
     s = codex.parse(p)
     assert s.id == "s"
 
@@ -203,10 +196,7 @@ def test_opencode_records_top_level_keys(tmp_path: Path) -> None:
 def test_opencode_skips_non_dict(tmp_path: Path) -> None:
     p = tmp_path / "weird.jsonl"
     p.write_text(
-        json.dumps({"role": "user", "content": "ok", "session_id": "s"})
-        + "\n"
-        + json.dumps("string-line")
-        + "\n"
+        json.dumps({"role": "user", "content": "ok", "session_id": "s"}) + "\n" + json.dumps("string-line") + "\n"
     )
     s = opencode.parse(p)
     assert s.id == "s"

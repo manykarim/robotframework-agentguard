@@ -97,9 +97,7 @@ def _enumerate_dir(root: Path, name: str) -> list[Path]:
     return sorted(p for p in sub.rglob("*") if p.is_file())
 
 
-def parse_skill_text(
-    text: str, *, source_path: Path | None = None, source_tool: str = "unknown"
-) -> Skill:
+def parse_skill_text(text: str, *, source_path: Path | None = None, source_tool: str = "unknown") -> Skill:
     """Parse a SKILL.md ``text`` blob into a :class:`Skill`. No filesystem reads."""
     fm_text, body = _split_frontmatter(text)
     try:
@@ -111,9 +109,7 @@ def parse_skill_text(
 
     missing = [k for k in _REQUIRED_KEYS if k not in loaded or loaded[k] in (None, "")]
     if missing:
-        raise SkillParseError(
-            f"SKILL.md missing required frontmatter keys: {', '.join(missing)}"
-        )
+        raise SkillParseError(f"SKILL.md missing required frontmatter keys: {', '.join(missing)}")
 
     name = str(loaded["name"]).strip()
     description = str(loaded["description"]).strip()
@@ -146,9 +142,7 @@ def _coerce_allowed_tools(raw: Any) -> list[str]:
         return [item.strip() for item in raw.split(",") if item.strip()]
     if isinstance(raw, list) and all(isinstance(item, str) for item in raw):
         return [item.strip() for item in raw if item.strip()]
-    raise SkillParseError(
-        "frontmatter 'allowed-tools' must be a list of strings or a comma-separated string"
-    )
+    raise SkillParseError("frontmatter 'allowed-tools' must be a list of strings or a comma-separated string")
 
 
 def parse_skill(path: str | Path, *, source_tool: str = "unknown") -> Skill:
@@ -182,13 +176,9 @@ def validate_skill(skill: Skill) -> None:
     if not skill.name:
         raise SkillParseError("skill 'name' is empty")
     if not SKILL_NAME_RE.match(skill.name):
-        raise SkillParseError(
-            f"skill name '{skill.name}' violates regex {SKILL_NAME_RE.pattern}"
-        )
+        raise SkillParseError(f"skill name '{skill.name}' violates regex {SKILL_NAME_RE.pattern}")
     if not skill.description.strip():
         raise SkillParseError("skill 'description' is empty")
     for tool in skill.allowed_tools:
         if not isinstance(tool, str) or not tool.strip():
-            raise SkillParseError(
-                f"allowed-tools entries must be non-empty strings; got {tool!r}"
-            )
+            raise SkillParseError(f"allowed-tools entries must be non-empty strings; got {tool!r}")

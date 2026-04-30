@@ -40,9 +40,7 @@ def load_calibration_set(
                 CalibrationSample(
                     input=str(obj.get("input", "")),
                     response=str(obj.get("response", "")),
-                    human_label={
-                        k: str(v) for k, v in (obj.get("human_label") or {}).items()
-                    },
+                    human_label={k: str(v) for k, v in (obj.get("human_label") or {}).items()},
                     metadata=obj.get("metadata") or {},
                 )
             )
@@ -53,10 +51,7 @@ def load_calibration_set(
 def fingerprint_samples(samples: Sequence[CalibrationSample]) -> str:
     """Stable SHA-256 of the calibration set (for cache keys)."""
     payload = json.dumps(
-        [
-            {"input": s.input, "response": s.response, "human_label": s.human_label}
-            for s in samples
-        ],
+        [{"input": s.input, "response": s.response, "human_label": s.human_label} for s in samples],
         sort_keys=True,
     )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
@@ -68,9 +63,7 @@ def infer_rubric_from_samples(samples: Sequence[CalibrationSample]) -> Rubric:
         raise ValueError("Cannot infer rubric from empty calibration set.")
     seed = samples[0].human_label
     if not seed:
-        raise ValueError(
-            "First calibration sample has no human_label; pass `rubric=` explicitly."
-        )
+        raise ValueError("First calibration sample has no human_label; pass `rubric=` explicitly.")
     label_values: dict[str, set[str]] = {k: set() for k in seed}
     for s in samples:
         for k, v in s.human_label.items():
@@ -79,10 +72,7 @@ def infer_rubric_from_samples(samples: Sequence[CalibrationSample]) -> Rubric:
         Criterion(
             name=cname,
             description="(inferred from calibration set)",
-            labels=tuple(
-                Label(value=v, description=v, score=label_score_heuristic(v))
-                for v in sorted(values)
-            ),
+            labels=tuple(Label(value=v, description=v, score=label_score_heuristic(v)) for v in sorted(values)),
         )
         for cname, values in label_values.items()
     )
@@ -116,13 +106,9 @@ def aggregate_calibration(
             if pred and ref and pred == ref:
                 n_agree += 1
     per_criterion = {
-        cname: cohens_kappa(pred_vals, human[cname])
-        for cname, pred_vals in predicted.items()
-        if any(human[cname])
+        cname: cohens_kappa(pred_vals, human[cname]) for cname, pred_vals in predicted.items() if any(human[cname])
     }
-    overall = (
-        statistics.fmean(per_criterion.values()) if per_criterion else 0.0
-    )
+    overall = statistics.fmean(per_criterion.values()) if per_criterion else 0.0
     return overall, per_criterion, n_agree
 
 
@@ -135,9 +121,7 @@ def build_calibration_report(
     record_only: bool,
 ) -> CalibrationReport:
     """Aggregate judge predictions into a persistable :class:`CalibrationReport`."""
-    overall_kappa, per_criterion_kappa, n_agree = aggregate_calibration(
-        judgments, samples, rubric
-    )
+    overall_kappa, per_criterion_kappa, n_agree = aggregate_calibration(judgments, samples, rubric)
     return CalibrationReport(
         model=model,
         rubric_fingerprint=rubric.fingerprint(),
@@ -162,9 +146,7 @@ def call_provider_with_retry(
     """Single-prompt call against ``provider`` with rate-limit backoff."""
     if provider is None:
         if mock_response is None:
-            raise RuntimeError(
-                "JudgeKeywords has no provider; pass `mock_response=` for offline tests."
-            )
+            raise RuntimeError("JudgeKeywords has no provider; pass `mock_response=` for offline tests.")
         return mock_response
     from AgentGuard.providers.base import RateLimitError  # lazy import
 
@@ -183,10 +165,7 @@ def call_provider_with_retry(
         except RateLimitError as exc:
             last_exc = exc
             backoff = 2**attempt
-            logger.warn(
-                f"Judge call hit rate limit (attempt {attempt + 1}); "
-                f"backing off {backoff}s."
-            )
+            logger.warn(f"Judge call hit rate limit (attempt {attempt + 1}); backing off {backoff}s.")
             time.sleep(backoff)
     assert last_exc is not None  # for mypy
     raise last_exc

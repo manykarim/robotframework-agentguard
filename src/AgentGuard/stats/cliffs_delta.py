@@ -36,9 +36,7 @@ def cliffs_delta(x: Sequence[float], y: Sequence[float]) -> float:
     if nx == 0 and ny == 0:
         return 0.0
     if nx == 0 or ny == 0:
-        raise ValueError(
-            f"cliffs_delta requires both samples non-empty (got nx={nx}, ny={ny})."
-        )
+        raise ValueError(f"cliffs_delta requires both samples non-empty (got nx={nx}, ny={ny}).")
 
     gt = 0
     lt = 0

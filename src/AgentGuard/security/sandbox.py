@@ -88,9 +88,7 @@ def policy_from_env() -> SandboxPolicy:
     backend: Backend = backend_raw if backend_raw in _BACKENDS else "docker"  # type: ignore[assignment]
 
     mounts_raw = os.getenv("AGENTGUARD_SANDBOX_MOUNTS", "")
-    mounts: tuple[Path, ...] = tuple(
-        Path(p).expanduser() for p in mounts_raw.split(":") if p.strip()
-    )
+    mounts: tuple[Path, ...] = tuple(Path(p).expanduser() for p in mounts_raw.split(":") if p.strip())
 
     policy = SandboxPolicy(
         backend=backend,
@@ -122,9 +120,7 @@ def probe_backend(backend: Backend) -> dict[str, str]:
         return _probe_docker()
     if backend == "process":
         return {"backend": "process", "version": "host", "warning": "UNSAFE FOR UNTRUSTED CODE"}
-    raise SandboxUnavailable(
-        f"Sandbox backend {backend!r} is declared but not implemented in Phase 1."
-    )
+    raise SandboxUnavailable(f"Sandbox backend {backend!r} is declared but not implemented in Phase 1.")
 
 
 def _probe_docker() -> dict[str, str]:
@@ -142,9 +138,7 @@ def _probe_docker() -> dict[str, str]:
     except (subprocess.TimeoutExpired, OSError) as exc:
         raise SandboxUnavailable(f"docker probe failed: {exc}") from exc
     if result.returncode != 0:
-        raise SandboxUnavailable(
-            f"docker probe returned exit {result.returncode}: {result.stderr.strip()[:200]}"
-        )
+        raise SandboxUnavailable(f"docker probe returned exit {result.returncode}: {result.stderr.strip()[:200]}")
     version = result.stdout.strip() or "unknown"
     return {"backend": "docker", "version": version}
 

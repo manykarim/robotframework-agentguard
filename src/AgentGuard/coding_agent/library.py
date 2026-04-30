@@ -114,7 +114,9 @@ class CodingAgentKeywords(_MetricKeywordsMixin):
             op = {"above": ">", "below": "<", "zero": "=="}[direction]
             raise MetricThresholdViolated(
                 f"{metric} = {value:g} fails {op} {threshold:g}",
-                metric=metric, value=value, threshold=threshold,
+                metric=metric,
+                value=value,
+                threshold=threshold,
             )
         return value
 
@@ -275,15 +277,10 @@ class CodingAgentKeywords(_MetricKeywordsMixin):
             return "unknown"
         # ``BehavioralReport.overall_health`` is the canonical attribute;
         # tolerate ``health`` as a back-compat alias.
-        return str(
-            getattr(report, "overall_health", None)
-            or getattr(report, "health", "unknown")
-        )
+        return str(getattr(report, "overall_health", None) or getattr(report, "health", "unknown"))
 
     # ---- internal helper (no @keyword decorator) -----------------------
-    def load_behavioral_report(
-        self, source: BehavioralReport | str | None
-    ) -> BehavioralReport | None:
+    def load_behavioral_report(self, source: BehavioralReport | str | None) -> BehavioralReport | None:
         if source is None or not isinstance(source, str):
             return source
         _, _, types_mod = _import_metrics()

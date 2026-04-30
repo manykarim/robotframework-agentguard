@@ -47,10 +47,7 @@ def test_mann_whitney_u_n30(benchmark: Any) -> None:
     benchmark.pedantic(_call, rounds=50, iterations=1, warmup_rounds=2)
     mean_ms = float(benchmark.stats.stats.mean) * 1000.0
     if mean_ms > BUDGET_MWU_MEAN_MS:
-        pytest.fail(
-            f"mann_whitney_u mean {mean_ms:.3f} ms exceeds budget "
-            f"{BUDGET_MWU_MEAN_MS} ms (budgets.md §1)"
-        )
+        pytest.fail(f"mann_whitney_u mean {mean_ms:.3f} ms exceeds budget {BUDGET_MWU_MEAN_MS} ms (budgets.md §1)")
 
 
 @pytest.mark.benchmark(group="stats")
@@ -69,10 +66,7 @@ def test_cliffs_delta_n30(benchmark: Any) -> None:
     benchmark.pedantic(_call, rounds=50, iterations=1, warmup_rounds=2)
     mean_ms = float(benchmark.stats.stats.mean) * 1000.0
     if mean_ms > BUDGET_CLIFFS_MEAN_MS:
-        pytest.fail(
-            f"cliffs_delta mean {mean_ms:.3f} ms exceeds budget "
-            f"{BUDGET_CLIFFS_MEAN_MS} ms (budgets.md §1)"
-        )
+        pytest.fail(f"cliffs_delta mean {mean_ms:.3f} ms exceeds budget {BUDGET_CLIFFS_MEAN_MS} ms (budgets.md §1)")
 
 
 @pytest.mark.benchmark(group="stats")
@@ -95,7 +89,4 @@ def test_bootstrap_n30_1000_resamples(benchmark: Any) -> None:
     benchmark.pedantic(_call, rounds=10, iterations=1, warmup_rounds=2)
     mean_ms = float(benchmark.stats.stats.mean) * 1000.0
     if mean_ms > BUDGET_BOOTSTRAP_MEAN_MS:
-        pytest.fail(
-            f"bootstrap_ci mean {mean_ms:.3f} ms exceeds budget "
-            f"{BUDGET_BOOTSTRAP_MEAN_MS} ms (budgets.md §1)"
-        )
+        pytest.fail(f"bootstrap_ci mean {mean_ms:.3f} ms exceeds budget {BUDGET_BOOTSTRAP_MEAN_MS} ms (budgets.md §1)")

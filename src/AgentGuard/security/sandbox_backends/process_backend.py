@@ -53,18 +53,14 @@ class ProcessBackend:
         timeout_seconds: int | None = None,
     ) -> SandboxResult:
         if policy.backend != "process":
-            raise SandboxUnavailable(
-                "ProcessBackend can only be used with policy.backend='process'"
-            )
+            raise SandboxUnavailable("ProcessBackend can only be used with policy.backend='process'")
         if not policy.allow_code_execution:
             raise SandboxUnavailable(
                 "code execution disabled by policy "
                 "(set allow_code_execution=True or AGENTGUARD_SANDBOX_ALLOW_CODE_EXECUTION=true)"
             )
 
-        argv: list[str] = (
-            shlex.split(command) if isinstance(command, str) else list(command)
-        )
+        argv: list[str] = shlex.split(command) if isinstance(command, str) else list(command)
         if not argv:
             raise SandboxUnavailable("ProcessBackend requires a non-empty command")
 
@@ -82,9 +78,7 @@ class ProcessBackend:
                 shell=False,
             )
         except subprocess.TimeoutExpired as exc:
-            raise SandboxUnavailable(
-                f"process exec timed out after {timeout}s: {exc}"
-            ) from exc
+            raise SandboxUnavailable(f"process exec timed out after {timeout}s: {exc}") from exc
         except (OSError, ValueError) as exc:
             raise SandboxUnavailable(f"process exec failed: {exc}") from exc
 
@@ -93,14 +87,10 @@ class ProcessBackend:
         err = completed.stderr or ""
         truncated = False
         if len(out.encode("utf-8")) > self._max_output_bytes:
-            out = out.encode("utf-8")[: self._max_output_bytes].decode(
-                "utf-8", errors="replace"
-            )
+            out = out.encode("utf-8")[: self._max_output_bytes].decode("utf-8", errors="replace")
             truncated = True
         if len(err.encode("utf-8")) > self._max_output_bytes:
-            err = err.encode("utf-8")[: self._max_output_bytes].decode(
-                "utf-8", errors="replace"
-            )
+            err = err.encode("utf-8")[: self._max_output_bytes].decode("utf-8", errors="replace")
             truncated = True
 
         return SandboxResult(

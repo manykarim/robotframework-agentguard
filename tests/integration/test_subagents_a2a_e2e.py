@@ -11,9 +11,9 @@ from collections.abc import Iterator
 import pytest
 
 from AgentGuard.subagents import a2a_server
-from AgentGuard.subagents.exceptions import SubAgentError, TaskFailed
+from AgentGuard.subagents.exceptions import TaskFailed
 from AgentGuard.subagents.library import SubAgentsKeywords
-from AgentGuard.subagents.types import TaskStatus, text_artifact
+from AgentGuard.subagents.types import text_artifact
 
 
 @pytest.fixture(autouse=True)
@@ -61,9 +61,7 @@ def test_a2a_failed_task_raises_taskfailed(kw: SubAgentsKeywords) -> None:
 
 
 def test_a2a_get_artifact_text_filter(kw: SubAgentsKeywords) -> None:
-    a2a_server.start_server(
-        "json", handler=lambda msg: {"answer": 42}
-    )
+    a2a_server.start_server("json", handler=lambda msg: {"answer": 42})
     task = kw.send_task("inproc://json", "?")
     json_arts = kw.get_task_artifact(task, type="application/json")
     assert len(json_arts) == 1

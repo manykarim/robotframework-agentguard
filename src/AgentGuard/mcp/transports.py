@@ -82,9 +82,7 @@ def normalize_transport(transport: str, target: Any) -> str:
     if t == AUTO:
         return infer_transport(target)
     if t not in _VALID:
-        raise MCPTransportError(
-            f"Unknown transport {transport!r}; expected one of {sorted(_VALID) + [AUTO]}"
-        )
+        raise MCPTransportError(f"Unknown transport {transport!r}; expected one of {sorted(_VALID) + [AUTO]}")
     if t == SSE:
         warnings.warn(
             "SSE transport is deprecated by Anthropic; prefer streamable-HTTP.",
@@ -106,9 +104,7 @@ def make_client(handle: ServerHandle, transport: str | None = None) -> Any:
     try:
         from fastmcp import Client
     except Exception as exc:  # pragma: no cover - deps validated at runtime
-        raise MCPTransportError(
-            "fastmcp is required for MCP transport client; install `fastmcp>=3.2.4`."
-        ) from exc
+        raise MCPTransportError("fastmcp is required for MCP transport client; install `fastmcp>=3.2.4`.") from exc
 
     t = (transport or handle.transport or AUTO).lower()
     if t == AUTO:
@@ -116,9 +112,7 @@ def make_client(handle: ServerHandle, transport: str | None = None) -> Any:
 
     if t == MEMORY:
         if handle.instance is None:
-            raise MCPTransportError(
-                "Memory transport requires an in-process FastMCP instance on the handle"
-            )
+            raise MCPTransportError("Memory transport requires an in-process FastMCP instance on the handle")
         return Client(handle.instance)
 
     if t == STDIO:

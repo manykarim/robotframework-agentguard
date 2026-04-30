@@ -136,23 +136,16 @@ class HooksKeywords:
         )
 
     @keyword(name="Hook Decision Should Be")
-    def hook_decision_should_be(
-        self, result: HookResult, expected: str
-    ) -> HookResult:
+    def hook_decision_should_be(self, result: HookResult, expected: str) -> HookResult:
         """Assert ``result.decision.decision == expected`` (case-insensitive)."""
         actual = result.decision.decision.lower()
         wanted = expected.strip().lower()
         if actual == wanted:
             return result
-        raise HookDecisionError(
-            f"Expected decision={wanted!r}; got {actual!r} "
-            f"(reason={result.decision.reason!r})."
-        )
+        raise HookDecisionError(f"Expected decision={wanted!r}; got {actual!r} (reason={result.decision.reason!r}).")
 
     @keyword(name="Hook Should Inject Context")
-    def hook_should_inject_context(
-        self, result: HookResult, contains: str
-    ) -> HookResult:
+    def hook_should_inject_context(self, result: HookResult, contains: str) -> HookResult:
         """Assert the hook returned an injected-context string containing ``contains``.
 
         Looks at ``decision.additional_context`` first; falls back to scanning
@@ -171,15 +164,12 @@ class HooksKeywords:
         )
 
     @keyword(name="Hook Should Modify Tool Input To")
-    def hook_should_modify_tool_input_to(
-        self, result: HookResult, expected_input: dict[str, Any]
-    ) -> HookResult:
+    def hook_should_modify_tool_input_to(self, result: HookResult, expected_input: dict[str, Any]) -> HookResult:
         """Assert the hook's modified_tool_input equals ``expected_input``."""
         actual = result.decision.modified_tool_input
         if actual is None:
             raise HookDecisionError(
-                "Hook did not return a modified_tool_input field "
-                f"(stdout snippet={result.stdout[:200]!r})."
+                f"Hook did not return a modified_tool_input field (stdout snippet={result.stdout[:200]!r})."
             )
         if actual == expected_input:
             return result
@@ -207,8 +197,5 @@ class HooksKeywords:
         """
         detected = detect_stop_loop(events, window=window, raise_on_detect=False)
         if detected:
-            raise HookLoopDetected(
-                f"Detected Stop-hook loop: {window} consecutive blocks "
-                f"with stop_hook_active=True."
-            )
+            raise HookLoopDetected(f"Detected Stop-hook loop: {window} consecutive blocks with stop_hook_active=True.")
         return False

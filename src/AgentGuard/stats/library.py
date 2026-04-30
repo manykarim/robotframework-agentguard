@@ -103,9 +103,7 @@ class StatsKeywords:
         label = metric or "pass@k"
         logger.info(f"{label}@{k} = {value:.4f}  (threshold {threshold:g})")
         if value <= float(threshold):
-            raise AssertionError(
-                f"{label}@{k} = {value:.4f} is not above threshold {threshold:g}."
-            )
+            raise AssertionError(f"{label}@{k} = {value:.4f} is not above threshold {threshold:g}.")
         return value
 
     @keyword(name="Total Agreement Rate Should Be Above")
@@ -130,14 +128,9 @@ class StatsKeywords:
             value = _tar_a(outputs, parse_fn)
         else:
             raise ValueError(f"mode must be 'raw' or 'answer'; got {mode!r}.")
-        logger.info(
-            f"TAR{'r' if mode_norm == 'raw' else 'a'}@{len(outputs)} = "
-            f"{value:.4f}  (threshold {threshold:g})"
-        )
+        logger.info(f"TAR{'r' if mode_norm == 'raw' else 'a'}@{len(outputs)} = {value:.4f}  (threshold {threshold:g})")
         if value <= float(threshold):
-            raise AssertionError(
-                f"Total agreement rate {value:.4f} is not above threshold {threshold:g}."
-            )
+            raise AssertionError(f"Total agreement rate {value:.4f} is not above threshold {threshold:g}.")
         return value
 
     # ------------------------------------------------------------------
@@ -178,14 +171,9 @@ class StatsKeywords:
         cur = [float(v) for v in current]
         base = [float(v) for v in baseline]
         value = _cliffs_delta(cur, base)
-        logger.info(
-            f"Cliff's delta = {value:+.4f} ({_delta_magnitude(value)})  "
-            f"required ≥ {delta:g}"
-        )
+        logger.info(f"Cliff's delta = {value:+.4f} ({_delta_magnitude(value)})  required ≥ {delta:g}")
         if value < float(delta):
-            raise AssertionError(
-                f"Cliff's delta {value:+.4f} is below required threshold {delta:g}."
-            )
+            raise AssertionError(f"Cliff's delta {value:+.4f} is below required threshold {delta:g}.")
         return value
 
     @keyword(name="Vargha Delaney A Should Be At Least")
@@ -201,9 +189,7 @@ class StatsKeywords:
         value = _vd_a12(cur, base)
         logger.info(f"Vargha-Delaney A12 = {value:.4f}  required ≥ {threshold:g}")
         if value < float(threshold):
-            raise AssertionError(
-                f"Vargha-Delaney A12 {value:.4f} is below required threshold {threshold:g}."
-            )
+            raise AssertionError(f"Vargha-Delaney A12 {value:.4f} is below required threshold {threshold:g}.")
         return value
 
     # ------------------------------------------------------------------
@@ -227,8 +213,7 @@ class StatsKeywords:
             n_resamples=int(n_resamples),
         )
         logger.info(
-            f"Bootstrap {ci.statistic} {confidence:g} CI = "
-            f"[{ci.low:.4f}, {ci.high:.4f}] (n_resamples={ci.n_resamples})"
+            f"Bootstrap {ci.statistic} {confidence:g} CI = [{ci.low:.4f}, {ci.high:.4f}] (n_resamples={ci.n_resamples})"
         )
         return ci.low, ci.high
 
@@ -249,10 +234,7 @@ class StatsKeywords:
             n_resamples=n_resamples,
         )
         if not (low <= float(expected_value) <= high):
-            raise AssertionError(
-                f"Expected value {expected_value:g} not in {confidence:g} CI "
-                f"[{low:.4f}, {high:.4f}]."
-            )
+            raise AssertionError(f"Expected value {expected_value:g} not in {confidence:g} CI [{low:.4f}, {high:.4f}].")
         return low, high
 
     # ------------------------------------------------------------------

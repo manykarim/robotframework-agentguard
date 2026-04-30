@@ -63,6 +63,5 @@ def test_library_import_and_first_keyword(benchmark: Any) -> None:
         pytest.fail("library import benchmark produced no measurement")
     if first_kw_s > BUDGET_TOTAL_S:
         pytest.fail(
-            f"Library import + first keyword {first_kw_s:.3f} s exceeds budget "
-            f"{BUDGET_TOTAL_S} s (budgets.md §5)"
+            f"Library import + first keyword {first_kw_s:.3f} s exceeds budget {BUDGET_TOTAL_S} s (budgets.md §5)"
         )

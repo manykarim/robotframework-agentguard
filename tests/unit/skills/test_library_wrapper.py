@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 import pytest
 
@@ -151,9 +150,7 @@ def test_convention_violation_rate_raises_when_high(tmp_path: Path, kw: SkillsKe
     rules.write_text("# Banned phrases\n- simply\n- obviously\n", encoding="utf-8")
     responses = ["This is simply great.", "Obviously correct.", "simply fine"]
     with pytest.raises(AssertionError, match="convention violation rate"):
-        kw.convention_violation_rate_should_be_below(
-            responses, rules=str(rules), threshold=0.05
-        )
+        kw.convention_violation_rate_should_be_below(responses, rules=str(rules), threshold=0.05)
 
 
 def test_convention_violation_accepts_skill_response_objects(kw: SkillsKeywords) -> None:
@@ -168,9 +165,7 @@ def test_convention_violation_accepts_skill_response_objects(kw: SkillsKeywords)
 
 
 def test_save_and_load_baseline_roundtrip(tmp_path: Path, kw: SkillsKeywords) -> None:
-    sc = kw.run_skill_eval(
-        str(FIXTURES / "good-skill"), runs=1, model="mockllm/model", prompts=["x"]
-    )
+    sc = kw.run_skill_eval(str(FIXTURES / "good-skill"), runs=1, model="mockllm/model", prompts=["x"])
     out_path = tmp_path / "baseline.json"
     kw.save_baseline(sc, out_path)
     assert out_path.exists()

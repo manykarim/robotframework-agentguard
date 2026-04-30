@@ -7,9 +7,9 @@ of `npx`) and assert the regex-based local detector fires.
 
 from __future__ import annotations
 
-import pytest
-
 import os
+
+import pytest
 
 from AgentGuard.security import aidefence
 from AgentGuard.security.types import AIDefenceResult, PIIResult

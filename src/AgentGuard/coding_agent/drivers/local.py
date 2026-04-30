@@ -45,6 +45,7 @@ _SYSTEM_PROMPT = (
     "with a final natural-language summary and stop calling tools."
 )
 
+
 def _tool(
     name: str,
     description: str,
@@ -67,13 +68,15 @@ def _tool(
 
 _TOOLS_SCHEMA: list[dict[str, Any]] = [
     _tool("read", "Read a file from the workspace.", {"path": "string"}, ["path"]),
-    _tool("write", "Overwrite a file with the supplied text.",
-          {"path": "string", "text": "string"}, ["path", "text"]),
-    _tool("edit", "Replace `old` with `new` inside `path`.",
-          {"path": "string", "old": "string", "new": "string"}, ["path", "old", "new"]),
+    _tool("write", "Overwrite a file with the supplied text.", {"path": "string", "text": "string"}, ["path", "text"]),
+    _tool(
+        "edit",
+        "Replace `old` with `new` inside `path`.",
+        {"path": "string", "old": "string", "new": "string"},
+        ["path", "old", "new"],
+    ),
     _tool("bash", "Run a shell command.", {"command": "string"}, ["command"]),
-    _tool("grep", "Search the workspace for a regex pattern.",
-          {"pattern": "string", "path": "string"}, ["pattern"]),
+    _tool("grep", "Search the workspace for a regex pattern.", {"pattern": "string", "path": "string"}, ["pattern"]),
 ]
 
 
@@ -84,10 +87,7 @@ def _mock_tool_result(name: str, args: dict[str, Any]) -> str:
     if name == "write":
         return f"ok: wrote {len(args.get('text', ''))} bytes to {args.get('path', '')}"
     if name == "edit":
-        return (
-            f"ok: 0 occurrences of {args.get('old', '')!r} replaced "
-            f"in {args.get('path', '')}"
-        )
+        return f"ok: 0 occurrences of {args.get('old', '')!r} replaced in {args.get('path', '')}"
     if name == "bash":
         return f"<mock-bash>command {args.get('command', '')!r} produced no output</mock-bash>"
     if name == "grep":
@@ -129,13 +129,9 @@ class LocalDriver:
     ) -> DriverResult:
         cfg = config or DriverConfig()
         if not self.is_available():
-            raise DriverUnavailable(
-                "LocalDriver requires OPENROUTER_API_KEY (or an injected provider)."
-            )
+            raise DriverUnavailable("LocalDriver requires OPENROUTER_API_KEY (or an injected provider).")
 
-        provider = self._provider or build_provider(
-            "litellm", model=cfg.model or _DEFAULT_MODEL
-        )
+        provider = self._provider or build_provider("litellm", model=cfg.model or _DEFAULT_MODEL)
         model = cfg.model or _DEFAULT_MODEL
         cwd = cfg.resolved_cwd()
 

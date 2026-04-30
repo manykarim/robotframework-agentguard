@@ -21,22 +21,20 @@ class TestLoadEnv:
         config._loaded_paths.clear()
         config.load_env(tmp_env / ".env")
         import os
+
         assert os.environ.get("OPENROUTER_API_KEY") == "test"
 
-    def test_idempotent_per_path(
-        self, tmp_env: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_idempotent_per_path(self, tmp_env: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         config._loaded_paths.clear()
         config.load_env(tmp_env / ".env")
         # mutate env after first load; second load with override=False shouldn't change it
         monkeypatch.setenv("OPENROUTER_API_KEY", "second")
         config.load_env(tmp_env / ".env")
         import os
+
         assert os.environ["OPENROUTER_API_KEY"] == "second"
 
-    def test_missing_file_warns_no_raise(
-        self, tmp_path: Path, caplog: pytest.LogCaptureFixture
-    ) -> None:
+    def test_missing_file_warns_no_raise(self, tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
         config._loaded_paths.clear()
         with caplog.at_level(logging.WARNING, logger="AgentGuard.config"):
             config.load_env(tmp_path / "missing.env")
@@ -53,6 +51,7 @@ class TestLoadEnv:
         caplog: pytest.LogCaptureFixture,
     ) -> None:
         import builtins
+
         real_import = builtins.__import__
 
         def fake_import(name: str, *a: object, **kw: object) -> object:
@@ -86,13 +85,21 @@ class TestDefaults:
 
 
 class TestFeatureFlag:
-    @pytest.mark.parametrize("raw,expected", [
-        ("1", True), ("true", True), ("YES", True), ("on", True),
-        ("0", False), ("false", False), ("no", False), ("", False), ("garbage", False),
-    ])
-    def test_parses_truthy_values(
-        self, monkeypatch: pytest.MonkeyPatch, raw: str, expected: bool
-    ) -> None:
+    @pytest.mark.parametrize(
+        "raw,expected",
+        [
+            ("1", True),
+            ("true", True),
+            ("YES", True),
+            ("on", True),
+            ("0", False),
+            ("false", False),
+            ("no", False),
+            ("", False),
+            ("garbage", False),
+        ],
+    )
+    def test_parses_truthy_values(self, monkeypatch: pytest.MonkeyPatch, raw: str, expected: bool) -> None:
         monkeypatch.setenv("AGENTGUARD_TELEMETRY", raw)
         assert config.feature_flag("telemetry") is expected
 

@@ -32,39 +32,19 @@ def _write(path: Path, frontmatter: dict, body: str = "Body.") -> Path:
 
 class TestParseSkillText:
     def test_basic(self) -> None:
-        text = (
-            "---\n"
-            "name: my-skill\n"
-            "description: A demo\n"
-            "---\n"
-            "Body line 1\n"
-        )
+        text = "---\nname: my-skill\ndescription: A demo\n---\nBody line 1\n"
         s = parse_skill_text(text)
         assert s.name == "my-skill"
         assert s.description == "A demo"
         assert "Body line 1" in s.body
 
     def test_allowed_tools_list(self) -> None:
-        text = (
-            "---\n"
-            "name: x\n"
-            "description: y\n"
-            "allowed-tools: [Read, Write]\n"
-            "---\n"
-            "body\n"
-        )
+        text = "---\nname: x\ndescription: y\nallowed-tools: [Read, Write]\n---\nbody\n"
         s = parse_skill_text(text)
         assert s.allowed_tools == ["Read", "Write"]
 
     def test_allowed_tools_csv(self) -> None:
-        text = (
-            "---\n"
-            "name: x\n"
-            "description: y\n"
-            "allowed-tools: Read, Write\n"
-            "---\n"
-            "body\n"
-        )
+        text = "---\nname: x\ndescription: y\nallowed-tools: Read, Write\n---\nbody\n"
         s = parse_skill_text(text)
         assert s.allowed_tools == ["Read", "Write"]
 
@@ -89,13 +69,7 @@ class TestParseSkillText:
             parse_skill_text("---\nname: x\n---\nbody\n")
 
     def test_unknown_keys_warn(self) -> None:
-        text = (
-            "---\n"
-            "name: x\n"
-            "description: y\n"
-            "unknown-key: value\n"
-            "---\nbody\n"
-        )
+        text = "---\nname: x\ndescription: y\nunknown-key: value\n---\nbody\n"
         with pytest.warns(UserWarning, match="Unknown SKILL.md frontmatter key"):
             s = parse_skill_text(text)
         assert s.extra_frontmatter == {"unknown-key": "value"}
@@ -191,9 +165,7 @@ class TestSkillNameRegex:
 
 class TestSkillToDict:
     def test_serialises_paths_to_strings(self, tmp_path: Path) -> None:
-        s = Skill(
-            name="x", description="y", body="b", source_path=tmp_path / "SKILL.md"
-        )
+        s = Skill(name="x", description="y", body="b", source_path=tmp_path / "SKILL.md")
         d = s.to_dict()
         assert isinstance(d["source_path"], str)
         assert d["name"] == "x"

@@ -38,9 +38,7 @@ def test_detects_oh_wait() -> None:
 
 
 def test_detects_actually_phrase() -> None:
-    res = reasoning_loops.compute(
-        _session(msg="actually, let me reconsider that approach", tool_calls=1)
-    )
+    res = reasoning_loops.compute(_session(msg="actually, let me reconsider that approach", tool_calls=1))
     assert res.value > 0
 
 
@@ -51,16 +49,12 @@ def test_per_1k_normalisation() -> None:
 
 
 def test_threshold_breach_marks_failed() -> None:
-    res = reasoning_loops.compute(
-        _session(msg="oh wait, hmm, actually, on second thought", tool_calls=2)
-    )
+    res = reasoning_loops.compute(_session(msg="oh wait, hmm, actually, on second thought", tool_calls=2))
     assert res.passed is False
 
 
 def test_threshold_none_yields_none_passed() -> None:
-    res = reasoning_loops.compute(
-        _session(msg="oh wait, never mind", tool_calls=1), threshold=None
-    )
+    res = reasoning_loops.compute(_session(msg="oh wait, never mind", tool_calls=1), threshold=None)
     assert res.passed is None
 
 

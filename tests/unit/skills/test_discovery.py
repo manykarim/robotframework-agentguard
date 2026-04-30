@@ -19,9 +19,7 @@ def _make_skill(d: Path, name: str, description: str = "demo") -> Path:
     sk = d / name
     sk.mkdir(parents=True, exist_ok=True)
     (sk / "SKILL.md").write_text(
-        "---\n"
-        + yaml.safe_dump({"name": name, "description": description})
-        + "---\nbody\n",
+        "---\n" + yaml.safe_dump({"name": name, "description": description}) + "---\nbody\n",
         encoding="utf-8",
     )
     return sk
@@ -43,9 +41,7 @@ class TestDiscover:
         result = discover([tmp_path / "no-such-root"])
         assert isinstance(result, DiscoveryResult)
 
-    def test_finds_project_local_skills(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_finds_project_local_skills(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.chdir(tmp_path)
         skills_root = tmp_path / ".claude" / "skills"
         _make_skill(skills_root, "alpha")
@@ -72,9 +68,7 @@ class TestDiscover:
         result = discover([bad_root])
         assert any("broken" in str(p) for p, _ in result.errors)
 
-    def test_third_party_with_allowlist_loads(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_third_party_with_allowlist_loads(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         # Make root non-project-local (so trusted=False).
         far_home = tmp_path / "home"
         third = far_home / ".agents" / "skills"
@@ -87,9 +81,7 @@ class TestDiscover:
         names = [s.name for s in result.all_skills()]
         assert "trusted-x" in names
 
-    def test_third_party_without_allowlist_warns(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_third_party_without_allowlist_warns(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         far_home = tmp_path / "home"
         third = far_home / ".agents" / "skills"
         _make_skill(third, "untrusted-x")
@@ -102,9 +94,7 @@ class TestDiscover:
         # Either the skill is loaded *with a warning*, or filtered if allowlist exists.
         assert result.warnings, "expected at least one ADR-006 warning"
 
-    def test_third_party_outside_allowlist_suppressed(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_third_party_outside_allowlist_suppressed(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         far_home = tmp_path / "home"
         third = far_home / ".agents" / "skills"
         _make_skill(third, "blocked-x")
@@ -117,9 +107,7 @@ class TestDiscover:
         assert "blocked-x" not in names
         assert any("blocked-x" in w for w in result.warnings)
 
-    def test_default_roots_when_none(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_default_roots_when_none(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         # Use a fake empty home so default roots resolve to non-existent dirs.
         monkeypatch.setenv("HOME", str(tmp_path / "no-home"))
         result = discover()

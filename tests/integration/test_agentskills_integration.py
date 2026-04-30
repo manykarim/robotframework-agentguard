@@ -34,9 +34,7 @@ def _disable_aidefence_mcp() -> None:
 
 @pytest.fixture
 def skills() -> SkillsKeywords:
-    return SkillsKeywords(
-        default_model="mockllm/model", default_judge_model="mockllm/model"
-    )
+    return SkillsKeywords(default_model="mockllm/model", default_judge_model="mockllm/model")
 
 
 @pytest.fixture
@@ -54,9 +52,7 @@ def security() -> SecurityKeywords:
         FIXTURE_ROOT / "rf-browser-skill",
     ],
 )
-def test_bundled_skill_loads_and_validates(
-    skills: SkillsKeywords, skill_dir: Path
-) -> None:
+def test_bundled_skill_loads_and_validates(skills: SkillsKeywords, skill_dir: Path) -> None:
     skill = skills.load_skill(skill_dir)
     skills.validate_skill_frontmatter(skill)
     assert skill.description
@@ -115,9 +111,7 @@ def test_discovered_skills_validate(skills: SkillsKeywords) -> None:
     assert seen >= 3, f"only validated {seen} skills under {LOCAL_CLONE}"
 
 
-@pytest.mark.skipif(
-    not _HAVE_LOCAL_CLONE, reason="no local agentskills checkout"
-)
+@pytest.mark.skipif(not _HAVE_LOCAL_CLONE, reason="no local agentskills checkout")
 def test_discovered_skills_have_no_critical_findings(
     security: SecurityKeywords,
 ) -> None:
@@ -135,9 +129,7 @@ def test_discovered_skills_have_no_critical_findings(
     assert not flagged, f"upstream skills with CRITICAL findings: {flagged}"
 
 
-@pytest.mark.skipif(
-    not _HAVE_LOCAL_CLONE, reason="no local agentskills checkout"
-)
+@pytest.mark.skipif(not _HAVE_LOCAL_CLONE, reason="no local agentskills checkout")
 def test_discover_skills_via_keyword(skills: SkillsKeywords) -> None:
     # discover() iterates each root's immediate subdirs looking for SKILL.md,
     # so we point it at the `skills/` directory itself (not its parent).

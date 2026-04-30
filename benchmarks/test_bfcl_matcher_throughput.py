@@ -38,9 +38,7 @@ def _run_match_batch(cases: list[dict[str, Any]]) -> int:
 
 
 @pytest.mark.benchmark(group="bfcl")
-def test_bfcl_ast_match_100_cases(
-    benchmark: Any, golden_calls: list[dict[str, Any]]
-) -> None:
+def test_bfcl_ast_match_100_cases(benchmark: Any, golden_calls: list[dict[str, Any]]) -> None:
     """Run the matcher across 100 cases; budget is mean wall-clock ≤ 1 ms / call."""
     # Real adapter swap (when ready):
     # try:

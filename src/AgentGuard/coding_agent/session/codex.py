@@ -63,9 +63,7 @@ def parse(path: str | Path, *, max_lines: int | None = None) -> Session:
                 if ts is not None:
                     timestamps.append(ts)
 
-                _ingest_codex_record(
-                    raw, ts, messages, tool_calls, tool_responses, usage
-                )
+                _ingest_codex_record(raw, ts, messages, tool_calls, tool_responses, usage)
     except jsonlines.InvalidLineError as exc:  # pragma: no cover - defensive
         raise MalformedSessionError(f"Invalid JSONL line in {p}: {exc}") from exc
 
@@ -102,9 +100,7 @@ def _ingest_codex_record(
     if isinstance(role, str):
         content = raw.get("content")
         if isinstance(content, (str, list)):
-            messages.append(
-                Message(role=role, content=coerce_content(content), timestamp=ts)
-            )
+            messages.append(Message(role=role, content=coerce_content(content), timestamp=ts))
     # OpenAI-style tool_calls inline on the assistant turn.
     raw_calls = raw.get("tool_calls")
     if isinstance(raw_calls, list):

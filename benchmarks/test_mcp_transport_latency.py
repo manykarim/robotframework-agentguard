@@ -49,16 +49,12 @@ async def _bench_inmemory(server: Any, iterations: int) -> list[float]:
 
 
 @pytest.mark.benchmark(group="mcp-transport")
-def test_mcp_inmemory_roundtrip_100x(
-    benchmark: Any, echo_fastmcp_server: Any
-) -> None:
+def test_mcp_inmemory_roundtrip_100x(benchmark: Any, echo_fastmcp_server: Any) -> None:
     """100x in-memory roundtrip — assert p50/p95 against budgets.md §2."""
     measured: dict[str, list[float]] = {"durations_ms": []}
 
     def _run() -> None:
-        measured["durations_ms"] = asyncio.run(
-            _bench_inmemory(echo_fastmcp_server, iterations=100)
-        )
+        measured["durations_ms"] = asyncio.run(_bench_inmemory(echo_fastmcp_server, iterations=100))
 
     benchmark.pedantic(_run, rounds=3, iterations=1, warmup_rounds=1)
 
@@ -67,15 +63,9 @@ def test_mcp_inmemory_roundtrip_100x(
     p50 = statistics.median(samples)
     p95 = _percentile(samples, 95.0)
     if p50 > BUDGET_INMEMORY_P50_MS:
-        pytest.fail(
-            f"MCP in-memory p50 {p50:.3f} ms exceeds budget "
-            f"{BUDGET_INMEMORY_P50_MS} ms (budgets.md §2)"
-        )
+        pytest.fail(f"MCP in-memory p50 {p50:.3f} ms exceeds budget {BUDGET_INMEMORY_P50_MS} ms (budgets.md §2)")
     if p95 > BUDGET_INMEMORY_P95_MS:
-        pytest.fail(
-            f"MCP in-memory p95 {p95:.3f} ms exceeds budget "
-            f"{BUDGET_INMEMORY_P95_MS} ms (budgets.md §2)"
-        )
+        pytest.fail(f"MCP in-memory p95 {p95:.3f} ms exceeds budget {BUDGET_INMEMORY_P95_MS} ms (budgets.md §2)")
 
 
 @pytest.mark.benchmark(group="mcp-transport")
@@ -91,6 +81,4 @@ def test_mcp_stdio_echo_roundtrip(benchmark: Any) -> None:
     except ImportError:
         pytest.skip("AgentGuard.mcp not implemented yet")
 
-    pytest.skip(
-        "stdio echo fixture pending AgentGuard.mcp.transports — see budgets.md §2"
-    )
+    pytest.skip("stdio echo fixture pending AgentGuard.mcp.transports — see budgets.md §2")

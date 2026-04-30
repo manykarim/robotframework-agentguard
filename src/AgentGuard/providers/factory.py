@@ -36,8 +36,6 @@ def build_provider(name: str, model: str | None = None) -> LLMProviderAdapter:
         return MockProvider()
 
     if key in _PHASE_2:
-        raise NotImplementedError(
-            f"Provider '{key}' is reserved for Phase 2; use 'litellm' for now."
-        )
+        raise NotImplementedError(f"Provider '{key}' is reserved for Phase 2; use 'litellm' for now.")
 
     raise ValueError(f"Unknown provider: {name!r}. Choose from: litellm, mock.")

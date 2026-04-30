@@ -3,12 +3,15 @@
 Assumption: We can build a minimal Task with `mockllm/model` provider and
 score samples with `match()` — proving the triad is wrappable as one RF keyword.
 """
+
 import os
+
 import inspect_ai
-from inspect_ai import Task, eval as inspect_eval
+from inspect_ai import Task
+from inspect_ai import eval as inspect_eval
 from inspect_ai.dataset import Sample
-from inspect_ai.solver import generate
 from inspect_ai.scorer import match
+from inspect_ai.solver import generate
 
 
 def main() -> int:

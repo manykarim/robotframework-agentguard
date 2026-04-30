@@ -62,7 +62,5 @@ def variance_banner(runs: list[Any]) -> dict[str, Any]:
     std_v = statistics.stdev(numeric)
     cv = (std_v / abs(mean_v)) if mean_v != 0 else math.inf
     banner = {"n": n, "mean": mean_v, "std": std_v, "cv": cv}
-    logger.info(
-        f"Variance banner: n={n} mean={mean_v:.4f} std={std_v:.4f} cv={cv:.4f}"
-    )
+    logger.info(f"Variance banner: n={n} mean={mean_v:.4f} std={std_v:.4f} cv={cv:.4f}")
     return banner

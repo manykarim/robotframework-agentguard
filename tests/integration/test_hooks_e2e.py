@@ -18,7 +18,7 @@ from typing import Any
 
 import pytest
 
-from AgentGuard.hooks.exceptions import HookDecisionError, HookLoopDetected
+from AgentGuard.hooks.exceptions import HookLoopDetected
 from AgentGuard.hooks.library import HooksKeywords
 
 
@@ -62,9 +62,7 @@ echo '{"decision": "allow"}'
 # ---------------- Scenario 2: Stop forces tests ----------------
 
 
-def test_stop_hook_forces_test_pass_before_stopping(
-    kw: HooksKeywords, tmp_path: Path
-) -> None:
+def test_stop_hook_forces_test_pass_before_stopping(kw: HooksKeywords, tmp_path: Path) -> None:
     """Mirrors research §6.3 ``Stop Hook Forces Test Pass``."""
     script = _make_script(
         tmp_path / "require-tests.sh",
@@ -118,9 +116,7 @@ def http_inject_server() -> Iterator[str]:
         server.server_close()
 
 
-def test_http_hook_injects_context(
-    kw: HooksKeywords, http_inject_server: str
-) -> None:
+def test_http_hook_injects_context(kw: HooksKeywords, http_inject_server: str) -> None:
     """Mirrors research §6.3 ``HTTP Hook Returns Permission Decision``."""
     env = kw.synthesize_hook_input(
         "PreToolUse",
@@ -160,9 +156,10 @@ def test_agent_hook_with_modify_tool_input(kw: HooksKeywords) -> None:
 
 def test_prompt_hook_with_mock_provider(mock_provider: Any) -> None:
     """``Run Hook Prompt`` works with the deterministic MockProvider fixture."""
-    from AgentGuard.providers.mock import MockProvider
-    from AgentGuard.providers.base import ChatResponse, Usage
     from decimal import Decimal
+
+    from AgentGuard.providers.base import ChatResponse, Usage
+    from AgentGuard.providers.mock import MockProvider
 
     provider = MockProvider(
         responses=[

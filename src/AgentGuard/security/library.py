@@ -84,9 +84,7 @@ class SecurityKeywords:
         secrets = redactor.find_secrets(text)
         if secrets:
             kinds = sorted({k for k, _ in secrets})
-            raise AssertionError(
-                f"Trajectory leaks {len(secrets)} secret(s) of kind(s): {', '.join(kinds)}"
-            )
+            raise AssertionError(f"Trajectory leaks {len(secrets)} secret(s) of kind(s): {', '.join(kinds)}")
         return redactor.redact(text) if redact else text
 
     @keyword(name="Redact Trajectory")
@@ -100,9 +98,7 @@ class SecurityKeywords:
         ``mode`` is ``strict`` | ``balanced`` | ``tokenize`` per the spec.
         """
         if mode not in ("strict", "balanced", "tokenize"):
-            raise ValueError(
-                f"Unknown redact mode {mode!r}; expected strict | balanced | tokenize."
-            )
+            raise ValueError(f"Unknown redact mode {mode!r}; expected strict | balanced | tokenize.")
         text = redactor.serialize_trajectory(trajectory)
         return redactor.redact(text, mode=mode)  # type: ignore[arg-type]
 
@@ -202,6 +198,4 @@ class SecurityKeywords:
         """Assert ``result.exit_code == expected``."""
         actual = getattr(result, "exit_code", None)
         if actual != expected:
-            raise AssertionError(
-                f"Sandbox exit code mismatch: expected {expected}, got {actual!r}"
-            )
+            raise AssertionError(f"Sandbox exit code mismatch: expected {expected}, got {actual!r}")

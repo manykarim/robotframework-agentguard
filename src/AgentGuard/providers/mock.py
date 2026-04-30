@@ -46,9 +46,7 @@ class MockProvider:
         model: str | None = None,
         **kwargs: Any,
     ) -> ChatResponse:
-        self._calls.append(
-            {"messages": messages, "tools": tools, "model": model, "kwargs": kwargs}
-        )
+        self._calls.append({"messages": messages, "tools": tools, "model": model, "kwargs": kwargs})
         if self._queue:
             self._last = self._queue.popleft()
             return self._last

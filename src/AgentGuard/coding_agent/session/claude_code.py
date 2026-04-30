@@ -136,18 +136,14 @@ class _ParserState:
             if isinstance(v, str):
                 self.version = v
 
-    def _ingest_assistant(
-        self, record: dict[str, Any], ts: datetime | None
-    ) -> None:
+    def _ingest_assistant(self, record: dict[str, Any], ts: datetime | None) -> None:
         message = record.get("message")
         if not isinstance(message, dict):
             return
         self.usage.add(extract_usage(message))
         content = message.get("content")
         if isinstance(content, str):
-            self.messages.append(
-                Message(role="assistant", content=content, timestamp=ts)
-            )
+            self.messages.append(Message(role="assistant", content=content, timestamp=ts))
             return
         if not isinstance(content, list):
             return
@@ -202,9 +198,7 @@ class _ParserState:
             elif isinstance(content, list):
                 self.messages.append(_h.build_user_message(content, ts))
 
-    def _ingest_simple(
-        self, record: dict[str, Any], ts: datetime | None, *, role: str
-    ) -> None:
+    def _ingest_simple(self, record: dict[str, Any], ts: datetime | None, *, role: str) -> None:
         message = record.get("message")
         if isinstance(message, dict):
             content = message.get("content")
@@ -216,18 +210,12 @@ class _ParserState:
         if isinstance(c, str):
             self.messages.append(_h.build_simple_message(role, c, ts))
 
-    def _ingest_permission_mode(
-        self, record: dict[str, Any], ts: datetime | None
-    ) -> None:
+    def _ingest_permission_mode(self, record: dict[str, Any], ts: datetime | None) -> None:
         mode = record.get("permissionMode") or record.get("mode")
         if isinstance(mode, str):
             if mode.lower() in _h.INTERRUPT_PERMISSION_MODES:
-                self.interrupts.append(
-                    Interrupt(timestamp=ts, reason=f"permission_mode:{mode}")
-                )
-            self.hook_events.append(
-                HookEvent(event="PermissionMode", decision=mode, timestamp=ts)
-            )
+                self.interrupts.append(Interrupt(timestamp=ts, reason=f"permission_mode:{mode}"))
+            self.hook_events.append(HookEvent(event="PermissionMode", decision=mode, timestamp=ts))
 
     def _pair_tool_result(
         self,
@@ -251,9 +239,7 @@ class _ParserState:
 
         self.tool_responses.append(_h.build_tool_response(tool_call_id, result, ts))
 
-    def _resolve_via_parent_chain(
-        self, record: dict[str, Any], max_hops: int = 16
-    ) -> str | None:
+    def _resolve_via_parent_chain(self, record: dict[str, Any], max_hops: int = 16) -> str | None:
         cursor = record.get("parentUuid")
         if not isinstance(cursor, str):
             return None

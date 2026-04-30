@@ -3,14 +3,14 @@
 Assumption: A `@library` class extending `DynamicCore` cleanly merges keywords from
 multiple sub-library classes. We verify by running a tiny .robot suite end-to-end.
 """
+
 import subprocess
 import sys
 import tempfile
 import textwrap
 from pathlib import Path
 
-
-MINILIB_SRC = textwrap.dedent('''
+MINILIB_SRC = textwrap.dedent("""
     from robot.api.deco import keyword, library
     from robotlibcore import DynamicCore
 
@@ -28,9 +28,9 @@ MINILIB_SRC = textwrap.dedent('''
     class MiniLib(DynamicCore):
         def __init__(self):
             DynamicCore.__init__(self, [MathKw(), EchoKw()])
-''').strip()
+""").strip()
 
-ROBOT_SRC = textwrap.dedent('''
+ROBOT_SRC = textwrap.dedent("""
     *** Settings ***
     Library    MiniLib
 
@@ -47,7 +47,7 @@ ROBOT_SRC = textwrap.dedent('''
         ${a}=    Add Numbers    10    20
         ${e}=    Echo Text    ${a}
         Should Be Equal    ${e}    echo:30
-''').strip()
+""").strip()
 
 
 def main() -> int:
@@ -57,7 +57,9 @@ def main() -> int:
         (d / "suite.robot").write_text(ROBOT_SRC)
         proc = subprocess.run(
             [sys.executable, "-m", "robot", "--outputdir", str(d), "suite.robot"],
-            cwd=d, capture_output=True, text=True,
+            cwd=d,
+            capture_output=True,
+            text=True,
         )
         print("robot exit:", proc.returncode)
         print(proc.stdout[-1500:])

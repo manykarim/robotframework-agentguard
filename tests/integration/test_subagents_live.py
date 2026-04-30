@@ -33,7 +33,7 @@ def _registry() -> Iterator[None]:
 def _build_litellm_planner(model: str) -> str:
     """Spin up a planner that calls an OpenRouter LLM via litellm."""
     from AgentGuard.subagents import a2a_server
-    from AgentGuard.subagents.types import Message, MessagePart, text_artifact
+    from AgentGuard.subagents.types import text_artifact
 
     try:
         import litellm  # noqa: F401
@@ -47,9 +47,7 @@ def _build_litellm_planner(model: str) -> str:
     )
     a2a_server.start_server(
         "places",
-        handler=lambda msg: text_artifact(
-            f"places near {msg}: Belém Tower, Alfama, Jerónimos Monastery"
-        ),
+        handler=lambda msg: text_artifact(f"places near {msg}: Belém Tower, Alfama, Jerónimos Monastery"),
         skills=[{"id": "places.search", "name": "places"}],
     )
 

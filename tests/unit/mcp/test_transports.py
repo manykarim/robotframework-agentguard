@@ -12,6 +12,7 @@ from __future__ import annotations
 import pytest
 
 from AgentGuard.mcp.exceptions import MCPTransportError
+from AgentGuard.mcp.server_handle import ServerHandle
 from AgentGuard.mcp.transports import (
     AUTO,
     HTTP,
@@ -22,7 +23,6 @@ from AgentGuard.mcp.transports import (
     make_client,
     normalize_transport,
 )
-from AgentGuard.mcp.server_handle import ServerHandle
 
 
 class TestInferTransport:
@@ -77,9 +77,7 @@ class TestMakeClient:
             make_client(handle, transport=MEMORY)
 
     def test_memory_with_instance(self, echo_mcp_server) -> None:
-        handle = ServerHandle(
-            name="x", transport=MEMORY, target=echo_mcp_server, instance=echo_mcp_server
-        )
+        handle = ServerHandle(name="x", transport=MEMORY, target=echo_mcp_server, instance=echo_mcp_server)
         client = make_client(handle, transport=MEMORY)
         # fastmcp.Client object should be returned (don't open the connection here)
         assert client is not None

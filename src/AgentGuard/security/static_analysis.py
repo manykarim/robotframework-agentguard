@@ -69,10 +69,7 @@ def _iter_findings(text: str, path: Path, allowlist: frozenset[str]) -> Iterator
             stage=ScannerStage.SCRIPTS_STATIC,
             severity=Severity.CRITICAL,
             message=f"Pipe-to-shell installer pattern detected ({match.group(0)[:60]}...).",
-            remediation=(
-                "Replace `curl ... | sh` with a checksum-pinned download "
-                "verified before execution."
-            ),
+            remediation=("Replace `curl ... | sh` with a checksum-pinned download verified before execution."),
             location=location_for_line(_lineno(text, match.start())),
             rule_id="AGRD-S-101",
         )
@@ -159,9 +156,7 @@ def _iter_findings(text: str, path: Path, allowlist: frozenset[str]) -> Iterator
             yield Finding(
                 stage=ScannerStage.SCRIPTS_STATIC,
                 severity=Severity.HIGH,
-                message=(
-                    f"Embedded base64 blob ({len(blob)} chars) — possible obfuscated payload."
-                ),
+                message=(f"Embedded base64 blob ({len(blob)} chars) — possible obfuscated payload."),
                 remediation="Replace with plain text or load from a verified file.",
                 location=location_for_line(_lineno(text, match.start())),
                 rule_id="AGRD-S-160",

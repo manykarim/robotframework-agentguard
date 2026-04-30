@@ -88,9 +88,7 @@ class CrewAIBridge:
 
         crew_output = framework_obj_run_result
         task_id = (
-            getattr(crew_output, "task_id", None)
-            or getattr(crew_output, "id", None)
-            or _crew_output_id(crew_output)
+            getattr(crew_output, "task_id", None) or getattr(crew_output, "id", None) or _crew_output_id(crew_output)
         )
         tasks_output = getattr(crew_output, "tasks_output", None) or []
         if tasks_output and all(getattr(t, "raw", None) for t in tasks_output):
@@ -242,12 +240,7 @@ def _normalise_tool_call(call: Any) -> dict[str, Any] | None:
             return {"name": str(call["tool"]), "arguments": _ensure_dict(args)}
     name = getattr(call, "name", None) or getattr(call, "tool", None)
     if name is not None:
-        args = (
-            getattr(call, "arguments", None)
-            or getattr(call, "args", None)
-            or getattr(call, "input", None)
-            or {}
-        )
+        args = getattr(call, "arguments", None) or getattr(call, "args", None) or getattr(call, "input", None) or {}
         return {"name": str(name), "arguments": _ensure_dict(args)}
     return None
 

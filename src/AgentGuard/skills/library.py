@@ -158,9 +158,7 @@ class SkillsKeywords:
                         run_index=run_index,
                         model=target_model or "",
                         tokens_in=getattr(getattr(resp, "usage", None), "prompt_tokens", 0),
-                        tokens_out=getattr(
-                            getattr(resp, "usage", None), "completion_tokens", 0
-                        ),
+                        tokens_out=getattr(getattr(resp, "usage", None), "completion_tokens", 0),
                         latency_ms=elapsed_ms,
                     )
                 )
@@ -201,15 +199,12 @@ class SkillsKeywords:
         threshold: float = 0.05,
     ) -> ConventionReport:
         """Run the conventions checker; raise ``AssertionError`` if rate ≥ threshold."""
-        text_responses = [
-            r.output if isinstance(r, SkillResponse) else str(r) for r in responses
-        ]
+        text_responses = [r.output if isinstance(r, SkillResponse) else str(r) for r in responses]
         report = check_responses(text_responses, rules=rules)
         if report.rate >= threshold:
             offenders = ", ".join(sorted({v.rule for v in report.violations})[:5])
             raise AssertionError(
-                f"convention violation rate {report.rate:.3f} ≥ threshold {threshold:.3f}; "
-                f"sample rules: {offenders}"
+                f"convention violation rate {report.rate:.3f} ≥ threshold {threshold:.3f}; sample rules: {offenders}"
             )
         return report
 
@@ -238,8 +233,7 @@ class SkillsKeywords:
     @staticmethod
     def _system_prompt_for(skill: Skill) -> str:
         header = (
-            f"You are operating with the '{skill.name}' Agent Skill loaded.\n"
-            f"Skill description: {skill.description}\n"
+            f"You are operating with the '{skill.name}' Agent Skill loaded.\nSkill description: {skill.description}\n"
         )
         if skill.allowed_tools:
             header += f"Allowed tools (advisory): {', '.join(skill.allowed_tools)}\n"
@@ -260,9 +254,7 @@ class SkillsKeywords:
                 out.append(
                     SkillResponse(
                         prompt=prompt,
-                        output=(
-                            f"[mock:{skill.name}] would respond to: {prompt[:80]}"
-                        ),
+                        output=(f"[mock:{skill.name}] would respond to: {prompt[:80]}"),
                         run_index=run_index,
                         model=model_label,
                     )

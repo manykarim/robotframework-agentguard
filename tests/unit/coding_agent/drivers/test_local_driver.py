@@ -91,9 +91,7 @@ def test_run_raises_driver_unavailable_when_not_available(
 # ---------------------------- run() loop ----------------------------------
 
 
-def test_run_no_tool_calls_terminates_after_one_turn(
-    mock_provider_no_tools: MockProvider, tmp_path: Path
-) -> None:
+def test_run_no_tool_calls_terminates_after_one_turn(mock_provider_no_tools: MockProvider, tmp_path: Path) -> None:
     drv = LocalDriver(provider=mock_provider_no_tools)
     cfg = DriverConfig(jsonl_path=tmp_path / "session.jsonl", max_turns=10)
     result = drv.run("Hello", cfg)
@@ -104,9 +102,7 @@ def test_run_no_tool_calls_terminates_after_one_turn(
     assert len(mock_provider_no_tools.calls) == 1
 
 
-def test_run_writes_jsonl_session_log(
-    mock_provider_no_tools: MockProvider, tmp_path: Path
-) -> None:
+def test_run_writes_jsonl_session_log(mock_provider_no_tools: MockProvider, tmp_path: Path) -> None:
     drv = LocalDriver(provider=mock_provider_no_tools)
     cfg = DriverConfig(jsonl_path=tmp_path / "session.jsonl")
     result = drv.run("Hello", cfg)
@@ -116,9 +112,7 @@ def test_run_writes_jsonl_session_log(
     assert len(lines) >= 2  # at least system + user prompt
 
 
-def test_run_with_tool_call_executes_two_turns(
-    mock_provider_one_tool: MockProvider, tmp_path: Path
-) -> None:
+def test_run_with_tool_call_executes_two_turns(mock_provider_one_tool: MockProvider, tmp_path: Path) -> None:
     drv = LocalDriver(provider=mock_provider_one_tool)
     cfg = DriverConfig(jsonl_path=tmp_path / "s.jsonl", max_turns=10)
     result = drv.run("Read x.py", cfg)
@@ -127,9 +121,7 @@ def test_run_with_tool_call_executes_two_turns(
     assert len(mock_provider_one_tool.calls) == 2
 
 
-def test_run_emits_tool_use_record_when_tool_called(
-    mock_provider_one_tool: MockProvider, tmp_path: Path
-) -> None:
+def test_run_emits_tool_use_record_when_tool_called(mock_provider_one_tool: MockProvider, tmp_path: Path) -> None:
     drv = LocalDriver(provider=mock_provider_one_tool)
     cfg = DriverConfig(jsonl_path=tmp_path / "s.jsonl")
     result = drv.run("Read x.py", cfg)
@@ -138,9 +130,7 @@ def test_run_emits_tool_use_record_when_tool_called(
     assert "tool_result" in text or "toolUseResult" in text
 
 
-def test_run_aggregates_cost_from_responses(
-    mock_provider_one_tool: MockProvider, tmp_path: Path
-) -> None:
+def test_run_aggregates_cost_from_responses(mock_provider_one_tool: MockProvider, tmp_path: Path) -> None:
     drv = LocalDriver(provider=mock_provider_one_tool)
     cfg = DriverConfig(jsonl_path=tmp_path / "s.jsonl")
     result = drv.run("Read x.py", cfg)
@@ -149,9 +139,7 @@ def test_run_aggregates_cost_from_responses(
     assert result.cost_usd >= 0.0001
 
 
-def test_run_provider_failure_sets_exit_code_one(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
+def test_run_provider_failure_sets_exit_code_one(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     # Provider with empty queue + strict=True raises ProviderAPIError.
     failing = MockProvider(strict=True)
     drv = LocalDriver(provider=failing)
@@ -171,9 +159,7 @@ def test_run_default_jsonl_path_under_agentguard_dir(
     assert "sessions" in result.jsonl_path
 
 
-def test_run_capture_jsonl_false_yields_no_session(
-    mock_provider_no_tools: MockProvider, tmp_path: Path
-) -> None:
+def test_run_capture_jsonl_false_yields_no_session(mock_provider_no_tools: MockProvider, tmp_path: Path) -> None:
     drv = LocalDriver(provider=mock_provider_no_tools)
     cfg = DriverConfig(jsonl_path=tmp_path / "s.jsonl", capture_jsonl=False)
     result = drv.run("Hello", cfg)
@@ -181,9 +167,7 @@ def test_run_capture_jsonl_false_yields_no_session(
     assert result.session is None
 
 
-def test_run_attaches_parsed_session_when_capture(
-    mock_provider_no_tools: MockProvider, tmp_path: Path
-) -> None:
+def test_run_attaches_parsed_session_when_capture(mock_provider_no_tools: MockProvider, tmp_path: Path) -> None:
     drv = LocalDriver(provider=mock_provider_no_tools)
     cfg = DriverConfig(jsonl_path=tmp_path / "s.jsonl", capture_jsonl=True)
     result = drv.run("Hello", cfg)
@@ -193,9 +177,7 @@ def test_run_attaches_parsed_session_when_capture(
     assert len(msgs) >= 1
 
 
-def test_run_records_per_turn_messages_in_provider_log(
-    mock_provider_one_tool: MockProvider, tmp_path: Path
-) -> None:
+def test_run_records_per_turn_messages_in_provider_log(mock_provider_one_tool: MockProvider, tmp_path: Path) -> None:
     drv = LocalDriver(provider=mock_provider_one_tool)
     cfg = DriverConfig(jsonl_path=tmp_path / "s.jsonl")
     drv.run("Read x.py", cfg)

@@ -77,9 +77,7 @@ def test_subagents_trajectory_extract_100msgs(benchmark: Any) -> None:
         iterations=1,
         warmup_rounds=2,
     )
-    assert result == expected_calls, (
-        f"expected {expected_calls} extracted names, got {result}"
-    )
+    assert result == expected_calls, f"expected {expected_calls} extracted names, got {result}"
 
     mean_ms = float(benchmark.stats.stats.mean) * 1000.0
     if mean_ms > BUDGET_MEAN_MS_PER_TASK:

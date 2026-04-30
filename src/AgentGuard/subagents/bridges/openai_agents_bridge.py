@@ -32,9 +32,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 __all__ = ["OpenAIAgentsBridge"]
 
-_INSTALL_HINT = (
-    "pip install 'robotframework-agentguard[bridges]' or pip install openai-agents"
-)
+_INSTALL_HINT = "pip install 'robotframework-agentguard[bridges]' or pip install openai-agents"
 
 
 class OpenAIAgentsBridge:
@@ -61,12 +59,8 @@ class OpenAIAgentsBridge:
 
         skills: list[Any] = []
         for tool in getattr(agent, "tools", None) or []:
-            tool_name = (
-                getattr(tool, "name", None) or getattr(tool, "__name__", None) or "tool"
-            )
-            tool_desc = getattr(tool, "description", "") or getattr(
-                tool, "__doc__", ""
-            ) or ""
+            tool_name = getattr(tool, "name", None) or getattr(tool, "__name__", None) or "tool"
+            tool_desc = getattr(tool, "description", "") or getattr(tool, "__doc__", "") or ""
             skills.append(
                 make_agent_skill(
                     skill_id=str(tool_name),
@@ -114,10 +108,7 @@ class OpenAIAgentsBridge:
 
         last_agent = getattr(run_result, "last_agent", None)
         agent_name = getattr(last_agent, "name", "") if last_agent is not None else ""
-        task_id = (
-            getattr(run_result, "id", None)
-            or f"openai-agents-{abs(hash(str(agent_name))) % (10**12)}"
-        )
+        task_id = getattr(run_result, "id", None) or f"openai-agents-{abs(hash(str(agent_name))) % (10**12)}"
         return make_task(task_id=str(task_id), state=task_state)
 
     @staticmethod
@@ -126,11 +117,7 @@ class OpenAIAgentsBridge:
         if not OpenAIAgentsBridge.is_available():
             raise BridgeUnavailable("openai_agents", _INSTALL_HINT)
         run_result = framework_obj_run_result
-        items = (
-            getattr(run_result, "new_items", None)
-            or getattr(run_result, "items", None)
-            or []
-        )
+        items = getattr(run_result, "new_items", None) or getattr(run_result, "items", None) or []
         out: list[dict[str, Any]] = []
         for item in items:
             entry = _item_to_trajectory_entry(item)

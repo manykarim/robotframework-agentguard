@@ -6,13 +6,11 @@ canonical "echo hello in Docker" Robot test stays readable.
 
 from __future__ import annotations
 
-from typing import Any
-
 from robot.api import SkipExecution
 
 from AgentGuard.security.sandbox import SandboxPolicy
-from AgentGuard.security.sandbox_backends.docker_backend import DockerBackend
 from AgentGuard.security.sandbox_backends.base import SandboxResult
+from AgentGuard.security.sandbox_backends.docker_backend import DockerBackend
 
 
 def skip_if_docker_unavailable() -> None:
@@ -49,7 +47,4 @@ def skip_if_capdrop_refuses_exec(result: SandboxResult) -> None:
     asserts wire behaviour where the runtime supports it.
     """
     if "operation not permitted" in (result.stderr or ""):
-        raise SkipExecution(
-            "host kernel/runtime refuses exec under cap-drop=ALL "
-            "(documented hardened posture)"
-        )
+        raise SkipExecution("host kernel/runtime refuses exec under cap-drop=ALL (documented hardened posture)")

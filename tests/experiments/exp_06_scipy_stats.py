@@ -3,6 +3,7 @@
 Assumption: scipy.stats.mannwhitneyu and scipy.stats.bootstrap deliver the test
 statistics needed by the StatsLibrary, and we can compute Cliff's delta manually.
 """
+
 import numpy as np
 from scipy import stats
 
@@ -21,8 +22,7 @@ def main() -> int:
 
     u = stats.mannwhitneyu(b, a, alternative="greater")
     delta = cliffs_delta(b, a)
-    res = stats.bootstrap((b,), np.mean, n_resamples=2000,
-                          confidence_level=0.95, random_state=rng)
+    res = stats.bootstrap((b,), np.mean, n_resamples=2000, confidence_level=0.95, random_state=rng)
     ci_low, ci_high = res.confidence_interval.low, res.confidence_interval.high
 
     print("scipy version:", __import__("scipy").__version__)
@@ -32,11 +32,7 @@ def main() -> int:
 
     # Sanity: with shift=0.3σ and n=30 we *can* fail to reject H0 — that's fine,
     # we only assert that the API surface returns the right shapes/types.
-    ok = (
-        isinstance(u.pvalue, float)
-        and -1.0 <= delta <= 1.0
-        and ci_low < ci_high
-    )
+    ok = isinstance(u.pvalue, float) and -1.0 <= delta <= 1.0 and ci_low < ci_high
     print("PASS" if ok else "FAIL", "exp_06_scipy_stats")
     return 0 if ok else 1
 

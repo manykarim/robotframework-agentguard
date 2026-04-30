@@ -31,23 +31,17 @@ def test_pass_at_k_should_be_above_fails(kw: StatsKeywords) -> None:
 
 def test_pass_at_k_accepts_string_outcomes(kw: StatsKeywords) -> None:
     # Robot Framework string args like ${TRUE}/${FALSE} → "True"/"False"
-    out = kw.pass_at_k_should_be_above(
-        ["true", "true", "false", "true", "true"], k=1, threshold=0.5
-    )
+    out = kw.pass_at_k_should_be_above(["true", "true", "false", "true", "true"], k=1, threshold=0.5)
     assert out == pytest.approx(0.8)
 
 
 def test_total_agreement_rate_raw(kw: StatsKeywords) -> None:
-    out = kw.total_agreement_rate_should_be_above(
-        ["a", "a", "a", "b"], threshold=0.5, mode="raw"
-    )
+    out = kw.total_agreement_rate_should_be_above(["a", "a", "a", "b"], threshold=0.5, mode="raw")
     assert out == pytest.approx(0.75)
 
 
 def test_total_agreement_rate_answer_default_parser(kw: StatsKeywords) -> None:
-    out = kw.total_agreement_rate_should_be_above(
-        ["YES", "yes", " yes ", "no"], threshold=0.5, mode="answer"
-    )
+    out = kw.total_agreement_rate_should_be_above(["YES", "yes", " yes ", "no"], threshold=0.5, mode="answer")
     assert out == pytest.approx(0.75)
 
 
@@ -96,9 +90,7 @@ def test_bootstrap_ci_should_contain_keyword(kw: StatsKeywords) -> None:
 def test_bootstrap_ci_should_contain_fails(kw: StatsKeywords) -> None:
     samples = [0.5] * 20
     with pytest.raises(AssertionError):
-        kw.bootstrap_confidence_interval_should_contain(
-            samples, expected_value=0.9, confidence=0.95, n_resamples=500
-        )
+        kw.bootstrap_confidence_interval_should_contain(samples, expected_value=0.9, confidence=0.95, n_resamples=500)
 
 
 def test_compute_variance_banner_basic(kw: StatsKeywords) -> None:

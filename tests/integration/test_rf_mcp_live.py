@@ -59,9 +59,7 @@ def mcp_kw() -> MCPKeywords:
 
 
 @pytest.mark.live
-def test_real_llm_generates_call_against_rf_mcp_tool_schema(
-    rf_mcp_server: Any, mcp_kw: MCPKeywords
-) -> None:
+def test_real_llm_generates_call_against_rf_mcp_tool_schema(rf_mcp_server: Any, mcp_kw: MCPKeywords) -> None:
     """End-to-end: real OpenRouter LLM, real rf-mcp tool schema, BFCL matcher.
 
     1. Pull the live ``find_keywords`` tool schema from rf-mcp.

@@ -109,9 +109,7 @@ class SubAgentsKeywords:
         ``transport`` ∈ ``{auto, memory, http}``. ``auto`` infers from the
         URL scheme: ``inproc://`` → memory, ``http(s)://`` → http.
         """
-        return _client_mod.connect_to_a2a_agent(
-            target, transport=transport, timeout=timeout
-        )
+        return _client_mod.connect_to_a2a_agent(target, transport=transport, timeout=timeout)
 
     @keyword(name="Send Task")
     def send_task(
@@ -126,9 +124,7 @@ class SubAgentsKeywords:
         For the in-process transport the task is already terminal on
         return; for HTTP, follow up with ``Wait For Task Completion``.
         """
-        task = _client_mod.send_task(
-            target, message, metadata=metadata, timeout=timeout
-        )
+        task = _client_mod.send_task(target, message, metadata=metadata, timeout=timeout)
         logger.info("submitted task %s -> status=%s", task.id, task.status.value)
         return task
 
@@ -145,9 +141,7 @@ class SubAgentsKeywords:
         Raises :class:`AgentGuard.subagents.exceptions.TaskTimeout` if the
         task is still non-terminal at the deadline.
         """
-        return _client_mod.wait_for_task_completion(
-            handle, task, timeout=timeout, poll_interval=poll_interval
-        )
+        return _client_mod.wait_for_task_completion(handle, task, timeout=timeout, poll_interval=poll_interval)
 
     @keyword(name="Cancel Task")
     def cancel_task(
@@ -158,9 +152,7 @@ class SubAgentsKeywords:
         """Request cancellation of ``task`` and assert the transition."""
         updated = _client_mod.cancel_task(handle, task)
         if updated.status != TaskStatus.CANCELED:
-            raise TaskFailed(
-                f"cancel failed: task {task.id} is in state {updated.status.value!r}"
-            )
+            raise TaskFailed(f"cancel failed: task {task.id} is in state {updated.status.value!r}")
         return updated
 
     # ------------------------------------------------------------------
@@ -181,15 +173,10 @@ class SubAgentsKeywords:
         """Assert ``task.status == expected`` (case-insensitive string ok)."""
         expected_status = TaskStatus.from_str(expected)
         if task.status != expected_status:
-            err: type[SubAgentError] = (
-                TaskFailed if expected_status == TaskStatus.COMPLETED else SubAgentError
-            )
+            err: type[SubAgentError] = TaskFailed if expected_status == TaskStatus.COMPLETED else SubAgentError
             err_text = task.error or ""
             extra = f" (error: {err_text})" if err_text else ""
-            raise err(
-                f"task {task.id}: expected status {expected_status.value!r}, "
-                f"got {task.status.value!r}{extra}"
-            )
+            raise err(f"task {task.id}: expected status {expected_status.value!r}, got {task.status.value!r}{extra}")
 
     @keyword(name="Get Task Artifact")
     def get_task_artifact(
@@ -210,9 +197,7 @@ class SubAgentsKeywords:
     @keyword(name="Get Task Artifact Text")
     def get_task_artifact_text(self, task: Task, delimiter: str = "\n") -> str:
         """Concatenate text content of all artifacts on ``task``."""
-        return delimiter.join(
-            artifact_text(a, delimiter=delimiter) for a in task.artifacts
-        )
+        return delimiter.join(artifact_text(a, delimiter=delimiter) for a in task.artifacts)
 
     # ------------------------------------------------------------------
     # Trajectory

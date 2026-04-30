@@ -86,9 +86,7 @@ class CodingBenchmarkKeywords:
         """
         from . import swe_bench
 
-        return swe_bench.SWEBenchLoader.load(
-            split=split, limit=limit, verified_only=verified_only
-        )
+        return swe_bench.SWEBenchLoader.load(split=split, limit=limit, verified_only=verified_only)
 
     @keyword(name="Run SWE Bench Task")
     def run_swe_bench_task(
@@ -132,11 +130,7 @@ class CodingBenchmarkKeywords:
         ``k == 1`` (the leaderboard convention) collapses to the resolved-rate;
         ``k > 1`` delegates to HumanEval-style pass@k.
         """
-        value = (
-            resolved_rate(results)
-            if int(k) <= 1
-            else pass_at_k_from_results(results, int(k))
-        )
+        value = resolved_rate(results) if int(k) <= 1 else pass_at_k_from_results(results, int(k))
         return _assert_above(value, float(threshold), label=f"SWE-bench pass@{int(k)}")
 
     @keyword(name="Load Aider Benchmark Dataset")
@@ -154,9 +148,7 @@ class CodingBenchmarkKeywords:
         return self._run_with_validator(task, driver, model, aider_validate)
 
     @keyword(name="Aider Benchmark Pass Rate Should Be Above")
-    def aider_benchmark_pass_rate_should_be_above(
-        self, results: list[RunResult], threshold: float = 0.5
-    ) -> float:
+    def aider_benchmark_pass_rate_should_be_above(self, results: list[RunResult], threshold: float = 0.5) -> float:
         """Assert Aider's first-run pass rate > ``threshold`` (default 0.5)."""
         return _assert_above(
             first_run_pass_rate(results),
@@ -197,16 +189,12 @@ class CodingBenchmarkKeywords:
         return mbpp.MBPPLoader.load(limit=limit)
 
     @keyword(name="Run MBPP Task")
-    def run_mbpp_task(
-        self, task: Task | dict[str, Any], driver: str = "local", model: str | None = None
-    ) -> RunResult:
+    def run_mbpp_task(self, task: Task | dict[str, Any], driver: str = "local", model: str | None = None) -> RunResult:
         """Dispatch an MBPP task and exec the bundled ``test_list`` asserts."""
         return self._run_with_validator(task, driver, model, mbpp_validate)
 
     @keyword(name="MBPP Pass At K Should Be Above")
-    def mbpp_pass_at_k_should_be_above(
-        self, results: list[RunResult], k: int = 1, threshold: float = 0.6
-    ) -> float:
+    def mbpp_pass_at_k_should_be_above(self, results: list[RunResult], k: int = 1, threshold: float = 0.6) -> float:
         """Assert MBPP pass@k > ``threshold`` (default 0.6)."""
         return _assert_above(
             pass_at_k_from_results(results, int(k)),
@@ -290,9 +278,7 @@ class CodingBenchmarkKeywords:
         try:
             return runners[canonical_name]
         except KeyError as exc:  # pragma: no cover - registry guards this
-            raise KeyError(
-                f"No runner for {canonical_name!r}; expected one of {BENCHMARK_NAMES}"
-            ) from exc
+            raise KeyError(f"No runner for {canonical_name!r}; expected one of {BENCHMARK_NAMES}") from exc
 
 
 # Backwards-compat alias used by ``DynamicCore`` registration patterns.

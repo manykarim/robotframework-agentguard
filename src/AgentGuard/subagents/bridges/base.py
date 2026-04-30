@@ -35,7 +35,6 @@ __all__ = [
 
 
 class BridgeUnavailable(RuntimeError):  # noqa: N818  - "Unavailable" is the canonical name
-
     """Raised when a bridge method is invoked but its framework is not installed.
 
     Carries an installation hint suitable for surfacing in Robot Framework
@@ -43,9 +42,7 @@ class BridgeUnavailable(RuntimeError):  # noqa: N818  - "Unavailable" is the can
     """
 
     def __init__(self, framework: str, install_hint: str) -> None:
-        super().__init__(
-            f"{framework} bridge unavailable. Install with: {install_hint}"
-        )
+        super().__init__(f"{framework} bridge unavailable. Install with: {install_hint}")
         self.framework = framework
         self.install_hint = install_hint
 

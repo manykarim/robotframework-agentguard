@@ -25,9 +25,7 @@ class ClineDriver:
         prompt: str,
         config: DriverConfig | None = None,
     ) -> DriverResult:
-        raise DriverUnavailable(
-            "Phase 4 — workspace-based Cline driver pending implementation."
-        )
+        raise DriverUnavailable("Phase 4 — workspace-based Cline driver pending implementation.")
 
 
 __all__ = ["ClineDriver"]

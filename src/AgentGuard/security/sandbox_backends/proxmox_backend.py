@@ -37,6 +37,4 @@ class ProxmoxBackend:
         mounts: list[tuple[str, str]] | None = None,  # noqa: ARG002
         timeout_seconds: int | None = None,  # noqa: ARG002
     ) -> SandboxResult:
-        raise NotImplementedError(
-            "Phase 3 - Proxmox LXC/VM backend not yet implemented"
-        )
+        raise NotImplementedError("Phase 3 - Proxmox LXC/VM backend not yet implemented")

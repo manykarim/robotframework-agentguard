@@ -102,13 +102,7 @@ def make_travel_planner(
         places_task = await places.server().submit_async(f"places in {city}")
 
         weather_text = (
-            "\n".join(
-                p.text
-                for art in weather_task.artifacts
-                for p in art.parts
-                if p.kind == "text"
-            )
-            or "(no weather)"
+            "\n".join(p.text for art in weather_task.artifacts for p in art.parts if p.kind == "text") or "(no weather)"
         )
         places_data: dict[str, Any] = {}
         for art in places_task.artifacts:
@@ -154,11 +148,7 @@ def make_travel_planner(
             )
         )
 
-        summary = (
-            f"Trip to {city}\n"
-            f"- {weather_text}\n"
-            f"- Suggested places: {', '.join(places_data.get('places', []))}"
-        )
+        summary = f"Trip to {city}\n- {weather_text}\n- Suggested places: {', '.join(places_data.get('places', []))}"
         base = text_artifact(summary, name="trip.summary")
 
         return Artifact(

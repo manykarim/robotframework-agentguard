@@ -41,25 +41,19 @@ def test_degraded_breaches_at_least_seven_metrics(degraded_session: Any) -> None
     assert len(failed) >= 7, f"only {len(failed)} metrics failed: {failed}"
 
 
-def test_keyword_wrapper_health_matches_pack(
-    kw: CodingAgentKeywords, degraded_session: Any
-) -> None:
+def test_keyword_wrapper_health_matches_pack(kw: CodingAgentKeywords, degraded_session: Any) -> None:
     via_pack = compute_42796_pack(degraded_session).overall_health
     via_keyword = kw.get_session_health(degraded_session)
     assert via_pack == via_keyword
 
 
-def test_keyword_value_matches_pack_value(
-    kw: CodingAgentKeywords, healthy_session: Any
-) -> None:
+def test_keyword_value_matches_pack_value(kw: CodingAgentKeywords, healthy_session: Any) -> None:
     pack_val = compute_42796_pack(healthy_session).metrics["read_edit_ratio"].value
     kw_val = kw.read_edit_ratio(healthy_session)
     assert pack_val == pytest.approx(kw_val)
 
 
-def test_save_then_load_snapshot_roundtrip(
-    kw: CodingAgentKeywords, healthy_session: Any, tmp_path: Any
-) -> None:
+def test_save_then_load_snapshot_roundtrip(kw: CodingAgentKeywords, healthy_session: Any, tmp_path: Any) -> None:
     snap = tmp_path / "snap.json"
     kw.save_session_snapshot(healthy_session, str(snap))
     # we don't load_session_snapshot here because it builds a Session from raw

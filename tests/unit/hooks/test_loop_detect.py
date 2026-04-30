@@ -37,9 +37,7 @@ def test_loop_detected_at_threshold() -> None:
 
 
 def test_loop_detected_with_extra_after() -> None:
-    results = [_result(decision="block", stop_active=True)] * 5 + [
-        _result(decision="allow")
-    ]
+    results = [_result(decision="block", stop_active=True)] * 5 + [_result(decision="allow")]
     assert detect_stop_loop(results, window=5) is True
 
 
