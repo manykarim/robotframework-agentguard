@@ -1,0 +1,38 @@
+{
+  "id": "healthy-001",
+  "source": "claude-code",
+  "messages": [
+    {"role": "user", "content": "Add a docstring to user.py", "tool_calls": []},
+    {"role": "assistant", "content": "I'll read the file first, then add the docstring. The change should be minimal.", "tool_calls": []},
+    {"role": "user", "content": "Now run tests", "tool_calls": []},
+    {"role": "assistant", "content": "Tests pass cleanly.", "tool_calls": []}
+  ],
+  "tool_calls": [
+    {"id": "1", "name": "Read", "arguments": {"file_path": "/repo/src/user.py"}, "timestamp": "2026-04-29T10:00:00Z"},
+    {"id": "2", "name": "Read", "arguments": {"file_path": "/repo/src/user.py"}, "timestamp": "2026-04-29T10:00:01Z"},
+    {"id": "3", "name": "Read", "arguments": {"file_path": "/repo/src/auth.py"}, "timestamp": "2026-04-29T10:00:02Z"},
+    {"id": "4", "name": "Read", "arguments": {"file_path": "/repo/src/db.py"}, "timestamp": "2026-04-29T10:00:03Z"},
+    {"id": "5", "name": "Read", "arguments": {"file_path": "/repo/src/api.py"}, "timestamp": "2026-04-29T10:00:04Z"},
+    {"id": "6", "name": "Read", "arguments": {"file_path": "/repo/src/util.py"}, "timestamp": "2026-04-29T10:00:05Z"},
+    {"id": "7", "name": "Read", "arguments": {"file_path": "/repo/tests/test_user.py"}, "timestamp": "2026-04-29T10:00:06Z"},
+    {"id": "8", "name": "Read", "arguments": {"file_path": "/repo/README.md"}, "timestamp": "2026-04-29T10:00:07Z"},
+    {"id": "9", "name": "Read", "arguments": {"file_path": "/repo/pyproject.toml"}, "timestamp": "2026-04-29T10:00:08Z"},
+    {"id": "10", "name": "Read", "arguments": {"file_path": "/repo/src/main.py"}, "timestamp": "2026-04-29T10:00:09Z"},
+    {"id": "11", "name": "Edit", "arguments": {"file_path": "/repo/src/user.py"}, "timestamp": "2026-04-29T10:00:10Z"},
+    {"id": "12", "name": "Edit", "arguments": {"file_path": "/repo/src/auth.py"}, "timestamp": "2026-04-29T10:00:11Z"},
+    {"id": "13", "name": "Bash", "arguments": {"command": "pytest -q"}, "timestamp": "2026-04-29T10:00:12Z"}
+  ],
+  "tool_responses": [
+    {"tool_call_id": "13", "content": "5 passed in 0.42s", "is_error": false, "timestamp": "2026-04-29T10:00:13Z"}
+  ],
+  "thinking_blocks": [],
+  "interrupts": [],
+  "hook_events": [],
+  "usage": {"prompt_tokens": 800, "completion_tokens": 400, "cache_read_tokens": 0, "cache_write_tokens": 0, "cost_usd": null},
+  "cwd": "/repo",
+  "git_branch": "main",
+  "started_at": "2026-04-29T10:00:00Z",
+  "ended_at": "2026-04-29T10:00:13Z",
+  "raw_path": null,
+  "metadata": {}
+}

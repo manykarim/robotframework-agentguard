@@ -1,0 +1,20 @@
+{"input": "What is 2 + 2?", "response": "2 + 2 = 4.", "human_label": {"correctness": "good", "completeness": "complete"}}
+{"input": "What is 2 + 2?", "response": "Five.", "human_label": {"correctness": "bad", "completeness": "missing"}}
+{"input": "Capital of France?", "response": "Paris is the capital of France.", "human_label": {"correctness": "good", "completeness": "complete"}}
+{"input": "Capital of France?", "response": "I think it's Lyon.", "human_label": {"correctness": "bad", "completeness": "missing"}}
+{"input": "List the primary colors.", "response": "Red, blue, yellow.", "human_label": {"correctness": "good", "completeness": "complete"}}
+{"input": "List the primary colors.", "response": "Red and blue.", "human_label": {"correctness": "good", "completeness": "incomplete"}}
+{"input": "Boiling point of water in Celsius?", "response": "100 °C at standard atmospheric pressure.", "human_label": {"correctness": "good", "completeness": "complete"}}
+{"input": "Boiling point of water in Celsius?", "response": "Around 90 degrees.", "human_label": {"correctness": "bad", "completeness": "missing"}}
+{"input": "Author of 'Pride and Prejudice'?", "response": "Jane Austen wrote 'Pride and Prejudice'.", "human_label": {"correctness": "good", "completeness": "complete"}}
+{"input": "Author of 'Pride and Prejudice'?", "response": "Charlotte Brontë.", "human_label": {"correctness": "bad", "completeness": "missing"}}
+{"input": "How many continents are there?", "response": "Seven.", "human_label": {"correctness": "good", "completeness": "complete"}}
+{"input": "How many continents are there?", "response": "Five continents.", "human_label": {"correctness": "bad", "completeness": "missing"}}
+{"input": "Who painted the Mona Lisa?", "response": "Leonardo da Vinci painted the Mona Lisa around 1503-1519.", "human_label": {"correctness": "good", "completeness": "complete"}}
+{"input": "Who painted the Mona Lisa?", "response": "Leonardo.", "human_label": {"correctness": "good", "completeness": "incomplete"}}
+{"input": "Speed of light in a vacuum?", "response": "Approximately 299,792,458 m/s.", "human_label": {"correctness": "good", "completeness": "complete"}}
+{"input": "Speed of light in a vacuum?", "response": "Some very large number.", "human_label": {"correctness": "partial", "completeness": "incomplete"}}
+{"input": "Largest planet in the solar system?", "response": "Jupiter is the largest planet.", "human_label": {"correctness": "good", "completeness": "complete"}}
+{"input": "Largest planet in the solar system?", "response": "Saturn.", "human_label": {"correctness": "bad", "completeness": "missing"}}
+{"input": "Square root of 144?", "response": "12.", "human_label": {"correctness": "good", "completeness": "complete"}}
+{"input": "Square root of 144?", "response": "About 11 or 13.", "human_label": {"correctness": "bad", "completeness": "missing"}}

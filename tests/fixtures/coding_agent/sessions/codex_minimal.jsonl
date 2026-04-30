@@ -1,0 +1,5 @@
+{"session_id": "synthetic-codex-001", "turn": 0, "role": "system", "content": "You are a coding assistant.", "timestamp": "2026-04-29T14:00:00Z"}
+{"session_id": "synthetic-codex-001", "turn": 1, "role": "user", "content": "Sum 2 and 3 in Python.", "timestamp": "2026-04-29T14:00:05Z"}
+{"session_id": "synthetic-codex-001", "turn": 2, "role": "assistant", "content": "Use the + operator.", "tool_calls": [{"id": "call_001", "function": {"name": "python", "arguments": "{\"code\": \"print(2+3)\"}"}}], "timestamp": "2026-04-29T14:00:06Z", "usage": {"prompt_tokens": 32, "completion_tokens": 12}}
+{"session_id": "synthetic-codex-001", "turn": 3, "role": "tool", "tool_call_id": "call_001", "content": "5\n", "timestamp": "2026-04-29T14:00:07Z"}
+{"session_id": "synthetic-codex-001", "turn": 4, "role": "assistant", "content": "The result is 5.", "timestamp": "2026-04-29T14:00:08Z", "usage": {"prompt_tokens": 40, "completion_tokens": 6}}

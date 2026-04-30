@@ -1,0 +1,34 @@
+{
+  "name": "travel-planner",
+  "description": "Plans trips by delegating to weather and places sub-agents.",
+  "version": "1.0.0",
+  "url": "https://example.test/a2a/travel-planner",
+  "documentation_url": "https://example.test/docs/travel-planner",
+  "default_input_modes": ["text/plain"],
+  "default_output_modes": ["text/plain", "application/json"],
+  "capabilities": {
+    "streaming": true,
+    "push_notifications": false,
+    "extended_agent_card": false
+  },
+  "provider": {
+    "organization": "AgentGuard Reference Fixtures",
+    "url": "https://example.test"
+  },
+  "supported_interfaces": [
+    {
+      "url": "https://example.test/a2a/travel-planner/jsonrpc",
+      "protocol_binding": "jsonrpc",
+      "protocol_version": "1.0"
+    }
+  ],
+  "skills": [
+    {
+      "id": "trip.plan",
+      "name": "trip.plan",
+      "description": "Compose a trip summary from weather + places sub-agents.",
+      "tags": ["travel", "composite"],
+      "examples": ["Plan a trip to Lisbon", "Plan a trip to Tokyo"]
+    }
+  ]
+}

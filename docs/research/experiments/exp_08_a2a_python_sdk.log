@@ -1,0 +1,13 @@
+--- a2a-sdk ---
+  version : 1.0.2
+  summary : A2A Python SDK
+  requires: >=3.10
+  home    : {'changelog': 'https://github.com/a2aproject/a2a-python/blob/main/CHANGELOG.md', 'documentation': 'https://a2a-protocol.org/latest/sdk/python/', 'homepage': 'https://a2a-protocol.org/', 'repository': 'https://github.com/a2aproject/a2a-python'}
+  releases: 53 versions, latest 3 = ['1.0.0a3', '1.0.1', '1.0.2']
+--- python-a2a ---
+  version : 0.5.10
+  summary : A comprehensive Python library for Google's Agent-to-Agent (A2A) protocol
+  requires: >=3.9
+  home    : https://github.com/themanojdesai/python-a2a
+  releases: 28 versions, latest 3 = ['0.5.7', '0.5.8', '0.5.9']
+PASS exp_08_a2a_python_sdk found= [('a2a-sdk', '1.0.2'), ('python-a2a', '0.5.10')]

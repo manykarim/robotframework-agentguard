@@ -1,0 +1,14 @@
+Cannot read termcap database;
+using dumb terminal settings.
+inspect_evals located at: /home/many/workspace/robotframework-agentguard/.venv/lib/python3.11/site-packages/inspect_evals/__init__.py
+imported: inspect_evals.bfcl -> /home/many/workspace/robotframework-agentguard/.venv/lib/python3.11/site-packages/inspect_evals/bfcl/__init__.py
+bfcl/function-call-related top-level submodules: ['bfcl']
+  src: /home/many/workspace/robotframework-agentguard/.venv/lib/python3.11/site-packages/inspect_evals/agentharm/benchmark/harmful_tools/comment_on_mastodon.py
+  src: /home/many/workspace/robotframework-agentguard/.venv/lib/python3.11/site-packages/inspect_evals/agentharm/benchmark/harmful_tools/__pycache__/comment_on_mastodon.cpython-311.pyc
+  src: /home/many/workspace/robotframework-agentguard/.venv/lib/python3.11/site-packages/inspect_evals/agentharm/benchmark/benign_tools/comment_on_mastodon.py
+  src: /home/many/workspace/robotframework-agentguard/.venv/lib/python3.11/site-packages/inspect_evals/agentharm/benchmark/benign_tools/__pycache__/comment_on_mastodon.cpython-311.pyc
+  src: /home/many/workspace/robotframework-agentguard/.venv/lib/python3.11/site-packages/inspect_evals/abstention_bench/data/fast-subset-indices.json
+  src: /home/many/workspace/robotframework-agentguard/.venv/lib/python3.11/site-packages/inspect_evals/b3/data/tool_specs/get_weather_forecast.json
+  src: /home/many/workspace/robotframework-agentguard/.venv/lib/python3.11/site-packages/inspect_evals/bfcl/bfcl.py
+  src: /home/many/workspace/robotframework-agentguard/.venv/lib/python3.11/site-packages/inspect_evals/bfcl/__pycache__/bfcl.cpython-311.pyc
+PASS exp_09_bfcl_import

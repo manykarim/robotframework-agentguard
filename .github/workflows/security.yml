@@ -1,0 +1,93 @@
+name: Security
+
+on:
+  schedule:
+    - cron: "23 4 * * 1"  # Mondays, 04:23 UTC
+  pull_request:
+    paths:
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write   # for SARIF upload
+
+env:
+  UV_VERSION: "0.5.20"
+
+jobs:
+  sbom:
+    name: SBOM (CycloneDX)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - run: uv sync --frozen
+      - name: Install cyclonedx-py
+        run: uv pip install cyclonedx-bom
+      - name: Export requirements + generate SBOM
+        run: |
+          uv export --no-hashes --format requirements-txt > requirements.txt
+          uv run cyclonedx-py requirements requirements.txt -o sbom.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-cyclonedx
+          path: sbom.json
+          if-no-files-found: error
+
+  pip-audit:
+    name: pip-audit (advisory scan)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true   # advisory; do not block PRs on transient feed flakes
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - run: uv sync --frozen
+      - name: Install pip-audit
+        run: uv pip install pip-audit
+      - name: Audit
+        run: uv run pip-audit --strict || true
+
+  workflow-scan:
+    name: bearer (workflow + source scan)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true   # best-effort: bearer occasionally fails on cold cache
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bearer scan
+        run: |
+          npx --yes @bearer/bearer scan . --format json > bearer-report.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bearer-report
+          path: bearer-report.json
+          if-no-files-found: ignore
+
+  cosign-verify:
+    name: cosign (presence check)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: sigstore/cosign-installer@v3
+      - name: cosign version
+        run: cosign version
+      - name: Note
+        run: |
+          echo "Phase-1: cosign verify is wired at release time (release.yml)."
+          echo "This job validates the toolchain is installable; signing keys are"
+          echo "introduced when Trusted Publishing lands."

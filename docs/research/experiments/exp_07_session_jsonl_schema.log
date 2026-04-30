@@ -1,0 +1,12 @@
+inspected file: /home/many/.claude/projects/-home-many-workspace-lernkit/305bb063-36d4-445d-a236-1ebb1c4311b3.jsonl
+size_bytes: 3590174
+first 5 lines top-level keys:
+  ['permissionMode', 'sessionId', 'type']
+  ['isSnapshotUpdate', 'messageId', 'snapshot', 'type']
+  ['cwd', 'entrypoint', 'gitBranch', 'isSidechain', 'message', 'parentUuid', 'permissionMode', 'promptId', 'sessionId', 'timestamp', 'type', 'userType', 'uuid', 'version']
+  ['attachment', 'cwd', 'entrypoint', 'gitBranch', 'isSidechain', 'parentUuid', 'sessionId', 'timestamp', 'type', 'userType', 'uuid', 'version']
+  ['attachment', 'cwd', 'entrypoint', 'gitBranch', 'isSidechain', 'parentUuid', 'sessionId', 'timestamp', 'type', 'userType', 'uuid', 'version']
+union of top-level keys (first 200 lines): ['attachment', 'content', 'cwd', 'durationMs', 'entrypoint', 'gitBranch', 'isMeta', 'isSidechain', 'isSnapshotUpdate', 'lastPrompt', 'leafUuid', 'message', 'messageCount', 'messageId', 'parentUuid', 'permissionMode', 'promptId', 'requestId', 'sessionId', 'snapshot', 'sourceToolAssistantUUID', 'subtype', 'timestamp', 'toolUseResult', 'type', 'userType', 'uuid', 'version']
+type counts: {'permission-mode': 14, 'file-history-snapshot': 2, 'user': 72, 'attachment': 5, 'assistant': 93, 'last-prompt': 13, 'system': 2}
+schema-derivable from line records: True
+PASS exp_07_session_jsonl_schema

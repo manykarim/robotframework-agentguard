@@ -1,0 +1,187 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Minimal default permissions; jobs that need more elevate explicitly.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_VERSION: "0.5.20"
+  PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  lint-type:
+    name: lint + type
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - name: Install dev deps
+        run: uv sync --group dev --frozen
+      - name: ruff check
+        run: uv run ruff check src tests benchmarks
+      - name: ruff format --check
+        run: uv run ruff format --check src tests benchmarks
+      - name: mypy
+        run: uv run mypy src tests
+
+  test-unit:
+    name: unit (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - name: Set Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+      - name: Install
+        run: uv sync --group dev --frozen
+      - name: pytest unit
+        run: |
+          uv run pytest tests/unit -q \
+            --cov=src/AgentGuard \
+            --cov-report=term-missing \
+            --cov-fail-under=80
+
+  test-integration-offline:
+    name: integration (offline)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: test-unit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - run: uv sync --group dev --frozen
+      - name: pytest integration -m "not live"
+        run: uv run pytest tests/integration -q -m "not live"
+
+  test-acceptance:
+    name: acceptance (robot)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: test-unit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - run: uv sync --group dev --frozen
+      - name: robot tests/acceptance
+        run: |
+          if [ -d tests/acceptance ]; then
+            uv run robot --exclude live tests/acceptance/
+          else
+            echo "tests/acceptance/ not present yet — skipping"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robot-acceptance-output
+          path: |
+            output.xml
+            log.html
+            report.html
+          if-no-files-found: ignore
+
+  test-live:
+    name: live (main only)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: test-unit
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - run: uv sync --group dev --frozen
+      - name: pytest -m live
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          if [ -z "${OPENROUTER_API_KEY:-}" ]; then
+            echo "OPENROUTER_API_KEY not set — skipping live suite"
+            exit 0
+          fi
+          uv run pytest -q -m live
+      - name: robot --include live
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          if [ -z "${OPENROUTER_API_KEY:-}" ] || [ ! -d tests/acceptance ]; then
+            echo "live robot suite skipped"
+            exit 0
+          fi
+          uv run robot --include live tests/acceptance/
+
+  bench:
+    name: benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: test-unit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - run: uv sync --group dev --frozen
+      - name: pytest benchmarks/
+        run: |
+          uv run pytest benchmarks/ \
+            --benchmark-only \
+            --benchmark-json=benchmarks/results.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-results
+          path: benchmarks/results.json
+          if-no-files-found: warn
+
+  doctor:
+    name: agentguard doctor
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: test-unit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - run: uv sync --frozen
+      - run: uv run agentguard doctor

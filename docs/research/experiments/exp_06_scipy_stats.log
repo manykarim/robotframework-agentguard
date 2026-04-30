@@ -1,0 +1,5 @@
+scipy version: 1.17.1
+Mann-Whitney U: stat=562.00  p=0.04963
+Cliff's delta : +0.249
+Bootstrap 95%CI for mean(b): [0.140, 0.712]
+PASS exp_06_scipy_stats

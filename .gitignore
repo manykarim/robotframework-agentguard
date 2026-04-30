@@ -1,0 +1,43 @@
+# Secrets — NEVER commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# uv / Python
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.benchmarks/
+.tox/
+
+# AgentGuard runtime
+.agentguard/
+agentdb.rvf
+agentdb.rvf.lock
+ruvector.db
+_inspect_log/
+
+# Robot Framework outputs
+output.xml
+log.html
+report.html
+robot_*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store

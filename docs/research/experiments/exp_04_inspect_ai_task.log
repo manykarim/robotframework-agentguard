@@ -1,0 +1,26 @@
+Cannot read termcap database;
+using dumb terminal settings.
+inspect_ai version: 0.3.213
+---------------------------------------------------------
+task (1 sample): mockllm/model                           
+dataset: (samples)                                       
+---------------------------------------------------------
+                                                         
+Steps:   1/1 100% | Samples:   1/  1 | accuracy:  n/a | mockllm:  0/10 | HTTP retries: 0
+
+---------------------------------------------------------                   
+task (1 sample): mockllm/model                                              
+dataset: (samples)                                                          
+                                                                            
+total time:                 0:00:09                                         
+mockllm/model               47 tokens [I: 14, O: 33]                        
+match                                                                       
+accuracy  0.000                                                             
+stderr    0.000                                                             
+Log: _inspect_log/2026-04-29T18-57-47-00-00_task_gxk9foR8ynSD3NkMAoLVVE.eval
+---------------------------------------------------------                   
+                                                                            
+status: success
+n_samples: 1
+first sample.score: {'match': Score(value='I', answer='Default output from mockllm/model', explanation='Default output from mockllm/model', metadata=None, history=[])}
+PASS exp_04_inspect_ai_task

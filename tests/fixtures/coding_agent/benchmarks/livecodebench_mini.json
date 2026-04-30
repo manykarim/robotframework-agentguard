@@ -1,0 +1,79 @@
+[
+  {
+    "question_id": "agentguard-lcb-001",
+    "question_title": "two-sum",
+    "question_content": "Given an array of integers and a target, return the indices of the two numbers that add up to the target. Read input from stdin: line 1 is the target, line 2 is the space-separated array.",
+    "starter_code": "",
+    "difficulty": "easy",
+    "platform": "agentguard",
+    "contest_date": "2026-01-01",
+    "public_test_cases": [
+      {"input": "9\n2 7 11 15\n", "output": "0 1\n", "testtype": "stdin"},
+      {"input": "6\n3 2 4\n", "output": "1 2\n", "testtype": "stdin"}
+    ],
+    "private_test_cases": [
+      {"input": "10\n5 5 1 9\n", "output": "0 1\n", "testtype": "stdin"}
+    ]
+  },
+  {
+    "question_id": "agentguard-lcb-002",
+    "question_title": "balanced-parens",
+    "question_content": "Given a string of parens, brackets, and braces on stdin, print 'YES' if balanced else 'NO'.",
+    "starter_code": "",
+    "difficulty": "easy",
+    "platform": "agentguard",
+    "contest_date": "2026-01-02",
+    "public_test_cases": [
+      {"input": "()[]{}\n", "output": "YES\n", "testtype": "stdin"},
+      {"input": "([)]\n", "output": "NO\n", "testtype": "stdin"}
+    ],
+    "private_test_cases": [
+      {"input": "{[()]}\n", "output": "YES\n", "testtype": "stdin"}
+    ]
+  },
+  {
+    "question_id": "agentguard-lcb-003",
+    "question_title": "reverse-words",
+    "question_content": "Reverse the order of words in the input line, preserving single spaces.",
+    "starter_code": "",
+    "difficulty": "easy",
+    "platform": "agentguard",
+    "contest_date": "2026-01-03",
+    "public_test_cases": [
+      {"input": "the quick brown fox\n", "output": "fox brown quick the\n", "testtype": "stdin"}
+    ],
+    "private_test_cases": [
+      {"input": "hello\n", "output": "hello\n", "testtype": "stdin"}
+    ]
+  },
+  {
+    "question_id": "agentguard-lcb-004",
+    "question_title": "word-count",
+    "question_content": "Print the number of whitespace-separated words on stdin.",
+    "starter_code": "",
+    "difficulty": "easy",
+    "platform": "agentguard",
+    "contest_date": "2026-01-04",
+    "public_test_cases": [
+      {"input": "a b c\n", "output": "3\n", "testtype": "stdin"},
+      {"input": "\n", "output": "0\n", "testtype": "stdin"}
+    ],
+    "private_test_cases": []
+  },
+  {
+    "question_id": "agentguard-lcb-005",
+    "question_title": "is-prime",
+    "question_content": "Read an integer n from stdin; print 'YES' if prime, 'NO' otherwise.",
+    "starter_code": "",
+    "difficulty": "medium",
+    "platform": "agentguard",
+    "contest_date": "2026-01-05",
+    "public_test_cases": [
+      {"input": "7\n", "output": "YES\n", "testtype": "stdin"},
+      {"input": "9\n", "output": "NO\n", "testtype": "stdin"}
+    ],
+    "private_test_cases": [
+      {"input": "1\n", "output": "NO\n", "testtype": "stdin"}
+    ]
+  }
+]

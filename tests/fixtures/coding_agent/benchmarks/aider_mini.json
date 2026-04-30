@@ -1,0 +1,29 @@
+[
+  {
+    "exercise": "leap-year",
+    "language": "python",
+    "instructions": "Implement `is_leap_year(year)` that returns True iff the Gregorian year is a leap year (divisible by 4 except centurial years not divisible by 400).",
+    "starter_code": "def is_leap_year(year):\n    pass\n",
+    "test": "def check(candidate):\n    assert candidate(2000) is True\n    assert candidate(1900) is False\n    assert candidate(2024) is True\n    assert candidate(2023) is False\n",
+    "entry_point": "is_leap_year",
+    "files_to_edit": ["leap_year.py"]
+  },
+  {
+    "exercise": "rna-transcription",
+    "language": "python",
+    "instructions": "Implement `to_rna(dna)` that maps each DNA nucleotide (G,C,T,A) to its RNA complement (C,G,A,U).",
+    "starter_code": "def to_rna(dna):\n    pass\n",
+    "test": "def check(candidate):\n    assert candidate('GCTA') == 'CGAU'\n    assert candidate('') == ''\n    assert candidate('AAAA') == 'UUUU'\n",
+    "entry_point": "to_rna",
+    "files_to_edit": ["rna_transcription.py"]
+  },
+  {
+    "exercise": "anagram",
+    "language": "python",
+    "instructions": "Implement `find_anagrams(word, candidates)` that returns those candidates which are anagrams of `word` (case-insensitive; the word itself is NOT an anagram of itself).",
+    "starter_code": "def find_anagrams(word, candidates):\n    pass\n",
+    "test": "def check(candidate):\n    assert candidate('listen', ['enlists', 'silent', 'banana']) == ['silent']\n    assert candidate('Listen', ['Silent']) == ['Silent']\n    assert candidate('go', ['go', 'do']) == []\n",
+    "entry_point": "find_anagrams",
+    "files_to_edit": ["anagram.py"]
+  }
+]

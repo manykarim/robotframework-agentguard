@@ -1,0 +1,60 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write   # PyPI Trusted Publishing (no token in repo secrets)
+
+env:
+  UV_VERSION: "0.5.20"
+
+jobs:
+  build:
+    name: build sdist + wheel
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - run: uv sync --frozen
+      - name: Build
+        run: uv build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    name: publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Real publishing requires a PyPI Trusted Publisher to be configured
+    # against this repo + workflow. Until that is in place this job is a
+    # placeholder that downloads the artifact and prints what it would do.
+    environment:
+      name: pypi
+      url: https://pypi.org/p/robotframework-agentguard
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: List artifacts
+        run: ls -la dist/
+      - name: Publish (Trusted Publishing — no API token required)
+        # Replace with `pypa/gh-action-pypi-publish@release/v1` once the
+        # Trusted Publisher is configured at https://pypi.org/manage/.
+        run: |
+          echo "Would upload dist/*.whl dist/*.tar.gz to PyPI"
+          echo "(Trusted Publishing not yet wired — placeholder per task brief)"

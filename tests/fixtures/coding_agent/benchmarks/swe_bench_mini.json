@@ -1,0 +1,41 @@
+[
+  {
+    "instance_id": "agentguard-swe-mini__0001",
+    "repo": "agentguard/toy-pkg-a",
+    "base_commit": "0000000000000000000000000000000000000001",
+    "problem_statement": "The function `add` in `pkg_a/calc.py` returns `a - b` instead of `a + b`. Fix the implementation so all tests pass.",
+    "hints_text": "Look at `tests/test_calc.py` — `test_add_positive` and `test_add_negative` both fail with the buggy implementation.",
+    "test_cmd": "python -m pytest -q tests/test_calc.py",
+    "FAIL_TO_PASS": ["tests/test_calc.py::test_add_positive", "tests/test_calc.py::test_add_negative"],
+    "PASS_TO_PASS": ["tests/test_calc.py::test_add_zero"],
+    "patch": "diff --git a/pkg_a/calc.py b/pkg_a/calc.py\n@@\n-def add(a, b):\n-    return a - b\n+def add(a, b):\n+    return a + b\n",
+    "version": "0.1.0",
+    "environment_setup_commit": "0000000000000000000000000000000000000001"
+  },
+  {
+    "instance_id": "agentguard-swe-mini__0002",
+    "repo": "agentguard/toy-pkg-b",
+    "base_commit": "0000000000000000000000000000000000000002",
+    "problem_statement": "`pkg_b/strings.py::reverse` returns the input unchanged for non-ASCII strings because it iterates byte-wise. Fix it to operate on codepoints.",
+    "hints_text": "`tests/test_strings.py::test_reverse_unicode` is the failing test.",
+    "test_cmd": "python -m pytest -q tests/test_strings.py",
+    "FAIL_TO_PASS": ["tests/test_strings.py::test_reverse_unicode"],
+    "PASS_TO_PASS": ["tests/test_strings.py::test_reverse_ascii"],
+    "patch": "diff --git a/pkg_b/strings.py b/pkg_b/strings.py\n@@\n-def reverse(s):\n-    return bytes(reversed(s.encode())).decode(errors='ignore')\n+def reverse(s):\n+    return s[::-1]\n",
+    "version": "0.2.0",
+    "environment_setup_commit": "0000000000000000000000000000000000000002"
+  },
+  {
+    "instance_id": "agentguard-swe-mini__0003",
+    "repo": "agentguard/toy-pkg-c",
+    "base_commit": "0000000000000000000000000000000000000003",
+    "problem_statement": "`pkg_c/cache.py::LRU` evicts the most-recently-used entry instead of the least-recently-used one when full. Fix the eviction order.",
+    "hints_text": "Failing test: `tests/test_cache.py::test_lru_eviction_order` — it fills the cache, accesses key 'a' to bump it, inserts a new key, and expects 'b' (the actual LRU) to have been evicted.",
+    "test_cmd": "python -m pytest -q tests/test_cache.py",
+    "FAIL_TO_PASS": ["tests/test_cache.py::test_lru_eviction_order"],
+    "PASS_TO_PASS": ["tests/test_cache.py::test_lru_get_set", "tests/test_cache.py::test_lru_capacity"],
+    "patch": "diff --git a/pkg_c/cache.py b/pkg_c/cache.py\n@@\n-        self._order.pop()  # evict newest — bug\n+        self._order.pop(0)  # evict oldest\n",
+    "version": "0.3.0",
+    "environment_setup_commit": "0000000000000000000000000000000000000003"
+  }
+]

@@ -1,0 +1,5 @@
+litellm version: 1.83.0
+first 5 models: ['us.anthropic.claude-3-haiku-20240307-v1:0', 'azure/global/gpt-5.1-codex', 'meta-llama/Llama-2-7b', 'gradient_ai/deepseek-r1-distill-llama-70b', 'openrouter/openai/o3-mini-high']
+RateLimitError importable: True
+mock_response result: 'hi' ok= True
+PASS exp_03_litellm_provider_shape

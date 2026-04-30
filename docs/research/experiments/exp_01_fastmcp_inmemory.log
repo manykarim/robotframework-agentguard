@@ -1,0 +1,6 @@
+PASS exp_01_fastmcp_inmemory
+  tools: ['add']
+  add_2_3: 5
+  calls: 100
+  total_ms: 222.235
+  per_call_ms: 2.2224

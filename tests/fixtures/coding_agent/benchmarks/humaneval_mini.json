@@ -1,0 +1,37 @@
+[
+  {
+    "task_id": "AgentGuard/HumanEval/0",
+    "prompt": "def add(a, b):\n    \"\"\"Return the sum of a and b.\"\"\"\n",
+    "canonical_solution": "    return a + b\n",
+    "test": "def check(candidate):\n    assert candidate(1, 2) == 3\n    assert candidate(-1, 1) == 0\n    assert candidate(0, 0) == 0\n",
+    "entry_point": "add"
+  },
+  {
+    "task_id": "AgentGuard/HumanEval/1",
+    "prompt": "def is_even(n):\n    \"\"\"Return True if n is even.\"\"\"\n",
+    "canonical_solution": "    return n % 2 == 0\n",
+    "test": "def check(candidate):\n    assert candidate(2) is True\n    assert candidate(3) is False\n    assert candidate(0) is True\n",
+    "entry_point": "is_even"
+  },
+  {
+    "task_id": "AgentGuard/HumanEval/2",
+    "prompt": "def reverse_string(s):\n    \"\"\"Return the reverse of s.\"\"\"\n",
+    "canonical_solution": "    return s[::-1]\n",
+    "test": "def check(candidate):\n    assert candidate('abc') == 'cba'\n    assert candidate('') == ''\n    assert candidate('a') == 'a'\n",
+    "entry_point": "reverse_string"
+  },
+  {
+    "task_id": "AgentGuard/HumanEval/3",
+    "prompt": "def max_of(values):\n    \"\"\"Return the largest value in the iterable.\"\"\"\n",
+    "canonical_solution": "    return max(values)\n",
+    "test": "def check(candidate):\n    assert candidate([1, 2, 3]) == 3\n    assert candidate([-1, -2, -3]) == -1\n    assert candidate([5]) == 5\n",
+    "entry_point": "max_of"
+  },
+  {
+    "task_id": "AgentGuard/HumanEval/4",
+    "prompt": "def count_vowels(s):\n    \"\"\"Return the number of vowels (a,e,i,o,u) in s, case-insensitive.\"\"\"\n",
+    "canonical_solution": "    return sum(1 for c in s.lower() if c in 'aeiou')\n",
+    "test": "def check(candidate):\n    assert candidate('hello') == 2\n    assert candidate('AEIOU') == 5\n    assert candidate('xyz') == 0\n",
+    "entry_point": "count_vowels"
+  }
+]

@@ -1,0 +1,62 @@
+{
+  "id": "degraded-001",
+  "source": "claude-code",
+  "messages": [
+    {"role": "user", "content": "fix the bug", "tool_calls": []},
+    {"role": "assistant", "content": "Oh wait, actually, let me reconsider. Hmm, on second thought, wait, maybe I should try the simplest approach. Actually, oh wait, on second thought.", "tool_calls": []},
+    {"role": "assistant", "content": "Oh wait, you're right, that was lazy. Sorry, I am wrong. That was sloppy. My apologies. Oh wait, actually, hmm.", "tool_calls": []},
+    {"role": "assistant", "content": "Let me reconsider. The simplest fix is obviously to just rewrite. Actually, on second thought, simplest path is best. Wait, hmm.", "tool_calls": []},
+    {"role": "assistant", "content": "You're right, that was wrong. I was wrong. That was lazy. My mistake. The simplest thing.", "tool_calls": []}
+  ],
+  "tool_calls": [
+    {"id": "1", "name": "Read", "arguments": {"file_path": "/repo/src/a.py"}, "timestamp": "2026-04-29T10:00:00Z"},
+    {"id": "2", "name": "Read", "arguments": {"file_path": "/repo/src/b.py"}, "timestamp": "2026-04-29T10:00:01Z"},
+    {"id": "3", "name": "Edit", "arguments": {"file_path": "/repo/src/c.py"}, "timestamp": "2026-04-29T10:00:02Z"},
+    {"id": "4", "name": "Edit", "arguments": {"file_path": "/repo/src/c.py"}, "timestamp": "2026-04-29T10:00:03Z"},
+    {"id": "5", "name": "Edit", "arguments": {"file_path": "/repo/src/c.py"}, "timestamp": "2026-04-29T10:00:04Z"},
+    {"id": "6", "name": "Edit", "arguments": {"file_path": "/repo/src/d.py"}, "timestamp": "2026-04-29T10:00:05Z"},
+    {"id": "7", "name": "Edit", "arguments": {"file_path": "/repo/src/d.py"}, "timestamp": "2026-04-29T10:00:06Z"},
+    {"id": "8", "name": "Edit", "arguments": {"file_path": "/repo/src/d.py"}, "timestamp": "2026-04-29T10:00:07Z"},
+    {"id": "9", "name": "Edit", "arguments": {"file_path": "/repo/src/e.py"}, "timestamp": "2026-04-29T10:00:08Z"},
+    {"id": "10", "name": "Edit", "arguments": {"file_path": "/repo/src/e.py"}, "timestamp": "2026-04-29T10:00:09Z"},
+    {"id": "11", "name": "Edit", "arguments": {"file_path": "/repo/src/e.py"}, "timestamp": "2026-04-29T10:00:10Z"},
+    {"id": "12", "name": "Edit", "arguments": {"file_path": "/repo/src/f.py"}, "timestamp": "2026-04-29T10:00:11Z"},
+    {"id": "13", "name": "Edit", "arguments": {"file_path": "/repo/src/f.py"}, "timestamp": "2026-04-29T10:00:12Z"},
+    {"id": "14", "name": "Edit", "arguments": {"file_path": "/repo/src/f.py"}, "timestamp": "2026-04-29T10:00:13Z"},
+    {"id": "15", "name": "Write", "arguments": {"file_path": "/repo/src/g.py"}, "timestamp": "2026-04-29T10:00:14Z"},
+    {"id": "16", "name": "Write", "arguments": {"file_path": "/repo/src/h.py"}, "timestamp": "2026-04-29T10:00:15Z"},
+    {"id": "17", "name": "Bash", "arguments": {"command": "pytest -q"}, "timestamp": "2026-04-29T10:00:16Z"}
+  ],
+  "tool_responses": [
+    {"tool_call_id": "17", "content": "FAILED tests/test_c.py::test_thing - AssertionError", "is_error": true, "timestamp": "2026-04-29T10:00:17Z"}
+  ],
+  "thinking_blocks": [],
+  "interrupts": [
+    {"timestamp": "2026-04-29T10:00:00Z", "reason": "esc"},
+    {"timestamp": "2026-04-29T10:00:01Z", "reason": "esc"},
+    {"timestamp": "2026-04-29T10:00:02Z", "reason": "esc"},
+    {"timestamp": "2026-04-29T10:00:03Z", "reason": "esc"},
+    {"timestamp": "2026-04-29T10:00:04Z", "reason": "esc"},
+    {"timestamp": "2026-04-29T10:00:05Z", "reason": "esc"},
+    {"timestamp": "2026-04-29T10:00:06Z", "reason": "esc"},
+    {"timestamp": "2026-04-29T10:00:07Z", "reason": "esc"},
+    {"timestamp": "2026-04-29T10:00:08Z", "reason": "esc"},
+    {"timestamp": "2026-04-29T10:00:09Z", "reason": "esc"},
+    {"timestamp": "2026-04-29T10:00:10Z", "reason": "esc"},
+    {"timestamp": "2026-04-29T10:00:11Z", "reason": "esc"}
+  ],
+  "hook_events": [
+    {"event": "Stop", "decision": "block", "timestamp": "2026-04-29T10:00:00Z"},
+    {"event": "Stop", "decision": "block", "timestamp": "2026-04-29T10:00:01Z"},
+    {"event": "Stop", "decision": "block", "timestamp": "2026-04-29T10:00:02Z"},
+    {"event": "Stop", "decision": "block", "timestamp": "2026-04-29T10:00:03Z"},
+    {"event": "Stop", "decision": "block", "timestamp": "2026-04-29T10:00:04Z"}
+  ],
+  "usage": {"prompt_tokens": 60000, "completion_tokens": 25000, "cache_read_tokens": 0, "cache_write_tokens": 0, "cost_usd": null},
+  "cwd": "/repo",
+  "git_branch": "main",
+  "started_at": "2026-04-29T10:00:00Z",
+  "ended_at": "2026-04-29T10:00:08Z",
+  "raw_path": null,
+  "metadata": {}
+}

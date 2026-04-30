@@ -1,0 +1,5 @@
+Open https://example.com and assert the page title contains "Example Domain".
+Click the first link on the page and verify the new URL host is "iana.org".
+Take a screenshot of the landing page and store it as artifacts/example.png.
+Fill the search input with "robotframework" and press Enter.
+Wait for an element with role "heading" and assert its visible text equals "Example Domain".

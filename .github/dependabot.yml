@@ -1,0 +1,54 @@
+version: 2
+updates:
+  # Python deps managed via uv.lock (Dependabot understands `uv` since 2025).
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    groups:
+      python-minor:
+        update-types: ["minor", "patch"]
+
+  # GitHub Actions used in .github/workflows/
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:30"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    groups:
+      actions-minor:
+        update-types: ["minor", "patch"]
+
+  # npm tools invoked via `npx` in workflows (e.g. @bearer/bearer,
+  # @modelcontextprotocol/inspector). Dependabot tracks them transitively when
+  # they appear in a package.json — included here so future additions are picked
+  # up without a config change.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "npm"
+    commit-message:
+      prefix: "deps(npm)"

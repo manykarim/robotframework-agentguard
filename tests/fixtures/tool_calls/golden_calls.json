@@ -1,0 +1,774 @@
+[
+  {
+    "id": "simple_001",
+    "category": "simple",
+    "prompt": "What is the weather in Berlin tomorrow?",
+    "tools": [
+      {
+        "name": "get_weather",
+        "description": "Return the weather forecast for a city.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "city": {"type": "string"},
+            "when": {"type": "string"}
+          },
+          "required": ["city"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "get_weather", "arguments": {"city": "Berlin", "when": "tomorrow"}}
+    ]
+  },
+  {
+    "id": "simple_002",
+    "category": "simple",
+    "prompt": "Add 3 and 7.",
+    "tools": [
+      {
+        "name": "add",
+        "description": "Add two integers.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "x": {"type": "integer"},
+            "y": {"type": "integer"}
+          },
+          "required": ["x", "y"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "add", "arguments": {"x": 3, "y": 7}}
+    ]
+  },
+  {
+    "id": "simple_003",
+    "category": "simple",
+    "prompt": "Convert 100 USD to EUR.",
+    "tools": [
+      {
+        "name": "convert_currency",
+        "description": "Convert money between currencies.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "amount": {"type": "number"},
+            "from": {"type": "string"},
+            "to": {"type": "string"}
+          },
+          "required": ["amount", "from", "to"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "convert_currency", "arguments": {"amount": 100, "from": "USD", "to": "EUR"}}
+    ]
+  },
+  {
+    "id": "simple_004",
+    "category": "simple",
+    "prompt": "Search the web for 'agentic frameworks'.",
+    "tools": [
+      {
+        "name": "web_search",
+        "description": "Run a web search.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "query": {"type": "string"},
+            "max_results": {"type": "integer"}
+          },
+          "required": ["query"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "web_search", "arguments": {"query": "agentic frameworks"}}
+    ]
+  },
+  {
+    "id": "simple_005",
+    "category": "simple",
+    "prompt": "Set a timer for 5 minutes.",
+    "tools": [
+      {
+        "name": "set_timer",
+        "description": "Start a countdown timer.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "minutes": {"type": "integer"}
+          },
+          "required": ["minutes"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "set_timer", "arguments": {"minutes": 5}}
+    ]
+  },
+  {
+    "id": "simple_006",
+    "category": "simple",
+    "prompt": "Send an email to alice@example.com with subject 'Hi'.",
+    "tools": [
+      {
+        "name": "send_email",
+        "description": "Send an email.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "to": {"type": "string"},
+            "subject": {"type": "string"},
+            "body": {"type": "string"}
+          },
+          "required": ["to", "subject"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "send_email", "arguments": {"to": "alice@example.com", "subject": "Hi"}}
+    ]
+  },
+  {
+    "id": "simple_007",
+    "category": "simple",
+    "prompt": "Look up the user with id 42.",
+    "tools": [
+      {
+        "name": "get_user",
+        "description": "Fetch a user by id.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "user_id": {"type": "integer"}
+          },
+          "required": ["user_id"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "get_user", "arguments": {"user_id": 42}}
+    ]
+  },
+  {
+    "id": "simple_008",
+    "category": "simple",
+    "prompt": "Translate 'hello' to French.",
+    "tools": [
+      {
+        "name": "translate",
+        "description": "Translate text between languages.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "text": {"type": "string"},
+            "target_language": {"type": "string"}
+          },
+          "required": ["text", "target_language"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "translate", "arguments": {"text": "hello", "target_language": "fr"}}
+    ]
+  },
+  {
+    "id": "simple_009",
+    "category": "simple",
+    "prompt": "Round 3.14159 to two decimal places.",
+    "tools": [
+      {
+        "name": "round_number",
+        "description": "Round a float to N decimal places.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "value": {"type": "number"},
+            "digits": {"type": "integer"}
+          },
+          "required": ["value", "digits"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "round_number", "arguments": {"value": 3.14159, "digits": 2}}
+    ]
+  },
+  {
+    "id": "simple_010",
+    "category": "simple",
+    "prompt": "Get the current time in Tokyo.",
+    "tools": [
+      {
+        "name": "current_time",
+        "description": "Return the current time in a city.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "city": {"type": "string"}
+          },
+          "required": ["city"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "current_time", "arguments": {"city": "Tokyo"}}
+    ]
+  },
+  {
+    "id": "parallel_001",
+    "category": "parallel",
+    "prompt": "Get the weather in Berlin and Tokyo.",
+    "tools": [
+      {
+        "name": "get_weather",
+        "description": "Return the weather forecast for a city.",
+        "parameters": {
+          "type": "object",
+          "properties": {"city": {"type": "string"}},
+          "required": ["city"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "get_weather", "arguments": {"city": "Berlin"}},
+      {"name": "get_weather", "arguments": {"city": "Tokyo"}}
+    ]
+  },
+  {
+    "id": "parallel_002",
+    "category": "parallel",
+    "prompt": "Add 1+2 and 3+4.",
+    "tools": [
+      {
+        "name": "add",
+        "description": "Add two integers.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "x": {"type": "integer"},
+            "y": {"type": "integer"}
+          },
+          "required": ["x", "y"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "add", "arguments": {"x": 1, "y": 2}},
+      {"name": "add", "arguments": {"x": 3, "y": 4}}
+    ]
+  },
+  {
+    "id": "parallel_003",
+    "category": "parallel",
+    "prompt": "Look up users 1, 2, and 3.",
+    "tools": [
+      {
+        "name": "get_user",
+        "description": "Fetch a user by id.",
+        "parameters": {
+          "type": "object",
+          "properties": {"user_id": {"type": "integer"}},
+          "required": ["user_id"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "get_user", "arguments": {"user_id": 1}},
+      {"name": "get_user", "arguments": {"user_id": 2}},
+      {"name": "get_user", "arguments": {"user_id": 3}}
+    ]
+  },
+  {
+    "id": "parallel_004",
+    "category": "parallel",
+    "prompt": "Send the same email to alice and bob.",
+    "tools": [
+      {
+        "name": "send_email",
+        "description": "Send an email.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "to": {"type": "string"},
+            "subject": {"type": "string"}
+          },
+          "required": ["to", "subject"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "send_email", "arguments": {"to": "alice@example.com", "subject": "Hello"}},
+      {"name": "send_email", "arguments": {"to": "bob@example.com", "subject": "Hello"}}
+    ]
+  },
+  {
+    "id": "parallel_005",
+    "category": "parallel",
+    "prompt": "Translate 'hi' to French and Spanish.",
+    "tools": [
+      {
+        "name": "translate",
+        "description": "Translate text.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "text": {"type": "string"},
+            "target_language": {"type": "string"}
+          },
+          "required": ["text", "target_language"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "translate", "arguments": {"text": "hi", "target_language": "fr"}},
+      {"name": "translate", "arguments": {"text": "hi", "target_language": "es"}}
+    ]
+  },
+  {
+    "id": "parallel_006",
+    "category": "parallel",
+    "prompt": "Search for 'rust' on web and arxiv.",
+    "tools": [
+      {
+        "name": "web_search",
+        "description": "Web search.",
+        "parameters": {
+          "type": "object",
+          "properties": {"query": {"type": "string"}},
+          "required": ["query"]
+        }
+      },
+      {
+        "name": "arxiv_search",
+        "description": "ArXiv paper search.",
+        "parameters": {
+          "type": "object",
+          "properties": {"query": {"type": "string"}},
+          "required": ["query"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "web_search", "arguments": {"query": "rust"}},
+      {"name": "arxiv_search", "arguments": {"query": "rust"}}
+    ]
+  },
+  {
+    "id": "parallel_007",
+    "category": "parallel",
+    "prompt": "Convert 100 USD to EUR and JPY.",
+    "tools": [
+      {
+        "name": "convert_currency",
+        "description": "Currency conversion.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "amount": {"type": "number"},
+            "from": {"type": "string"},
+            "to": {"type": "string"}
+          },
+          "required": ["amount", "from", "to"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "convert_currency", "arguments": {"amount": 100, "from": "USD", "to": "EUR"}},
+      {"name": "convert_currency", "arguments": {"amount": 100, "from": "USD", "to": "JPY"}}
+    ]
+  },
+  {
+    "id": "parallel_008",
+    "category": "parallel",
+    "prompt": "Set timers for 5 and 10 minutes.",
+    "tools": [
+      {
+        "name": "set_timer",
+        "description": "Start a countdown timer.",
+        "parameters": {
+          "type": "object",
+          "properties": {"minutes": {"type": "integer"}},
+          "required": ["minutes"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "set_timer", "arguments": {"minutes": 5}},
+      {"name": "set_timer", "arguments": {"minutes": 10}}
+    ]
+  },
+  {
+    "id": "multiple_001",
+    "category": "multiple",
+    "prompt": "What is the temperature in Paris?",
+    "tools": [
+      {
+        "name": "get_weather",
+        "description": "Get weather for a city.",
+        "parameters": {
+          "type": "object",
+          "properties": {"city": {"type": "string"}},
+          "required": ["city"]
+        }
+      },
+      {
+        "name": "send_email",
+        "description": "Send an email.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "to": {"type": "string"},
+            "subject": {"type": "string"}
+          },
+          "required": ["to", "subject"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "get_weather", "arguments": {"city": "Paris"}}
+    ]
+  },
+  {
+    "id": "multiple_002",
+    "category": "multiple",
+    "prompt": "Send an email to bob@example.com saying hello.",
+    "tools": [
+      {
+        "name": "get_weather",
+        "description": "Get weather.",
+        "parameters": {
+          "type": "object",
+          "properties": {"city": {"type": "string"}},
+          "required": ["city"]
+        }
+      },
+      {
+        "name": "send_email",
+        "description": "Send an email.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "to": {"type": "string"},
+            "subject": {"type": "string"},
+            "body": {"type": "string"}
+          },
+          "required": ["to", "subject"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "send_email", "arguments": {"to": "bob@example.com", "subject": "hello"}}
+    ]
+  },
+  {
+    "id": "multiple_003",
+    "category": "multiple",
+    "prompt": "Multiply 6 and 7.",
+    "tools": [
+      {
+        "name": "add",
+        "description": "Add two integers.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "x": {"type": "integer"},
+            "y": {"type": "integer"}
+          },
+          "required": ["x", "y"]
+        }
+      },
+      {
+        "name": "multiply",
+        "description": "Multiply two integers.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "x": {"type": "integer"},
+            "y": {"type": "integer"}
+          },
+          "required": ["x", "y"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "multiply", "arguments": {"x": 6, "y": 7}}
+    ]
+  },
+  {
+    "id": "multiple_004",
+    "category": "multiple",
+    "prompt": "Translate 'good morning' to Japanese.",
+    "tools": [
+      {
+        "name": "translate",
+        "description": "Translate text.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "text": {"type": "string"},
+            "target_language": {"type": "string"}
+          },
+          "required": ["text", "target_language"]
+        }
+      },
+      {
+        "name": "spellcheck",
+        "description": "Check spelling.",
+        "parameters": {
+          "type": "object",
+          "properties": {"text": {"type": "string"}},
+          "required": ["text"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "translate", "arguments": {"text": "good morning", "target_language": "ja"}}
+    ]
+  },
+  {
+    "id": "multiple_005",
+    "category": "multiple",
+    "prompt": "Look up user 7.",
+    "tools": [
+      {
+        "name": "get_user",
+        "description": "Fetch a user.",
+        "parameters": {
+          "type": "object",
+          "properties": {"user_id": {"type": "integer"}},
+          "required": ["user_id"]
+        }
+      },
+      {
+        "name": "delete_user",
+        "description": "Delete a user.",
+        "parameters": {
+          "type": "object",
+          "properties": {"user_id": {"type": "integer"}},
+          "required": ["user_id"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "get_user", "arguments": {"user_id": 7}}
+    ]
+  },
+  {
+    "id": "multiple_006",
+    "category": "multiple",
+    "prompt": "Find files containing 'TODO' in the project.",
+    "tools": [
+      {
+        "name": "grep",
+        "description": "Recursively search files.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pattern": {"type": "string"},
+            "path": {"type": "string"}
+          },
+          "required": ["pattern"]
+        }
+      },
+      {
+        "name": "list_files",
+        "description": "List files in a directory.",
+        "parameters": {
+          "type": "object",
+          "properties": {"path": {"type": "string"}},
+          "required": ["path"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "grep", "arguments": {"pattern": "TODO"}}
+    ]
+  },
+  {
+    "id": "multi_turn_001",
+    "category": "multi_turn",
+    "prompt": "Move report.pdf to archive, then list the archive.",
+    "tools": [
+      {
+        "name": "mv",
+        "description": "Move a file.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "source": {"type": "string"},
+            "destination": {"type": "string"}
+          },
+          "required": ["source", "destination"]
+        }
+      },
+      {
+        "name": "ls",
+        "description": "List directory contents.",
+        "parameters": {
+          "type": "object",
+          "properties": {"path": {"type": "string"}}
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "mv", "arguments": {"source": "report.pdf", "destination": "archive"}},
+      {"name": "ls", "arguments": {"path": "archive"}}
+    ]
+  },
+  {
+    "id": "multi_turn_002",
+    "category": "multi_turn",
+    "prompt": "Open settings, change theme to dark, save.",
+    "tools": [
+      {
+        "name": "open_settings",
+        "description": "Open the settings panel.",
+        "parameters": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "set_theme",
+        "description": "Set the UI theme.",
+        "parameters": {
+          "type": "object",
+          "properties": {"theme": {"type": "string"}},
+          "required": ["theme"]
+        }
+      },
+      {
+        "name": "save_settings",
+        "description": "Persist settings.",
+        "parameters": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "open_settings", "arguments": {}},
+      {"name": "set_theme", "arguments": {"theme": "dark"}},
+      {"name": "save_settings", "arguments": {}}
+    ]
+  },
+  {
+    "id": "multi_turn_003",
+    "category": "multi_turn",
+    "prompt": "Create a draft, attach the report, send to manager.",
+    "tools": [
+      {
+        "name": "draft_email",
+        "description": "Start a new email draft.",
+        "parameters": {
+          "type": "object",
+          "properties": {"subject": {"type": "string"}},
+          "required": ["subject"]
+        }
+      },
+      {
+        "name": "attach_file",
+        "description": "Attach a file to the draft.",
+        "parameters": {
+          "type": "object",
+          "properties": {"path": {"type": "string"}},
+          "required": ["path"]
+        }
+      },
+      {
+        "name": "send_draft",
+        "description": "Send the draft.",
+        "parameters": {
+          "type": "object",
+          "properties": {"to": {"type": "string"}},
+          "required": ["to"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "draft_email", "arguments": {"subject": "Report"}},
+      {"name": "attach_file", "arguments": {"path": "report.pdf"}},
+      {"name": "send_draft", "arguments": {"to": "manager@example.com"}}
+    ]
+  },
+  {
+    "id": "multi_turn_004",
+    "category": "multi_turn",
+    "prompt": "Search 'rust async', open the first hit, summarise it.",
+    "tools": [
+      {
+        "name": "web_search",
+        "description": "Search the web.",
+        "parameters": {
+          "type": "object",
+          "properties": {"query": {"type": "string"}},
+          "required": ["query"]
+        }
+      },
+      {
+        "name": "open_url",
+        "description": "Open a URL and return its text.",
+        "parameters": {
+          "type": "object",
+          "properties": {"url": {"type": "string"}},
+          "required": ["url"]
+        }
+      },
+      {
+        "name": "summarise",
+        "description": "Summarise text.",
+        "parameters": {
+          "type": "object",
+          "properties": {"text": {"type": "string"}},
+          "required": ["text"]
+        }
+      }
+    ],
+    "expected_calls": [
+      {"name": "web_search", "arguments": {"query": "rust async"}},
+      {"name": "open_url", "arguments": {"url": "https://example.com/first-hit"}},
+      {"name": "summarise", "arguments": {"text": "<page-text>"}}
+    ]
+  },
+  {
+    "id": "irrelevance_001",
+    "category": "irrelevance",
+    "prompt": "Tell me a joke.",
+    "tools": [
+      {
+        "name": "get_weather",
+        "description": "Get weather for a city.",
+        "parameters": {
+          "type": "object",
+          "properties": {"city": {"type": "string"}},
+          "required": ["city"]
+        }
+      }
+    ],
+    "expected_calls": []
+  },
+  {
+    "id": "irrelevance_002",
+    "category": "irrelevance",
+    "prompt": "Why is the sky blue?",
+    "tools": [
+      {
+        "name": "send_email",
+        "description": "Send an email.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "to": {"type": "string"},
+            "subject": {"type": "string"}
+          },
+          "required": ["to", "subject"]
+        }
+      }
+    ],
+    "expected_calls": []
+  }
+]

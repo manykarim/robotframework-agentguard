@@ -1,0 +1,61 @@
+--- inspector --cli --help (first 100 lines, exit=0) ---
+Usage: inspector-bin [options]
+
+Options:
+  -e <env>               environment variables in KEY=VALUE format (default: {})
+  --config <path>        config file path
+  --server <n>           server name from config file
+  --cli                  enable CLI mode
+  --transport <type>     transport type (stdio, sse, http)
+  --server-url <url>     server URL for SSE/HTTP transport
+  --header <headers...>  HTTP headers as "HeaderName: Value" pairs (for HTTP/SSE
+                         transports) (default: {})
+  -h, --help             display help for command
+
+--- STDERR ---
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+PASS exp_02_mcp_inspector_cli exit=0
+
+=== Bonus: --cli --method tools/list against FastMCP stdio ===
+{
+  "tools": [
+    {
+      "name": "add",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "integer"
+          },
+          "y": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "x-fastmcp-wrap-result": true
+      },
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      }
+    }
+  ]
+}tools/list exit=0 (verified)
