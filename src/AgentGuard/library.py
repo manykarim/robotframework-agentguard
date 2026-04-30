@@ -37,6 +37,10 @@ _SUB_LIBRARIES: tuple[tuple[str, str], ...] = (
     # silently skipped so the top-level `AgentGuard` import remains green.
     ("AgentGuard.coding_agent.library", "CodingAgentKeywords"),
     ("AgentGuard.coding_agent.benchmarks.library", "CodingBenchmarkKeywords"),
+    # Phase 4-A — MCPScenario / TestHarness (ADR-021): unified scenario test
+    # harness for MCP servers, Agent Skills, and Coding Agents. Drop-in for
+    # `manykarim/rf-mcp` `tests/e2e/`. Same lazy-import contract.
+    ("AgentGuard.mcp_scenario.library", "MCPScenarioKeywords"),
 )
 
 

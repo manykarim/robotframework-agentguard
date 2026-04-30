@@ -1,0 +1,24 @@
+id: echo_smoke
+name: Echo Server Smoke Test
+description: |
+  Drives the in-memory echo MCP server with one `add` call and one `echo` call.
+  Used by tests/acceptance/mcp_scenario/02_yaml_drop_in_rf_mcp.robot to prove
+  that AgentGuard parses rf-mcp v1 scenario YAML byte-equivalent to upstream.
+context: api
+prompt: |
+  Use the `add` tool to compute 2 + 3, then use the `echo` tool to round-trip
+  the string "yaml-driven".
+expected_tools:
+  - tool_name: add
+    min_calls: 1
+    max_calls: 1
+  - tool_name: echo
+    min_calls: 1
+    max_calls: 1
+expected_outcome: |
+  add returns 5; echo returns the supplied text unchanged.
+min_tool_hit_rate: 0.99
+tags:
+  - mcp-scenario
+  - smoke
+  - yaml
