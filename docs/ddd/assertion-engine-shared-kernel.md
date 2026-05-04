@@ -6,8 +6,9 @@
 > **ADR-019** (3-tier model routing),
 > `docs/research/assertion-engine.md` (operator catalogue).
 
-This document specifies the DDD model for adopting the PyPI `assertionengine`
-library as a **utility-level Shared Kernel** spanning every AgentGuard context
+This document specifies the DDD model for adopting the PyPI
+`robotframework-assertion-engine` library (Python import name `assertionengine`)
+as a **utility-level Shared Kernel** spanning every AgentGuard context
 that exposes `Get/Should` keyword pairs (Stats, MCP, Skills, Hooks, SubAgents,
 CodingAgent, MCPScenario, ToolCallCorrectness, Security, Judge).
 
@@ -114,7 +115,7 @@ surface itself.
 | Term | Definition | Source |
 |---|---|---|
 | **AssertionOperator** | The canonical enum of value-comparison symbols (`==`, `!=`, `<`, `<=`, `>`, `>=`, `contains`, `not contains`, `starts`, `ends`, `matches`, `*=`, `validate`, `inrange`, `then`, …). The full symbol set is defined in `docs/research/assertion-engine.md`. | ADR-022 |
-| **Implicit Assertion** | The pattern by which a `Get*` keyword takes an `AssertionOperator` parameter and, when supplied, asserts in-place rather than returning a raw value. The keyword's user-visible name therefore doubles as both query and verifier. | ADR-022; `assertionengine` README |
+| **Implicit Assertion** | The pattern by which a `Get*` keyword takes an `AssertionOperator` parameter and, when supplied, asserts in-place rather than returning a raw value. The keyword's user-visible name therefore doubles as both query and verifier. | ADR-022; `robotframework-assertion-engine` README |
 | **Polling Window** | A per-keyword retry budget expressed as `(timeout, interval)` over which `verify_assertion` is re-invoked until success. **Default `0` (no polling) for any LLM-touching keyword** (see ACL Rule A). | ADR-022, ADR-019 |
 | **Formatter Scope** | A per-keyword set of normalisation rules applied to the *actual* value before comparison (e.g., trim, case-fold, JSON-canonicalise, strip-ANSI). Resolved from the keyword's configuration block; never from process-global state. | ADR-022 |
 
