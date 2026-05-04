@@ -1457,7 +1457,7 @@ wheels = [
 
 [[package]]
 name = "huggingface-hub"
-version = "1.12.2"
+version = "1.13.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "filelock" },
@@ -1470,9 +1470,9 @@ dependencies = [
     { name = "typer" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3e/9f/3fda8b014db3ae239addc9b48b35c2cf7d318950b430712f34a2473ef81d/huggingface_hub-1.12.2.tar.gz", hash = "sha256:282c4999e641c89affdc4c02c265eddea944c1390dc19e89dac8ad3ae76dbdaf", size = 763393, upload-time = "2026-04-29T09:45:09.202Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/89/ff/ec7ed2eb43bd7ce8bb2233d109cc235c3e807ffe5e469dc09db261fac05e/huggingface_hub-1.13.0.tar.gz", hash = "sha256:f6df2dac5abe82ce2fe05873d10d5ff47bc677d616a2f521f4ee26db9415d9d0", size = 781788, upload-time = "2026-04-30T11:57:33.858Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/71/c1/1fa4162f6dd53259daf2ad31385273341821fa0acce164cd03971937a60e/huggingface_hub-1.12.2-py3-none-any.whl", hash = "sha256:7968e897fdbc6343c871c240d87d4434efe0ad9f80d57daa1cc5678c6d148529", size = 647757, upload-time = "2026-04-29T09:45:07.63Z" },
+    { url = "https://files.pythonhosted.org/packages/93/db/4b1cdae9460ae1f3ca020cd767f013430ce23eb1d9c890ae3a0609b38d26/huggingface_hub-1.13.0-py3-none-any.whl", hash = "sha256:e942cb50d6a08dd5306688b1ac05bda157fd2fcc88b63dae405f7bd0d3234005", size = 660643, upload-time = "2026-04-30T11:57:31.802Z" },
 ]
 
 [[package]]
@@ -1579,7 +1579,7 @@ wheels = [
 
 [[package]]
 name = "inspect-ai"
-version = "0.3.213"
+version = "0.3.217"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aioboto3" },
@@ -1620,14 +1620,14 @@ dependencies = [
     { name = "zipp" },
     { name = "zstandard" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e0/56/021a6a4a46739cbca1bdcbf666261594ba0730af98ce21ee5a9fd298e87a/inspect_ai-0.3.213.tar.gz", hash = "sha256:4700855c02cb5909286c59940eba5d5821005e3f65da2e8d77a85e9979e7cb1a", size = 45454237, upload-time = "2026-04-27T19:16:44.896Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a6/17/87f5d72ece288aef1814cab8817674df0c47eed25187f64824974c004b11/inspect_ai-0.3.217.tar.gz", hash = "sha256:944ccea70a619c14cf3087115ef9869f5059194a9af444cd5faab0085a606e55", size = 45571599, upload-time = "2026-05-03T14:22:38.146Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/52/ff/946358e7a3f195c0582925356bf0faf2c267ecbeb71d40601960d9221853/inspect_ai-0.3.213-py3-none-any.whl", hash = "sha256:2d9b0a7192a69f1f19b718b405ceec49d47e53434414761e4f42871f7f71ce47", size = 36028121, upload-time = "2026-04-27T19:16:35.303Z" },
+    { url = "https://files.pythonhosted.org/packages/74/4a/abf720e35b2a7a80e2092ed5c0ddc8ecb1589d89d0f0634d15528e0d0f3c/inspect_ai-0.3.217-py3-none-any.whl", hash = "sha256:071e2919353ccfd734cde8d5a9ae4b475d3991aad6d09a8ceab1686574033ba2", size = 36069673, upload-time = "2026-05-03T14:22:30.657Z" },
 ]
 
 [[package]]
 name = "inspect-evals"
-version = "0.10.0"
+version = "0.10.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "backoff" },
@@ -1644,9 +1644,9 @@ dependencies = [
     { name = "tiktoken" },
     { name = "toml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/49/2f/cc87e4577ce40614440e720408b18e33c312671e75b3b59cc459e6d6eae9/inspect_evals-0.10.0.tar.gz", hash = "sha256:c32bed020a6189d03c5f8d0088bc930271afb45b05de3ebc3e6653d55a529824", size = 42732903, upload-time = "2026-04-24T00:30:30.939Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/46/f8/09af73126df4355a0d2b326ae567f80e6e131128a82392133debbf8abfb7/inspect_evals-0.10.1.tar.gz", hash = "sha256:c882af4711cd77787b7f661e4a8e3b6508c91b8bb244073d596c57d5e4a002a9", size = 42794717, upload-time = "2026-04-30T16:22:22.087Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ca/0d/a0ac9170e0bfc21d89214a36df9876bf3538d6f39f403cfb363c1f8619ce/inspect_evals-0.10.0-py3-none-any.whl", hash = "sha256:7e704d37c4d64d29f85eaa02b5028ae58582d36d3ff7cd2d760961974087a8c8", size = 25615922, upload-time = "2026-04-24T00:30:27.002Z" },
+    { url = "https://files.pythonhosted.org/packages/5b/b2/ec84c32c5bc1964ffcff83b117fa0fedebfc5b5a384992fce4d41d06c295/inspect_evals-0.10.1-py3-none-any.whl", hash = "sha256:b7777f6aca6474fa5708cc7783ce086579523da3282f016d286ae17fb10f2726", size = 25618025, upload-time = "2026-04-30T16:22:17.798Z" },
 ]
 
 [[package]]
@@ -2732,7 +2732,7 @@ wheels = [
 
 [[package]]
 name = "openai-agents"
-version = "0.14.8"
+version = "0.15.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "griffelib" },
@@ -2744,9 +2744,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d5/8a/d36ab647f05e790ec97dda9e4c0eb39d8840269d6a5194887b5dec92bd0d/openai_agents-0.14.8.tar.gz", hash = "sha256:fe1cb58b4150a07292a94f15d8fd5217ee9195bd6bcd8a6a46fdb1d9b08a70b7", size = 5314520, upload-time = "2026-04-29T03:40:07.6Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1d/52/125891e56b67ec78bef08d91dc0a8d39457088cd0f59bf8e74a37e5e591c/openai_agents-0.15.1.tar.gz", hash = "sha256:78c3f1226e1d6d34dd7566e211c8345e996629d1704335153d1728995a3a7775", size = 5319915, upload-time = "2026-05-02T02:20:53.631Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/af/6e/1e9adcedcde7b163579b88a68f765a4915be4ead0713270386d9432cfd2f/openai_agents-0.14.8-py3-none-any.whl", hash = "sha256:2937ef582ccaa45d59e89839ed8948cb2a6d808bc9940f0881793c21f37f7776", size = 817332, upload-time = "2026-04-29T03:40:05.68Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/7b/69a33975b3610300219e1d25185c46280814cdb87e69a779acf0c9b9166a/openai_agents-0.15.1-py3-none-any.whl", hash = "sha256:2d304a5dcb919bc4fa1de5c7c9c93a4353a8a79d87d582d6170929390b7b3cef", size = 818627, upload-time = "2026-05-02T02:20:50.932Z" },
 ]
 
 [[package]]
@@ -4313,16 +4313,16 @@ requires-dist = [
     { name = "fastmcp", specifier = ">=3.2.4" },
     { name = "gitpython", specifier = ">=3.1" },
     { name = "httpx", specifier = ">=0.28.1" },
-    { name = "huggingface-hub", marker = "extra == 'benchmarks'", specifier = ">=0.26" },
-    { name = "inspect-ai", specifier = ">=0.3.213" },
-    { name = "inspect-evals", specifier = ">=0.10.0" },
+    { name = "huggingface-hub", marker = "extra == 'benchmarks'", specifier = ">=1.13.0" },
+    { name = "inspect-ai", specifier = ">=0.3.217" },
+    { name = "inspect-evals", specifier = ">=0.10.1" },
     { name = "jsonlines", specifier = ">=4.0" },
     { name = "jsonschema", specifier = ">=4.23" },
     { name = "langgraph", marker = "extra == 'bridges'", specifier = ">=0.2" },
     { name = "litellm", specifier = ">=1.83.0" },
     { name = "mcp", specifier = ">=1.27.0" },
     { name = "numpy", specifier = ">=1.26" },
-    { name = "openai-agents", marker = "extra == 'bridges'", specifier = ">=0.0.7" },
+    { name = "openai-agents", marker = "extra == 'bridges'", specifier = ">=0.15.1" },
     { name = "opentelemetry-api", specifier = ">=1.41.1" },
     { name = "opentelemetry-sdk", specifier = ">=1.41.1" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
@@ -4350,8 +4350,8 @@ dev = [
 experiments = [
     { name = "fastmcp", specifier = ">=3.2.4" },
     { name = "httpx", specifier = ">=0.28.1" },
-    { name = "inspect-ai", specifier = ">=0.3.213" },
-    { name = "inspect-evals", specifier = ">=0.10.0" },
+    { name = "inspect-ai", specifier = ">=0.3.217" },
+    { name = "inspect-evals", specifier = ">=0.10.1" },
     { name = "litellm", specifier = ">=1.83.0" },
     { name = "mcp", specifier = ">=1.27.0" },
     { name = "opentelemetry-api", specifier = ">=1.41.1" },
