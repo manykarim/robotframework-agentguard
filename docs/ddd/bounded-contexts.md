@@ -11,6 +11,18 @@ Research citations point to `docs/research/research.md`. ADR-021 cites
 `manykarim/rf-mcp/tests/e2e/` as the load-bearing prior art for the
 TestHarness context's shape.
 
+> **Shared Kernel addition — AssertionEngine (ADR-022).** Per
+> `docs/adr/ADR-022-assertion-engine-shared-kernel.md`, the PyPI
+> `assertionengine` library is adopted as a **utility-level Shared Kernel** for
+> value-comparison primitives (`AssertionOperator`, `verify_assertion`,
+> formatter scope, polling). It is consumed by every context that ships
+> `Get/Should` keyword pairs — Stats, MCP, Skills, Hooks, SubAgents, CodingAgent,
+> MCPScenario, ToolCallCorrectness, Security, Judge — through a thin
+> `AssertionAdapter` ACL per sub-library. AssertionEngine owns no domain and is
+> therefore **not** a 14th bounded context; it is a shared kernel utility in
+> the same sense Python's `dataclasses` is. Full DDD model in
+> `docs/ddd/assertion-engine-shared-kernel.md`.
+
 ---
 
 ## 1. Provider Context

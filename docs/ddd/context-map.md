@@ -85,6 +85,19 @@ flowchart LR
     JD -.->|OHS: validates expected_outcome| TH
     ST -->|SK: Mann-Whitney + Cliff δ + pass@k| TH
     TH -.->|PL events: ScenarioStarted, ToolCallRecorded, ScenarioCompleted| TL
+
+    %% AssertionEngine as utility Shared Kernel (ADR-022).
+    AE[AssertionEngine SK]
+    AE ===|SK| ST
+    AE ===|SK| MC
+    AE ===|SK| SK_C
+    AE ===|SK| JD
+    AE ===|SK| SE
+    AE ===|SK| HK
+    AE ===|SK| SA
+    AE ===|SK| CA
+    AE ===|SK| TH
+    AE ===|SK| TC
 ```
 
 ## Pattern Catalogue
@@ -93,6 +106,37 @@ flowchart LR
 
 - **Provider ↔ {MCP, Skills, Judge, CodingAgent, SubAgents}** — every context that needs an LLM agrees on Provider's `Model`, `ChatMessage`, `ToolDefinition`, `ChatResponse`, `Cost`, `ProviderCapability`. Changes to these types require coordination across all five. Provider is intentionally generic (default LiteLLM, §4.1, §4.4) so the kernel surface stays small.
 - **Statistics ↔ {Judge, BehavioralMetrics, ToolCallCorrectness}** — `Distribution`, `EffectSize`, `ConfidenceInterval`, `PassAtK`, `TARScore`, `Baseline` are shared types. Statistics has no scipy types in its public surface so the kernel is pure.
+
+### AssertionEngine as Shared Kernel
+
+Per **ADR-022** (`docs/adr/ADR-022-assertion-engine-shared-kernel.md`),
+PyPI `assertionengine` is adopted as a **utility-level Shared Kernel**, not a
+bounded context. The distinction matters:
+
+- **Context-level SK** (e.g., Provider, Statistics) shares *domain-shaped*
+  value objects (`Model`, `Distribution`) whose meaning is intrinsic to the
+  problem domain. Roadmap coordination is required; changes alter agreed
+  domain semantics.
+- **Utility-level SK** (AssertionEngine) shares a *primitive* — a
+  value-comparison operator algebra (`==`, `contains`, `validate`, …) plus
+  the formatter/polling protocol that wraps it. The vocabulary is independent
+  of any AgentGuard domain; AssertionEngine knows nothing about MCP servers,
+  skills, judges, or scenarios. It is shared in the same sense Python's
+  `dataclasses` is shared: cross-cutting plumbing, not a co-owned model.
+
+Why **not** a bounded context: a bounded context owns a model, aggregates,
+events, and a ubiquitous-language slice. AssertionEngine owns none of these
+inside AgentGuard. It exposes one function (`verify_assertion`) and one enum
+(`AssertionOperator`); it has no aggregates, emits no domain events, and
+holds no repository. Promoting it to a context would invent ceremony for a
+library that is correctly modelled as shared infrastructure.
+
+Why **SK** rather than **OHS**: every consuming context speaks the *same*
+operator vocabulary. There is no per-consumer translation of operator
+semantics — only per-consumer *policy* (which operators are allowed, whether
+polling is permitted, what formatter scope applies). Policy lives in the
+per-context **AssertionAdapter** ACL. Full DDD model in
+`docs/ddd/assertion-engine-shared-kernel.md`.
 
 ### Customer / Supplier — Security gates Skills (and CodingAgent)
 
