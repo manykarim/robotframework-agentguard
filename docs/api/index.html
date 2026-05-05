@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AgentGuard — Keyword Documentation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --fg: #1f2328;
+    --muted: #59636e;
+    --link: #0969da;
+    --border: #d0d7de;
+    --bg: #ffffff;
+    --code-bg: #f6f8fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fg: #e6edf3;
+      --muted: #9198a1;
+      --link: #4493f8;
+      --border: #3d444d;
+      --bg: #0d1117;
+      --code-bg: #151b23;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
+                 Helvetica, Arial, sans-serif;
+    color: var(--fg);
+    background: var(--bg);
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    line-height: 1.55;
+  }
+  h1 { font-size: 1.9rem; margin: 0 0 .25rem; }
+  h2 { font-size: 1.25rem; margin: 2rem 0 .5rem; border-bottom: 1px solid var(--border); padding-bottom: .35rem; }
+  p { color: var(--muted); }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  table { border-collapse: collapse; width: 100%; margin: .5rem 0 1.5rem; }
+  th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); font-weight: 600; }
+  td.lib { white-space: nowrap; font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+  td.lib a { font-weight: 600; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+  pre { background: var(--code-bg); padding: .75rem 1rem; border-radius: 6px; overflow-x: auto; }
+  .meta { color: var(--muted); font-size: .9rem; margin-top: .25rem; }
+  .footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .85rem; }
+</style>
+</head>
+<body>
+
+<h1>AgentGuard — Keyword Documentation</h1>
+<p class="meta">
+  Auto-generated Robot Framework <code>libdoc</code> output for every
+  <strong>robotframework-agentguard</strong> sub-library.
+  Source: <a href="https://github.com/manykarim/robotframework-agentguard">manykarim/robotframework-agentguard</a>.
+</p>
+
+<h2>Top-level library</h2>
+<table>
+  <thead>
+    <tr><th>Import</th><th>Reference</th><th>What it covers</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="lib"><code>Library&nbsp;AgentGuard</code></td>
+      <td><a href="AgentGuard.html">AgentGuard.html</a></td>
+      <td>Kitchen-sink — every keyword from all 11 sub-libraries (147 total)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Sub-library façades</h2>
+<p>
+  The 11 PascalCase singular façades shipped in v0.2.0
+  (<a href="https://github.com/manykarim/robotframework-agentguard/blob/main/docs/proposals/PROPOSAL-library-import-structure.md">PROPOSAL-library-import-structure</a>).
+  Use these for narrower namespaces:
+</p>
+<table>
+  <thead>
+    <tr><th>Import</th><th>Reference</th><th>What it covers</th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="lib"><code>Library&nbsp;AgentGuard.MCP</code></td><td><a href="AgentGuard.MCP.html">AgentGuard.MCP.html</a></td><td>Test MCP servers (stdio / SSE / streamable-HTTP / in-memory)</td></tr>
+    <tr><td class="lib"><code>Library&nbsp;AgentGuard.Skill</code></td><td><a href="AgentGuard.Skill.html">AgentGuard.Skill.html</a></td><td>Discover, parse, validate, grade Agent Skills</td></tr>
+    <tr><td class="lib"><code>Library&nbsp;AgentGuard.Tool</code></td><td><a href="AgentGuard.Tool.html">AgentGuard.Tool.html</a></td><td>BFCL-style tool-call AST + trajectory matching</td></tr>
+    <tr><td class="lib"><code>Library&nbsp;AgentGuard.Stats</code></td><td><a href="AgentGuard.Stats.html">AgentGuard.Stats.html</a></td><td>Mann-Whitney U, Cliff's δ, Vargha-Delaney A, bootstrap CIs, pass@k, TARr@N</td></tr>
+    <tr><td class="lib"><code>Library&nbsp;AgentGuard.Judge</code></td><td><a href="AgentGuard.Judge.html">AgentGuard.Judge.html</a></td><td>Classification-based LLM-as-Judge with Cohen's κ calibration</td></tr>
+    <tr><td class="lib"><code>Library&nbsp;AgentGuard.Security</code></td><td><a href="AgentGuard.Security.html">AgentGuard.Security.html</a></td><td>Default-deny skill scanner, redactor, sandbox, AIDefence</td></tr>
+    <tr><td class="lib"><code>Library&nbsp;AgentGuard.Hook</code></td><td><a href="AgentGuard.Hook.html">AgentGuard.Hook.html</a></td><td>Claude Code hook lifecycle (12 events × 4 handler types)</td></tr>
+    <tr><td class="lib"><code>Library&nbsp;AgentGuard.SubAgent</code></td><td><a href="AgentGuard.SubAgent.html">AgentGuard.SubAgent.html</a></td><td>A2A 1.0 task lifecycle, framework bridges</td></tr>
+    <tr><td class="lib"><code>Library&nbsp;AgentGuard.Coding</code></td><td><a href="AgentGuard.Coding.html">AgentGuard.Coding.html</a></td><td>Drive Claude Code / Codex / Aider / OpenCode + #42796 metric pack</td></tr>
+    <tr><td class="lib"><code>Library&nbsp;AgentGuard.Benchmark</code></td><td><a href="AgentGuard.Benchmark.html">AgentGuard.Benchmark.html</a></td><td>SWE-bench Verified, Aider, HumanEval, MBPP, LiveCodeBench</td></tr>
+    <tr><td class="lib"><code>Library&nbsp;AgentGuard.Scenario</code></td><td><a href="AgentGuard.Scenario.html">AgentGuard.Scenario.html</a></td><td>Unified scenario harness — drop-in for <code>manykarim/rf-mcp</code> e2e</td></tr>
+  </tbody>
+</table>
+
+<h2>Quickstart</h2>
+<pre><code>*** Settings ***
+Library    AgentGuard.MCP
+Library    AgentGuard.Stats
+
+*** Test Cases ***
+Echo Tool Round-Trips
+    ${handle}=    Connect To MCP Server    tests.fixtures.mcp.echo_server.mcp    transport=memory
+    ${result}=    Call MCP Tool    ${handle}    echo    {"text": "ok"}
+    Should Be Equal    ${result.text}    ok</code></pre>
+
+<h2>Other resources</h2>
+<ul>
+  <li><a href="https://github.com/manykarim/robotframework-agentguard/blob/main/docs/KEYWORDS.md">KEYWORDS.md</a> — alphabetical text reference for all 147 keywords</li>
+  <li><a href="https://github.com/manykarim/robotframework-agentguard/tree/main/examples">examples/</a> — 14 runnable Robot Framework suites</li>
+  <li><a href="https://github.com/manykarim/robotframework-agentguard/blob/main/docs/PLAN.md">PLAN.md</a>, <a href="https://github.com/manykarim/robotframework-agentguard/tree/main/docs/adr">ADRs</a>, <a href="https://github.com/manykarim/robotframework-agentguard/tree/main/docs/ddd">DDD</a></li>
+</ul>
+
+<div class="footer">
+  Regenerate locally: <code>./docs/api/generate.sh</code> ·
+  Apache-2.0 ·
+  <a href="https://github.com/manykarim/robotframework-agentguard">GitHub</a>
+</div>
+
+</body>
+</html>
