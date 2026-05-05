@@ -44,7 +44,7 @@ def test_a2a_inproc_full_lifecycle(kw: SubAgentsKeywords) -> None:
     handle = kw.connect_to_a2a_agent("inproc://echo")
     task = kw.send_task(handle, "hello world")
     completed = kw.wait_for_task_completion(task, handle, timeout=5.0)
-    kw.task_should_have_status(completed, "completed")
+    kw.get_task_status(completed, "==", "completed")
 
     text = kw.get_task_artifact_text(completed)
     assert "echoed: hello world" in text
@@ -57,7 +57,7 @@ def test_a2a_failed_task_raises_taskfailed(kw: SubAgentsKeywords) -> None:
     a2a_server.start_server("bad", handler=boom)
     task = kw.send_task("inproc://bad", "hi")
     with pytest.raises(TaskFailed, match="failed"):
-        kw.task_should_have_status(task, "completed")
+        kw.get_task_status(task, "==", "completed")
 
 
 def test_a2a_get_artifact_text_filter(kw: SubAgentsKeywords) -> None:

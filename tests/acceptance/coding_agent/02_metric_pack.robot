@@ -27,7 +27,7 @@ Degraded Session Breaches Stop Hook Threshold
 Degraded Session Breaches User Interrupt Threshold
     [Tags]    coding_agent    metrics    phase3
     ${session}=    Load Degraded Fixture    ${DEGRADED_JSON}
-    Run Keyword And Expect Error    *    User Interrupts Per 1K Should Be Below    ${session}    2.0
+    Run Keyword And Expect Error    *    User Interrupts Per 1K Tool Calls    ${session}    <=    2.0
 
 Healthy Session Reports Healthy Health
     [Tags]    coding_agent    metrics    phase3
@@ -38,7 +38,7 @@ Healthy Session Reports Healthy Health
 Healthy Session Passes Read Edit Ratio
     [Tags]    coding_agent    metrics    phase3
     ${session}=    Load Degraded Fixture    ${HEALTHY_JSON}
-    Read Edit Ratio Should Be Above    ${session}    4.0
+    Read Edit Ratio    ${session}    >=    4.0
 
 
 *** Keywords ***

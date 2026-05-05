@@ -1,6 +1,9 @@
 *** Settings ***
 Documentation    Phase 4-A — drop-in replacement for `manykarim/rf-mcp`
-...              `tests/e2e/` patterns, demonstrated three ways:
+...              `tests/e2e/` patterns, demonstrated three ways. Updated for
+...              Phase-4-D (ADR-022): rf-mcp-parity assertions now use the
+...              operator form (``Tool Hit Rate ${result} >= 0.7``) instead
+...              of the deleted ``Should Be Above|At Most|Between`` keywords.
 ...
 ...              (1) Pure RF keywords, no YAML — for users who want every
 ...                  scenario step to be a clearly-named Robot keyword.
@@ -31,8 +34,8 @@ Pure Robot Framework — Inline Scenario
 
     ${result}=    Compute Scenario Result    ${scenario}    ${session}
     Scenario Result Should Be Successful    ${result}
-    Tool Hit Rate Should Be Above    ${result}    0.99
-    Failed Tool Call Count Should Be At Most    ${result}    0
+    Tool Hit Rate              ${result}    >=    ${0.99}
+    Failed Tool Call Count     ${result}    <=    ${0}
 
 YAML-Driven — Rf Mcp V1 Schema
     [Tags]    mcp-scenario    yaml    smoke
@@ -43,7 +46,8 @@ YAML-Driven — Rf Mcp V1 Schema
     End Tracked MCP Session    ${session}
 
     ${result}=    Compute Scenario Result    ${scenario}    ${session}
-    Tool Hit Rate Should Be Above    ${result}    ${scenario.min_tool_hit_rate}
+    ${threshold}=    Convert To Number    ${scenario.min_tool_hit_rate}
+    Tool Hit Rate    ${result}    >=    ${threshold}
     Save Scenario Result    ${result}    ${OUTPUT_DIR}/echo_smoke.json
 
 Live LocalDriver — Real OpenRouter Through Echo Server
@@ -59,7 +63,11 @@ Live LocalDriver — Real OpenRouter Through Echo Server
 
     ${result}=    Run MCP Scenario    ${scenario}    server=${HANDLE}
     ...    driver=local    model=openrouter/openai/gpt-4o-mini    max_turns=4
-    Tool Call Count Should Be Between    ${result}    min_count=1    max_count=10
+    # The `validate` operator is disabled by default per ADR-013; use a
+    # range-style assertion via the typed return for offline parity. Enable
+    # `validate` per-suite for `1 <= value <= 10` if desired.
+    Tool Call Count    ${result}    assertion_operator=>=    assertion_expected=${1}
+    Tool Call Count    ${result}    assertion_operator=<=    assertion_expected=${10}
 
 *** Keywords ***
 Connect Echo

@@ -54,8 +54,8 @@ def test_manual_scenario_against_echo_server(
         assert result.total_tool_calls == 2
         assert result.expected_tool_calls_met == 2
         scn.scenario_result_should_be_successful(result)
-        scn.tool_hit_rate_should_be_above(result, 0.5)
-        scn.failed_tool_call_count_should_be_at_most(result, 0)
+        scn.tool_hit_rate(result, assertion_operator=">=", assertion_expected=0.5)
+        scn.failed_tool_call_count(result, assertion_operator="<=", assertion_expected=0)
     finally:
         mcp.stop_mcp_server(handle)
 

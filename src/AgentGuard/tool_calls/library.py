@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, Protocol
 import jsonschema
 from robot.api.deco import keyword
 
+from AgentGuard._assertions import AssertionOperator, assert_value
 from AgentGuard.tool_calls.bfcl_matcher import (
     coerce_tool_call,
     match_arguments_detailed,
@@ -190,18 +191,26 @@ class ToolCallKeywords:
         logger.info("loaded %d BFCL case(s) for category=%r", len(cases), category)
         return cases
 
-    @keyword(name="BFCL Score Should Be Above")
-    def bfcl_score_should_be_above(
+    @keyword(name="BFCL Score")
+    def bfcl_score(
         self,
         predictions: list[Prediction],
-        threshold: float,
         dataset: str = "simple",
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
     ) -> float:
-        """Compute mean per-case score; raise if it is below ``threshold``."""
+        """Compute mean per-case BFCL score; optionally assert against it.
+
+        ADR-022 collapse: replaces the old ``BFCL Score Should Be Above``
+        Should-pair keyword. Call without an operator to read the value;
+        pair with ``>=`` / ``>`` / ``validate`` to assert in-place::
+
+            ${score}=    BFCL Score    ${predictions}
+            BFCL Score    ${predictions}    >=    0.85
+        """
         if not predictions:
             raise AssertionError("BFCL Score: predictions list is empty")
-        if not 0.0 <= threshold <= 1.0:
-            raise ValueError(f"threshold must be in [0,1], got {threshold!r}")
 
         scores: list[float] = [
             bfcl_score(
@@ -212,15 +221,12 @@ class ToolCallKeywords:
         ]
         mean = sum(scores) / len(scores)
         logger.info(
-            "BFCL %s score over %d case(s): %.3f (threshold %.3f)",
+            "BFCL %s score over %d case(s): %.3f",
             dataset,
             len(predictions),
             mean,
-            threshold,
         )
-        if mean < threshold:
-            raise AssertionError(f"BFCL {dataset} score {mean:.3f} < threshold {threshold:.3f}")
-        return mean
+        return assert_value(mean, assertion_operator, assertion_expected, message=message)  # type: ignore[no-any-return]
 
     # ---- provider-touching keyword -----------------------------------------
 

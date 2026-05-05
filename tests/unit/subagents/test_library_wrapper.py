@@ -10,7 +10,6 @@ import pytest
 from AgentGuard.subagents import a2a_server
 from AgentGuard.subagents.exceptions import (
     AgentCardInvalid,
-    SubAgentError,
     TaskFailed,
 )
 from AgentGuard.subagents.library import SubAgentsKeywords
@@ -123,30 +122,38 @@ def test_get_task_status_returns_string(kw: SubAgentsKeywords) -> None:
     assert kw.get_task_status(task) == "working"
 
 
-def test_task_should_have_status_pass(kw: SubAgentsKeywords) -> None:
+def test_get_task_status_with_eq_operator_passes(kw: SubAgentsKeywords) -> None:
     task = Task(id="t", status=TaskStatus.COMPLETED)
-    kw.task_should_have_status(task, "completed")
+    # ADR-022 collapse: replaces deleted `Task Should Have Status`.
+    assert kw.get_task_status(task, "==", "completed") == "completed"
 
 
-def test_task_should_have_status_completed_mismatch_raises_failed(
+def test_get_task_status_with_eq_completed_mismatch_raises_failed(
     kw: SubAgentsKeywords,
 ) -> None:
     task = Task(id="t", status=TaskStatus.WORKING, error="oops")
     with pytest.raises(TaskFailed, match="expected status"):
-        kw.task_should_have_status(task, "completed")
+        kw.get_task_status(task, "==", "completed")
 
 
-def test_task_should_have_status_other_mismatch_raises_subagenterror(
+def test_get_task_status_other_mismatch_raises_assertion_error(
     kw: SubAgentsKeywords,
 ) -> None:
     task = Task(id="t", status=TaskStatus.COMPLETED)
-    with pytest.raises(SubAgentError):
-        kw.task_should_have_status(task, "working")
+    with pytest.raises(AssertionError):
+        kw.get_task_status(task, "==", "working")
 
 
-def test_task_should_have_status_accepts_enum(kw: SubAgentsKeywords) -> None:
+def test_get_task_status_with_eq_operator_accepts_enum(
+    kw: SubAgentsKeywords,
+) -> None:
     task = Task(id="t", status=TaskStatus.CANCELED)
-    kw.task_should_have_status(task, TaskStatus.CANCELED)
+    assert kw.get_task_status(task, "==", TaskStatus.CANCELED) == "canceled"
+
+
+def test_get_task_status_with_ne_operator(kw: SubAgentsKeywords) -> None:
+    task = Task(id="t", status=TaskStatus.WORKING)
+    assert kw.get_task_status(task, "!=", "completed") == "working"
 
 
 # ---------------- artifacts ----------------

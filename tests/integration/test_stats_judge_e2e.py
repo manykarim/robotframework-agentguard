@@ -37,12 +37,12 @@ def test_bootstrap_ci_contains_population_mean(stats: StatsKeywords) -> None:
 
 def test_pass_at_k_basic(stats: StatsKeywords) -> None:
     outcomes = [True, False, True, True, False, True, True, False, True, True]
-    stats.pass_at_k_should_be_above(outcomes, k=1, threshold=0.5)
+    stats.pass_at_k(outcomes, k=1, assertion_operator=">=", assertion_expected=0.5)
 
 
 def test_total_agreement_rate(stats: StatsKeywords) -> None:
     outputs = ["a", "a", "a", "b", "a"]
-    stats.total_agreement_rate_should_be_above(outputs, threshold=0.5)
+    stats.total_agreement_rate(outputs, assertion_operator=">=", assertion_expected=0.5)
 
 
 def test_compute_variance_banner(stats: StatsKeywords) -> None:

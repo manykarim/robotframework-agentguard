@@ -39,10 +39,21 @@ def test_load_rubric_keyword(rubric_path: Path) -> None:
 
 def test_judge_uses_mock_response_when_no_provider(rubric_path: Path) -> None:
     kw = JudgeKeywords()
-    score = kw.llm_judge_should_score_at_least(
+    score = kw.llm_judge_score(
         responses="The answer is 42.",
         rubric=rubric_path,
-        threshold=0.9,
+        assertion_operator=">=",
+        assertion_expected=0.9,
+        mock_response='Reasoning: ok\n{"correctness": "good", "completeness": "complete"}',
+    )
+    assert score == pytest.approx(1.0)
+
+
+def test_judge_returns_score_without_operator(rubric_path: Path) -> None:
+    kw = JudgeKeywords()
+    score = kw.llm_judge_score(
+        responses="The answer is 42.",
+        rubric=rubric_path,
         mock_response='Reasoning: ok\n{"correctness": "good", "completeness": "complete"}',
     )
     assert score == pytest.approx(1.0)
@@ -51,10 +62,11 @@ def test_judge_uses_mock_response_when_no_provider(rubric_path: Path) -> None:
 def test_judge_below_threshold_raises(rubric_path: Path) -> None:
     kw = JudgeKeywords()
     with pytest.raises(AssertionError):
-        kw.llm_judge_should_score_at_least(
+        kw.llm_judge_score(
             responses="bad answer",
             rubric=rubric_path,
-            threshold=0.9,
+            assertion_operator=">=",
+            assertion_expected=0.9,
             mock_response='{"correctness": "bad", "completeness": "missing"}',
         )
 
@@ -67,10 +79,11 @@ def test_judge_uses_provider(rubric_path: Path) -> None:
         ]
     )
     kw = JudgeKeywords(provider=provider)
-    score = kw.llm_judge_should_score_at_least(
+    score = kw.llm_judge_score(
         responses=["resp1", "resp2"],
         rubric=rubric_path,
-        threshold=0.5,
+        assertion_operator=">=",
+        assertion_expected=0.5,
     )
     # mean of (1.0+1.0)/2 and (1.0+0.5)/2 = (1.0 + 0.75)/2 = 0.875
     assert score == pytest.approx(0.875)

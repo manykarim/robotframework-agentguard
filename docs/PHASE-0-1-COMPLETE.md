@@ -24,7 +24,9 @@
 
 `Library    AgentGuard    provider=litellm    model=openrouter/anthropic/claude-sonnet-4-5`
 
-55 Title-Case keywords composed via `robotlibcore.DynamicCore` from 6 sub-libraries:
+55 Title-Case keywords composed via `robotlibcore.DynamicCore` from 6 sub-libraries
+(post-Phase-4-D the surface evolved to 147 keywords across 11 sub-libraries —
+see [`PHASE-4-D-COMPLETE.md`](PHASE-4-D-COMPLETE.md)):
 
 ```python
 {'MCPKeywords', 'SkillsKeywords', 'ToolCallKeywords',

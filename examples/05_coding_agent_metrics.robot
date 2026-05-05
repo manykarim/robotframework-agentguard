@@ -1,5 +1,8 @@
 *** Settings ***
 Documentation    Phase-3 example mirroring research §6.5 — #42796 behavioural metric pack.
+...              Updated for Phase-4-D (ADR-022): every metric assertion uses the
+...              operator form (``>=``, ``<=``, ``==``) instead of the deleted
+...              ``Should Be Above|Below|Zero`` keywords.
 ...
 ...              Parses a synthetic Claude Code session JSONL (committed under
 ...              ``tests/fixtures/coding_agent/sessions/``) and asserts each of
@@ -20,14 +23,15 @@ ${SESSION_PATH}=    ${CURDIR}/../tests/fixtures/coding_agent/sessions/claude_cod
 
 *** Test Cases ***
 Claude Code Maintains Healthy Read-Edit Discipline
-    [Documentation]    research §6.5 — wiring smoke for the #42796 metric pack.
+    [Documentation]    research §6.5 — wiring smoke for the #42796 metric pack
+    ...                in the post-ADR-022 operator form.
     [Tags]    coding-agent    behavioral    phase3
     ${session}=    Parse Session JSONL    ${SESSION_PATH}
-    Read Edit Ratio Should Be Above    session=${session}    threshold=1.0
-    Edits Without Prior Read Percent Should Be Below    ${session}    50
-    Reasoning Loops Per 1K Tool Calls Should Be Below    ${session}    100
-    User Interrupts Per 1K Should Be Below    ${session}    50
-    Stop Hook Violations Should Be Zero    ${session}
+    Read Edit Ratio                          ${session}    >=    ${1.0}
+    Edits Without Prior Read Percent         ${session}    <=    ${50}
+    Reasoning Loops Per 1K Tool Calls        ${session}    <=    ${100}
+    User Interrupts Per 1K Tool Calls        ${session}    <=    ${50}
+    Stop Hook Violation Count                ${session}    ==    ${0}
 
 Compute Full 42796 Metric Pack On Same Session
     [Documentation]    Aggregate keyword that returns a BehavioralReport with all

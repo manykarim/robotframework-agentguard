@@ -14,6 +14,7 @@ from typing import Any
 
 from robot.api.deco import keyword
 
+from AgentGuard._assertions import AssertionOperator, assert_value
 from AgentGuard.security import aidefence, redactor, sandbox, scanner
 from AgentGuard.security.types import (
     AIDefenceResult,
@@ -193,9 +194,26 @@ class SecurityKeywords:
                 f"stdout[:200]={stdout[:200]!r}, stderr[:200]={stderr[:200]!r}"
             )
 
-    @keyword(name="Sandbox Exit Code Should Be")
-    def sandbox_exit_code_should_be(self, result: Any, expected: int) -> None:
-        """Assert ``result.exit_code == expected``."""
+    @keyword(name="Get Sandbox Exit Code")
+    def get_sandbox_exit_code(
+        self,
+        result: Any,
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
+    ) -> int:
+        """Return ``result.exit_code`` as an int; optionally assert against it.
+
+        ADR-022 collapse: replaces the old ``Sandbox Exit Code Should Be``
+        Should-pair keyword. Call without an operator to read the value;
+        pair with ``==`` / ``!=`` / ``validate`` to assert in-place::
+
+            ${rc}=    Get Sandbox Exit Code    ${result}
+            Get Sandbox Exit Code    ${result}    ==    0
+        """
         actual = getattr(result, "exit_code", None)
-        if actual != expected:
-            raise AssertionError(f"Sandbox exit code mismatch: expected {expected}, got {actual!r}")
+        if not isinstance(actual, int):
+            raise AssertionError(
+                f"Sandbox result has no integer exit_code attribute (got {actual!r})."
+            )
+        return assert_value(actual, assertion_operator, assertion_expected, message=message)  # type: ignore[no-any-return]

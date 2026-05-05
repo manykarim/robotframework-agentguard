@@ -4334,7 +4334,7 @@ wheels = [
 
 [[package]]
 name = "robotframework-agentguard"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "a2a-sdk" },
@@ -4356,6 +4356,7 @@ dependencies = [
     { name = "pyyaml" },
     { name = "rich" },
     { name = "robotframework" },
+    { name = "robotframework-assertion-engine" },
     { name = "robotframework-pythonlibcore" },
     { name = "scipy" },
 ]
@@ -4432,6 +4433,7 @@ requires-dist = [
     { name = "rf-mcp", marker = "extra == 'integrations'", specifier = ">=0.30" },
     { name = "rich", specifier = ">=13.9" },
     { name = "robotframework", specifier = ">=7.4.2" },
+    { name = "robotframework-assertion-engine", specifier = ">=4.0,<5.0" },
     { name = "robotframework-pythonlibcore", specifier = ">=4.5.0" },
     { name = "scipy", specifier = ">=1.17.1" },
 ]

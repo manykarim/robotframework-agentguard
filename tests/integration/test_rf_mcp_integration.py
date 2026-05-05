@@ -7,6 +7,11 @@ fragility (see Phase 1 exp_01: ~2 ms/call in-memory roundtrip).
 
 Tests skip cleanly when ``rf-mcp`` is not installed — use ``uv add
 'robotframework-agentguard[integrations]'`` or ``pip install rf-mcp``.
+
+PROPOSAL-library-import-structure §3 + §6: imports use the façade form
+``from AgentGuard.MCP import MCP`` (Python equivalent of ``Library AgentGuard.MCP``)
+rather than the deep ``AgentGuard.mcp.library`` path. The façade aliases the
+underlying ``MCPKeywords`` class so the call sites are identical.
 """
 
 from __future__ import annotations
@@ -19,7 +24,9 @@ from typing import Any
 
 import pytest
 
-from AgentGuard.mcp.library import MCPKeywords
+# Façade import — equivalent to `Library AgentGuard.MCP` per
+# PROPOSAL-library-import-structure §6. `MCP` is the alias for `MCPKeywords`.
+from AgentGuard.MCP import MCP
 
 # ---------------------------------------------------------------------------
 # Skip whole module when rf-mcp is not importable. We try the installed package
@@ -49,20 +56,26 @@ def rf_mcp_server() -> Any:
 
 
 @pytest.fixture
-def kw() -> MCPKeywords:
-    return MCPKeywords()
+def kw() -> MCP:
+    # Constructed via the façade alias so the production ``Library AgentGuard.MCP``
+    # path is exercised end-to-end (the alias and the deep class are the same
+    # object — see tests/unit/test_library_facades.py).
+    return MCP()
 
 
 # ---- protocol-compliance smoke tests ---------------------------------------
 
 
-def test_in_memory_connect_lists_tools(kw: MCPKeywords, rf_mcp_server: Any) -> None:
+def test_in_memory_connect_lists_tools(kw: MCP, rf_mcp_server: Any) -> None:
     handle = kw.connect_to_mcp_server(rf_mcp_server, transport="memory")
     try:
+        # `List MCP Tools` returns a list[dict[str, Any]]; per DDD §6 it is NOT
+        # a Should-pair candidate (no scalar to compare). Verify shape via the
+        # standard pytest assertion vocabulary.
         tools = kw.list_mcp_tools(handle)
         assert isinstance(tools, list)
         # rf-mcp 0.31 ships ~21 tools across planning, session, discovery, etc.
-        assert len(tools) >= 10, f"expected ≥10 tools, got {len(tools)}: {[t.get('name') for t in tools]}"
+        assert len(tools) >= 10, f"expected >= 10 tools, got {len(tools)}: {[t.get('name') for t in tools]}"
     finally:
         kw.stop_mcp_server(handle)
 
@@ -78,7 +91,7 @@ def test_in_memory_connect_lists_tools(kw: MCPKeywords, rf_mcp_server: Any) -> N
         "get_session_state",
     ],
 )
-def test_documented_tool_is_present(kw: MCPKeywords, rf_mcp_server: Any, expected: str) -> None:
+def test_documented_tool_is_present(kw: MCP, rf_mcp_server: Any, expected: str) -> None:
     handle = kw.connect_to_mcp_server(rf_mcp_server, transport="memory")
     try:
         names = {t["name"] for t in kw.list_mcp_tools(handle)}
@@ -87,7 +100,7 @@ def test_documented_tool_is_present(kw: MCPKeywords, rf_mcp_server: Any, expecte
         kw.stop_mcp_server(handle)
 
 
-def test_get_capabilities_returns_dict(kw: MCPKeywords, rf_mcp_server: Any) -> None:
+def test_get_capabilities_returns_dict(kw: MCP, rf_mcp_server: Any) -> None:
     handle = kw.connect_to_mcp_server(rf_mcp_server, transport="memory")
     try:
         caps = kw.get_mcp_capabilities(handle)
@@ -99,10 +112,27 @@ def test_get_capabilities_returns_dict(kw: MCPKeywords, rf_mcp_server: Any) -> N
         kw.stop_mcp_server(handle)
 
 
+def test_mcp_server_implements_capabilities_keyword_form(kw: MCP, rf_mcp_server: Any) -> None:
+    """The variadic predicate ``MCP Server Should Implement Capabilities`` stays
+    per DDD §6 (it accepts a *list* of expected tool/resource/prompt names —
+    not a scalar — so the operator algebra does not apply).
+
+    Pass real names rf-mcp is documented to ship; the keyword raises on missing
+    and returns None on success.
+    """
+    handle = kw.connect_to_mcp_server(rf_mcp_server, transport="memory")
+    try:
+        # `find_keywords` and `manage_session` are documented in the rf-mcp README.
+        result = kw.mcp_server_should_implement_capabilities(handle, "find_keywords", "manage_session")
+        assert result is None
+    finally:
+        kw.stop_mcp_server(handle)
+
+
 # ---- representative tool call (deterministic, no LLM required) -------------
 
 
-def test_find_keywords_returns_results(kw: MCPKeywords, rf_mcp_server: Any) -> None:
+def test_find_keywords_returns_results(kw: MCP, rf_mcp_server: Any) -> None:
     handle = kw.connect_to_mcp_server(rf_mcp_server, transport="memory")
     try:
         # `find_keywords` is a discovery tool — it scans the loaded RF libraries for
@@ -116,7 +146,10 @@ def test_find_keywords_returns_results(kw: MCPKeywords, rf_mcp_server: Any) -> N
         kw.stop_mcp_server(handle)
 
 
-def test_in_memory_latency_within_budget(kw: MCPKeywords, rf_mcp_server: Any) -> None:
+def test_in_memory_latency_within_budget(kw: MCP, rf_mcp_server: Any) -> None:
+    """``Measure MCP Tool Latency`` returns a dict — per DDD §6 this is NOT a
+    Should-pair candidate (no scalar return to operator-collapse). The dict-
+    field assertion stays in the suite-level Python assertion path."""
     handle = kw.connect_to_mcp_server(rf_mcp_server, transport="memory")
     try:
         # Tool with the smallest payload — `find_keywords` is acceptable.

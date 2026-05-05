@@ -28,7 +28,7 @@ Run Yaml Scenario And Persist Result
     End Tracked MCP Session    ${session}
 
     ${result}=    Compute Scenario Result    ${scenario}    ${session}
-    Tool Hit Rate Should Be Above    ${result}    ${scenario.min_tool_hit_rate}
+    Tool Hit Rate    ${result}    >=    ${scenario.min_tool_hit_rate}
     ${path}=    Save Scenario Result    ${result}    ${OUTPUT_DIR}/echo_smoke.json
     ${exists}=    Evaluate    __import__('os').path.exists(r"${path}")
     Should Be True    ${exists}

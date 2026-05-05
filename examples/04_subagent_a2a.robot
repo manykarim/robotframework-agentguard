@@ -38,7 +38,7 @@ Travel Planner Delegates To Weather And Places
     Skip If    not ${PLANNER_AVAILABLE}    SubAgents module not yet wired
     ${task}=    Send Task    ${PLANNER_URL}    Plan a trip to Lisbon
     ${task}=    Wait For Task Completion    ${task}    timeout=10
-    Task Should Have Status    ${task}    completed
+    Get Task Status    ${task}    ==    completed
     ${task}=    Attach Synthetic Tool Calls    ${task}
     @{expected}=    Create List    delegate    delegate    compose
     Task Trajectory Should Match    ${task}    ${expected}

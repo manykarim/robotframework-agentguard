@@ -70,15 +70,17 @@ def test_tool_hit_rate_from_result(kw: MCPScenarioKeywords) -> None:
     assert kw.tool_hit_rate(res) == 1.0
 
 
-def test_tool_hit_rate_should_be_above_passes(kw: MCPScenarioKeywords) -> None:
+def test_tool_hit_rate_with_operator_passes(kw: MCPScenarioKeywords) -> None:
     res = _result_from([ToolCallRecord(tool_name="add", arguments={}, success=True)], hit_rate=0.9)
-    kw.tool_hit_rate_should_be_above(res, 0.8)
+    # Operator form returns the value AND asserts.
+    out = kw.tool_hit_rate(res, assertion_operator=">=", assertion_expected=0.8)
+    assert out == 0.9
 
 
-def test_tool_hit_rate_should_be_above_raises(kw: MCPScenarioKeywords) -> None:
+def test_tool_hit_rate_with_operator_raises(kw: MCPScenarioKeywords) -> None:
     res = _result_from([], hit_rate=0.4)
-    with pytest.raises(AssertionError, match="hit rate"):
-        kw.tool_hit_rate_should_be_above(res, 0.8)
+    with pytest.raises(AssertionError):
+        kw.tool_hit_rate(res, assertion_operator=">=", assertion_expected=0.8)
 
 
 def test_tool_call_count_total(kw: MCPScenarioKeywords) -> None:
@@ -104,32 +106,44 @@ def test_tool_call_count_per_name(kw: MCPScenarioKeywords) -> None:
     assert kw.tool_call_count(res, name="c") == 0
 
 
-def test_tool_call_count_should_be_between_passes(kw: MCPScenarioKeywords) -> None:
+def test_tool_call_count_with_operator_ge_passes(kw: MCPScenarioKeywords) -> None:
     res = _result_from([ToolCallRecord(tool_name="x", arguments={}, success=True)] * 4)
-    kw.tool_call_count_should_be_between(res, min_count=1, max_count=10)
+    out = kw.tool_call_count(res, assertion_operator=">=", assertion_expected=1)
+    assert out == 4
 
 
-def test_tool_call_count_should_be_between_raises_on_low(kw: MCPScenarioKeywords) -> None:
+def test_tool_call_count_with_operator_ge_raises_on_low(kw: MCPScenarioKeywords) -> None:
     res = _result_from([ToolCallRecord(tool_name="x", arguments={}, success=True)])
-    with pytest.raises(AssertionError, match="< min"):
-        kw.tool_call_count_should_be_between(res, min_count=5)
+    with pytest.raises(AssertionError):
+        kw.tool_call_count(res, assertion_operator=">=", assertion_expected=5)
 
 
-def test_tool_call_count_should_be_between_raises_on_high(kw: MCPScenarioKeywords) -> None:
+def test_tool_call_count_with_operator_le_raises_on_high(kw: MCPScenarioKeywords) -> None:
     res = _result_from([ToolCallRecord(tool_name="x", arguments={}, success=True)] * 10)
-    with pytest.raises(AssertionError, match="> max"):
-        kw.tool_call_count_should_be_between(res, min_count=1, max_count=3)
+    with pytest.raises(AssertionError):
+        kw.tool_call_count(res, assertion_operator="<=", assertion_expected=3)
 
 
-def test_failed_tool_call_count_should_be_at_most_passes(kw: MCPScenarioKeywords) -> None:
+def test_failed_tool_call_count_with_operator_passes(kw: MCPScenarioKeywords) -> None:
     res = _result_from([ToolCallRecord(tool_name="a", arguments={}, success=True)])
-    kw.failed_tool_call_count_should_be_at_most(res, 0)
+    out = kw.failed_tool_call_count(res, assertion_operator="<=", assertion_expected=0)
+    assert out == 0
 
 
-def test_failed_tool_call_count_should_be_at_most_raises(kw: MCPScenarioKeywords) -> None:
+def test_failed_tool_call_count_with_operator_raises(kw: MCPScenarioKeywords) -> None:
     res = _result_from([ToolCallRecord(tool_name="a", arguments={}, success=False, error="boom")] * 3)
-    with pytest.raises(AssertionError, match="Failed tool call count"):
-        kw.failed_tool_call_count_should_be_at_most(res, 1)
+    with pytest.raises(AssertionError):
+        kw.failed_tool_call_count(res, assertion_operator="<=", assertion_expected=1)
+
+
+def test_failed_tool_call_count_passthrough_returns_int(kw: MCPScenarioKeywords) -> None:
+    res = _result_from(
+        [
+            ToolCallRecord(tool_name="a", arguments={}, success=True),
+            ToolCallRecord(tool_name="a", arguments={}, success=False, error="boom"),
+        ]
+    )
+    assert kw.failed_tool_call_count(res) == 1
 
 
 def test_required_tool_should_have_been_called_with_params_passes(kw: MCPScenarioKeywords) -> None:
@@ -168,25 +182,26 @@ def test_tool_call_statistics_returns_dataclass(kw: MCPScenarioKeywords) -> None
     assert stats.tool_call_counts == {"a": 2}
 
 
-def test_tool_call_success_rate_should_be_above_passes(kw: MCPScenarioKeywords) -> None:
+def test_tool_call_success_rate_with_operator_passes(kw: MCPScenarioKeywords) -> None:
     res = _result_from(
         [
             ToolCallRecord(tool_name="a", arguments={}, success=True),
             ToolCallRecord(tool_name="b", arguments={}, success=True),
         ]
     )
-    kw.tool_call_success_rate_should_be_above(res, 0.9)
+    out = kw.tool_call_success_rate(res, assertion_operator=">=", assertion_expected=0.9)
+    assert out == 1.0
 
 
-def test_tool_call_success_rate_should_be_above_raises(kw: MCPScenarioKeywords) -> None:
+def test_tool_call_success_rate_with_operator_raises(kw: MCPScenarioKeywords) -> None:
     res = _result_from(
         [
             ToolCallRecord(tool_name="a", arguments={}, success=True),
             ToolCallRecord(tool_name="b", arguments={}, success=False, error="x"),
         ]
     )
-    with pytest.raises(AssertionError, match="success rate"):
-        kw.tool_call_success_rate_should_be_above(res, 0.9)
+    with pytest.raises(AssertionError):
+        kw.tool_call_success_rate(res, assertion_operator=">=", assertion_expected=0.9)
 
 
 def test_compare_scenarios_pass_rate(kw: MCPScenarioKeywords) -> None:

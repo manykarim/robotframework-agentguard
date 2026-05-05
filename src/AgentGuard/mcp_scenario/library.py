@@ -6,7 +6,7 @@ Two equally first-class usage patterns:
 
        ${scenario}=    Load MCP Scenario    scenarios/restful_booker_api.yaml
        ${result}=    Run MCP Scenario    ${scenario}    server=${HANDLE}
-       Tool Hit Rate Should Be Above    ${result}    0.7
+       Tool Hit Rate    ${result}    >=    0.7
 
 2. **Pure Robot Framework (no YAML required)**::
 
@@ -15,7 +15,7 @@ Two equally first-class usage patterns:
        ${session}=    Start Tracked MCP Session    ${HANDLE}
        Call Tracked Tool    ${session}    add    {"x": 2, "y": 3}
        ${result}=    Compute Scenario Result    ${scenario}    ${session}
-       Tool Hit Rate Should Be Above    ${result}    0.99
+       Tool Hit Rate    ${result}    >=    0.99
 """
 
 from __future__ import annotations
@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Any
 
 from robot.api.deco import keyword
 
+from AgentGuard._assertions import AssertionOperator, assert_value
 from AgentGuard.mcp_scenario import (
     artifacts,
     loader,
@@ -231,85 +232,78 @@ class MCPScenarioKeywords:
     def tool_hit_rate(
         self,
         target: ScenarioResult | TrackedMCPSession,
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
         scenario: Scenario | None = None,
     ) -> float:
-        """Return the hit rate from a result or compute it from a session+scenario."""
-        if isinstance(target, ScenarioResult):
-            return target.tool_hit_rate
-        if scenario is None:
-            raise ValueError("hit rate from a session needs scenario=")
-        return statistics.calculate_tool_hit_rate(target.records, scenario.expected_tools)
+        """Return hit rate from a result, or compute it from a session+scenario.
 
-    @keyword(name="Tool Hit Rate Should Be Above")
-    def tool_hit_rate_should_be_above(
-        self,
-        target: ScenarioResult | TrackedMCPSession,
-        threshold: float,
-        scenario: Scenario | None = None,
-    ) -> float:
-        """Assert hit rate ≥ ``threshold``."""
-        rate = self.tool_hit_rate(target, scenario=scenario)
-        if rate < float(threshold):
-            raise AssertionError(f"Tool hit rate {rate:.3f} < threshold {float(threshold):.3f}")
-        return float(rate)
+        With ``assertion_operator`` supplied, asserts the hit rate in-place per
+        the AssertionEngine idiom (e.g. ``Tool Hit Rate    ${result}    >=    0.7``)
+        and still returns the float for chaining.
+        """
+        if isinstance(target, ScenarioResult):
+            rate = float(target.tool_hit_rate)
+        else:
+            if scenario is None:
+                raise ValueError("hit rate from a session needs scenario=")
+            rate = float(statistics.calculate_tool_hit_rate(target.records, scenario.expected_tools))
+        return float(assert_value(rate, assertion_operator, assertion_expected, message=message))
 
     @keyword(name="Tool Call Success Rate")
-    def tool_call_success_rate(self, target: ScenarioResult | TrackedMCPSession) -> float:
-        """Successful / total over the recorded calls."""
-        records = self._records_of(target)
-        return float(statistics.summary_stats(records).success_rate)
-
-    @keyword(name="Tool Call Success Rate Should Be Above")
-    def tool_call_success_rate_should_be_above(
+    def tool_call_success_rate(
         self,
         target: ScenarioResult | TrackedMCPSession,
-        threshold: float,
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
     ) -> float:
-        rate = self.tool_call_success_rate(target)
-        if rate < float(threshold):
-            raise AssertionError(f"Tool call success rate {rate:.3f} < threshold {float(threshold):.3f}")
-        return float(rate)
+        """Successful / total over the recorded calls.
+
+        With ``assertion_operator`` supplied, asserts in-place
+        (e.g. ``Tool Call Success Rate    ${result}    >=    0.95``).
+        """
+        records = self._records_of(target)
+        rate = float(statistics.summary_stats(records).success_rate)
+        return float(assert_value(rate, assertion_operator, assertion_expected, message=message))
 
     @keyword(name="Tool Call Count")
     def tool_call_count(
         self,
         target: ScenarioResult | TrackedMCPSession,
         name: str | None = None,
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
     ) -> int:
-        """Total recorded calls, or per-tool count when ``name=`` is given."""
+        """Total recorded calls, or per-tool count when ``name=`` is given.
+
+        With ``assertion_operator`` supplied, asserts in-place. The ``between``
+        case uses ``validate`` per ADR-022, e.g.
+        ``Tool Call Count    ${result}    assertion_operator=validate
+        assertion_expected=2 <= value <= 10``.
+        """
         records = self._records_of(target)
-        if name is None:
-            return int(len(records))
-        return int(sum(1 for r in records if r.tool_name == name))
+        count = len(records) if name is None else sum(1 for r in records if r.tool_name == name)
+        return int(assert_value(int(count), assertion_operator, assertion_expected, message=message))
 
-    @keyword(name="Tool Call Count Should Be Between")
-    def tool_call_count_should_be_between(
+    @keyword(name="Failed Tool Call Count")
+    def failed_tool_call_count(
         self,
         target: ScenarioResult | TrackedMCPSession,
-        min_count: int,
-        max_count: int | None = None,
-        name: str | None = None,
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
     ) -> int:
-        count = self.tool_call_count(target, name=name)
-        lo = int(min_count)
-        if count < lo:
-            raise AssertionError(f"Tool call count {count} < min {lo} (filter name={name!r})")
-        if max_count is not None and count > int(max_count):
-            raise AssertionError(f"Tool call count {count} > max {int(max_count)} (filter name={name!r})")
-        return int(count)
+        """Number of recorded calls with ``success=False``.
 
-    @keyword(name="Failed Tool Call Count Should Be At Most")
-    def failed_tool_call_count_should_be_at_most(
-        self,
-        target: ScenarioResult | TrackedMCPSession,
-        max_failures: int,
-    ) -> int:
+        With ``assertion_operator`` supplied, asserts in-place
+        (e.g. ``Failed Tool Call Count    ${result}    <=    0``).
+        """
         records = self._records_of(target)
         failed = sum(1 for r in records if not r.success)
-        if failed > int(max_failures):
-            failures = [r.tool_name for r in records if not r.success]
-            raise AssertionError(f"Failed tool call count {failed} > max {int(max_failures)} ({failures})")
-        return failed
+        return int(assert_value(int(failed), assertion_operator, assertion_expected, message=message))
 
     @keyword(name="Required Tool Should Have Been Called With Params")
     def required_tool_should_have_been_called_with_params(

@@ -9,6 +9,15 @@ Two paths:
    skill under the ``manykarim/robotframework-agentskills`` working tree.
    Auto-detected at ``~/workspace/robotframework-agentskills/skills`` and at
    the standard ``.claude/skills`` install root.
+
+PROPOSAL-library-import-structure §3 + §6: imports use the façade form
+``from AgentGuard.Skill import Skill`` / ``from AgentGuard.Security import Security``
+(Python equivalents of ``Library AgentGuard.Skill`` / ``Library AgentGuard.Security``).
+
+ADR-022: ``Convention Violation Rate Should Be Below`` is collapsed to the
+operator form ``Convention Violation Rate ${responses} <= 0.05`` (per
+``docs/proposals/keyword-reduction-table.md``). The Skills suite uses the new
+operator-driven keyword via the AssertionAdapter contract.
 """
 
 from __future__ import annotations
@@ -18,8 +27,9 @@ from pathlib import Path
 
 import pytest
 
-from AgentGuard.security.library import SecurityKeywords
-from AgentGuard.skills.library import SkillsKeywords
+# Façade imports — equivalent to `Library AgentGuard.Skill` / `Library AgentGuard.Security`.
+from AgentGuard.Security import Security
+from AgentGuard.Skill import Skill
 
 FIXTURE_ROOT = Path(__file__).resolve().parents[1] / "fixtures" / "integrations" / "skills"
 LOCAL_CLONE = Path.home() / "workspace" / "robotframework-agentskills" / "skills"
@@ -33,13 +43,16 @@ def _disable_aidefence_mcp() -> None:
 
 
 @pytest.fixture
-def skills() -> SkillsKeywords:
-    return SkillsKeywords(default_model="mockllm/model", default_judge_model="mockllm/model")
+def skills() -> Skill:
+    # Constructed via the façade alias — proves the production import path
+    # works end-to-end. The alias is the same class object as the deep
+    # ``SkillsKeywords`` (see tests/unit/test_library_facades.py).
+    return Skill(default_model="mockllm/model", default_judge_model="mockllm/model")
 
 
 @pytest.fixture
-def security() -> SecurityKeywords:
-    return SecurityKeywords()
+def security() -> Security:
+    return Security()
 
 
 # ---- bundled-fixture mode (always runs) -----------------------------------
@@ -52,16 +65,17 @@ def security() -> SecurityKeywords:
         FIXTURE_ROOT / "rf-browser-skill",
     ],
 )
-def test_bundled_skill_loads_and_validates(skills: SkillsKeywords, skill_dir: Path) -> None:
+def test_bundled_skill_loads_and_validates(skills: Skill, skill_dir: Path) -> None:
     skill = skills.load_skill(skill_dir)
     skills.validate_skill_frontmatter(skill)
     assert skill.description
     assert skill.name
 
 
-def test_bundled_skill_passes_security_scan(
-    security: SecurityKeywords,
-) -> None:
+def test_bundled_skill_passes_security_scan(security: Security) -> None:
+    """``Skill Should Pass Security Scan`` is a domain predicate kept per DDD §6
+    (the named keyword reads cleaner than the equivalent inline ``validate``
+    expression over the ``SkillSecurityReport`` shape)."""
     # ADR-006 default-deny means *every* unsigned third-party skill is denied;
     # `allow_unsigned=True` bypasses the signature gate so we can assert on the
     # remaining (real) security findings instead. A first-party reference
@@ -73,9 +87,7 @@ def test_bundled_skill_passes_security_scan(
     assert not crits, f"unexpected CRITICAL findings: {crits}"
 
 
-def test_bundled_skill_grades_offline_with_mockllm(
-    skills: SkillsKeywords,
-) -> None:
+def test_bundled_skill_grades_offline_with_mockllm(skills: Skill) -> None:
     sc = skills.run_skill_eval(
         str(FIXTURE_ROOT / "rf-libdoc-search"),
         runs=1,
@@ -85,6 +97,35 @@ def test_bundled_skill_grades_offline_with_mockllm(
     )
     assert sc.skill_name == "rf-libdoc-search"
     assert sc.runs >= 1
+
+
+# ---- ADR-022 collapsed keyword: Convention Violation Rate (operator form) --
+
+
+def test_convention_violation_rate_operator_form_offline(skills: Skill) -> None:
+    """Operator-form proof: ``Convention Violation Rate ${responses} <= 0.05``.
+
+    The Should-pair ``Convention Violation Rate Should Be Below`` was deleted
+    in Phase 4-D per ``docs/proposals/keyword-reduction-table.md``; the Get
+    keyword now accepts ``(assertion_operator, assertion_expected, message)``
+    via the AssertionAdapter and asserts in-place.
+
+    We run it on a tiny synthetic response set so the test stays default-offline.
+    """
+    # Clean responses — no convention violations expected; rate should be 0.0.
+    rate = skills.convention_violation_rate(
+        responses=["Hello, the response is concise and on-topic."],
+        assertion_operator="<=",
+        assertion_expected=0.05,
+    )
+    assert isinstance(rate, float)
+    assert 0.0 <= rate <= 1.0
+
+
+def test_convention_violation_rate_pass_through_returns_value(skills: Skill) -> None:
+    """No operator -> the keyword returns the rate unchanged (no assertion)."""
+    rate = skills.convention_violation_rate(responses=["Hello, the response is concise and on-topic."])
+    assert isinstance(rate, float)
 
 
 # ---- discovered mode (runs only when upstream clone is reachable) ----------
@@ -97,7 +138,7 @@ _HAVE_LOCAL_CLONE = LOCAL_CLONE.exists() and any(LOCAL_CLONE.iterdir())
     not _HAVE_LOCAL_CLONE,
     reason="no local manykarim/robotframework-agentskills checkout under ~/workspace",
 )
-def test_discovered_skills_validate(skills: SkillsKeywords) -> None:
+def test_discovered_skills_validate(skills: Skill) -> None:
     seen = 0
     for child in LOCAL_CLONE.iterdir():
         skill_md = child / "SKILL.md"
@@ -106,15 +147,13 @@ def test_discovered_skills_validate(skills: SkillsKeywords) -> None:
         skill = skills.load_skill(child)
         skills.validate_skill_frontmatter(skill)
         seen += 1
-    # The upstream repo ships 11 skills as of 2026-04; fall back to ≥3 to be
+    # The upstream repo ships 11 skills as of 2026-04; fall back to >=3 to be
     # robust against ongoing churn.
     assert seen >= 3, f"only validated {seen} skills under {LOCAL_CLONE}"
 
 
 @pytest.mark.skipif(not _HAVE_LOCAL_CLONE, reason="no local agentskills checkout")
-def test_discovered_skills_have_no_critical_findings(
-    security: SecurityKeywords,
-) -> None:
+def test_discovered_skills_have_no_critical_findings(security: Security) -> None:
     # ADR-006 default-deny applies to every unsigned skill. We bypass with
     # allow_unsigned=True (these ARE first-party skills the user owns) and
     # assert the scanner finds no actual CRITICAL issues.
@@ -130,7 +169,7 @@ def test_discovered_skills_have_no_critical_findings(
 
 
 @pytest.mark.skipif(not _HAVE_LOCAL_CLONE, reason="no local agentskills checkout")
-def test_discover_skills_via_keyword(skills: SkillsKeywords) -> None:
+def test_discover_skills_via_keyword(skills: Skill) -> None:
     # discover() iterates each root's immediate subdirs looking for SKILL.md,
     # so we point it at the `skills/` directory itself (not its parent).
     out = skills.discover_skills(roots=[LOCAL_CLONE], enforce_allowlist=False)

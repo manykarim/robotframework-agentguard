@@ -15,6 +15,7 @@ from robot.api import logger
 from robot.api.deco import keyword
 from robot.libraries.BuiltIn import BuiltIn
 
+from AgentGuard._assertions import AssertionOperator, assert_value
 from AgentGuard.stats._helpers import coerce_outcomes, variance_banner
 from AgentGuard.stats.bootstrap import bootstrap_ci
 from AgentGuard.stats.cliffs_delta import cliffs_delta as _cliffs_delta
@@ -86,52 +87,60 @@ class StatsKeywords:
         return results
 
     # ------------------------------------------------------------------
-    # pass@k / TAR
+    # pass@k / TAR  (ADR-022: operator-driven scalar assertions)
     # ------------------------------------------------------------------
 
-    @keyword(name="Pass At K Should Be Above")
-    def pass_at_k_should_be_above(
+    @keyword(name="Pass At K")
+    def pass_at_k(
         self,
         outcomes: list[Any],
         k: int,
-        threshold: float,
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
         metric: str | None = None,
     ) -> float:
-        """Assert ``pass@k(outcomes) > threshold`` (HumanEval convention)."""
-        coerced = coerce_outcomes(outcomes)
-        value = _pass_at_k(coerced, int(k))
-        label = metric or "pass@k"
-        logger.info(f"{label}@{k} = {value:.4f}  (threshold {threshold:g})")
-        if value <= float(threshold):
-            raise AssertionError(f"{label}@{k} = {value:.4f} is not above threshold {threshold:g}.")
-        return value
+        """Return ``pass@k(outcomes)`` (HumanEval convention).
 
-    @keyword(name="Total Agreement Rate Should Be Above")
-    def total_agreement_rate_should_be_above(
+        With ``assertion_operator`` supplied, asserts in-place via the
+        AssertionEngine idiom (e.g. ``Pass At K    ${out}    1    >=    0.5``)
+        and still returns the float for chaining.
+        """
+        coerced = coerce_outcomes(outcomes)
+        value = float(_pass_at_k(coerced, int(k)))
+        label = metric or "pass@k"
+        logger.info(f"{label}@{k} = {value:.4f}")
+        return float(assert_value(value, assertion_operator, assertion_expected, message=message))
+
+    @keyword(name="Total Agreement Rate")
+    def total_agreement_rate(
         self,
         outputs: list[Any],
-        threshold: float,
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
         mode: str = "raw",
         parser: Callable[[Any], Any] | None = None,
     ) -> float:
-        """Assert ``TARr@N`` (mode=raw) or ``TARa@N`` (mode=answer) > threshold.
+        """Return ``TARr@N`` (mode=raw) or ``TARa@N`` (mode=answer).
 
         For ``mode='answer'`` callers may supply a ``parser`` callable; if
         omitted we fall back to ``str(out).strip().lower()`` which is enough
         for many short-answer benchmarks.
+
+        With ``assertion_operator`` supplied, asserts in-place
+        (e.g. ``Total Agreement Rate    ${outputs}    >=    0.8``).
         """
         mode_norm = mode.lower().strip()
         if mode_norm == "raw":
-            value = _tar_r(outputs)
+            value = float(_tar_r(outputs))
         elif mode_norm in {"answer", "parsed", "tara"}:
             parse_fn = parser or (lambda o: str(o).strip().lower())
-            value = _tar_a(outputs, parse_fn)
+            value = float(_tar_a(outputs, parse_fn))
         else:
             raise ValueError(f"mode must be 'raw' or 'answer'; got {mode!r}.")
-        logger.info(f"TAR{'r' if mode_norm == 'raw' else 'a'}@{len(outputs)} = {value:.4f}  (threshold {threshold:g})")
-        if value <= float(threshold):
-            raise AssertionError(f"Total agreement rate {value:.4f} is not above threshold {threshold:g}.")
-        return value
+        logger.info(f"TAR{'r' if mode_norm == 'raw' else 'a'}@{len(outputs)} = {value:.4f}")
+        return float(assert_value(value, assertion_operator, assertion_expected, message=message))
 
     # ------------------------------------------------------------------
     # Two-sample comparisons

@@ -18,7 +18,8 @@ from typing import TYPE_CHECKING, Any, Protocol
 
 from robot.api.deco import keyword
 
-from AgentGuard.skills.conventions import ConventionReport, check_responses
+from AgentGuard._assertions import AssertionOperator, assert_value
+from AgentGuard.skills.conventions import check_responses
 from AgentGuard.skills.discovery import DiscoveryResult, discover
 from AgentGuard.skills.grader import GraderConfig, run_skill_eval
 from AgentGuard.skills.parser import (
@@ -191,22 +192,28 @@ class SkillsKeywords:
         return run_skill_eval(skill, config)
 
     # ---- conventions --------------------------------------------------------
-    @keyword(name="Convention Violation Rate Should Be Below")
-    def convention_violation_rate_should_be_below(
+    @keyword(name="Convention Violation Rate")
+    def convention_violation_rate(
         self,
         responses: list[SkillResponse] | list[str],
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
         rules: str | Path = ".claude/CLAUDE.md",
-        threshold: float = 0.05,
-    ) -> ConventionReport:
-        """Run the conventions checker; raise ``AssertionError`` if rate ≥ threshold."""
+    ) -> float:
+        """Return the convention violation rate over ``responses``.
+
+        With ``assertion_operator`` supplied, asserts in-place per ADR-022
+        (e.g. ``Convention Violation Rate    ${responses}    <=    0.05``).
+        On failure the AssertionEngine raises with a sample-rules message.
+        """
         text_responses = [r.output if isinstance(r, SkillResponse) else str(r) for r in responses]
         report = check_responses(text_responses, rules=rules)
-        if report.rate >= threshold:
+        rate = float(report.rate)
+        if assertion_operator is not None and report.violations:
             offenders = ", ".join(sorted({v.rule for v in report.violations})[:5])
-            raise AssertionError(
-                f"convention violation rate {report.rate:.3f} ≥ threshold {threshold:.3f}; sample rules: {offenders}"
-            )
-        return report
+            message = message or f"convention violation rate {rate:.3f}; sample rules: {offenders}"
+        return float(assert_value(rate, assertion_operator, assertion_expected, message=message))
 
     # ---- baseline IO --------------------------------------------------------
     @keyword(name="Save Baseline")

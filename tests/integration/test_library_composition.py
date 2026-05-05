@@ -29,7 +29,7 @@ def test_top_level_library_exposes_mcp_keywords() -> None:
 
 def test_top_level_library_exposes_stats_keywords() -> None:
     ag = AgentGuard(provider="mock")
-    for kw in ("Mann Whitney U Should Show Improvement", "Bootstrap Confidence Interval", "Pass At K Should Be Above"):
+    for kw in ("Mann Whitney U Should Show Improvement", "Bootstrap Confidence Interval", "Pass At K"):
         assert kw in dir(ag), f"missing {kw}"
 
 

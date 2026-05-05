@@ -5,11 +5,15 @@ that AgentGuard's ``Generate Tool Call`` keyword can produce a structurally
 correct call against an rf-mcp tool definition via a real model — the full
 stack tested in one shot:
 
-    OpenRouter LLM  →  AgentGuard provider (LiteLLM)
-                    →  AgentGuard ``Generate Tool Call`` (BFCL AST matcher)
-                    →  validates the structurally-correct rf-mcp tool call.
+    OpenRouter LLM  ->  AgentGuard provider (LiteLLM)
+                    ->  AgentGuard ``Generate Tool Call`` (BFCL AST matcher)
+                    ->  validates the structurally-correct rf-mcp tool call.
 
-Cost ceiling per run: <$0.005 (gpt-4o-mini, N=1, ≤500 output tokens).
+Cost ceiling per run: <$0.005 (gpt-4o-mini, N=1, <=500 output tokens).
+
+PROPOSAL-library-import-structure §3 + §6: imports use the façade form
+``from AgentGuard.MCP import MCP`` and ``from AgentGuard.Tool import Tool``
+(Python equivalents of ``Library AgentGuard.MCP`` / ``Library AgentGuard.Tool``).
 """
 
 from __future__ import annotations
@@ -35,9 +39,12 @@ if importlib.util.find_spec("robotmcp") is None:
     )
 
 from AgentGuard.config import load_env
-from AgentGuard.mcp.library import MCPKeywords
+
+# Façade imports — equivalent to `Library AgentGuard.MCP` / `Library AgentGuard.Tool`
+# per PROPOSAL-library-import-structure §6.
+from AgentGuard.MCP import MCP
 from AgentGuard.providers.factory import build_provider
-from AgentGuard.tool_calls.library import ToolCallKeywords
+from AgentGuard.Tool import Tool
 
 # Load .env before the OPENROUTER_API_KEY skip-check so local runs work the same
 # way as CI (where the secret is injected via the workflow's env block).
@@ -54,12 +61,12 @@ def rf_mcp_server() -> Any:
 
 
 @pytest.fixture
-def mcp_kw() -> MCPKeywords:
-    return MCPKeywords()
+def mcp_kw() -> MCP:
+    return MCP()
 
 
 @pytest.mark.live
-def test_real_llm_generates_call_against_rf_mcp_tool_schema(rf_mcp_server: Any, mcp_kw: MCPKeywords) -> None:
+def test_real_llm_generates_call_against_rf_mcp_tool_schema(rf_mcp_server: Any, mcp_kw: MCP) -> None:
     """End-to-end: real OpenRouter LLM, real rf-mcp tool schema, BFCL matcher.
 
     1. Pull the live ``find_keywords`` tool schema from rf-mcp.
@@ -83,19 +90,21 @@ def test_real_llm_generates_call_against_rf_mcp_tool_schema(rf_mcp_server: Any, 
             "parameters": find_kw_tool.get("inputSchema") or {"type": "object"},
         },
     }
-    tc_kw = ToolCallKeywords(provider=provider, default_model="openrouter/openai/gpt-4o-mini")
+    tc_kw = Tool(provider=provider, default_model="openrouter/openai/gpt-4o-mini")
     calls = tc_kw.generate_tool_call(
         prompt="Use the find_keywords tool to look up Robot Framework keywords matching the term 'log'.",
         tools=[tool_def],
     )
     assert calls, "LLM did not produce any tool calls"
+    # `Tool Call Should Match Name` is a domain predicate (kept per DDD §6 —
+    # the keyword name is more readable than `Get Tool Call Name ${call} == find_keywords`).
     tc_kw.tool_call_should_match_name(calls[0], "find_keywords")
     # arguments must be a dict (not a JSON string we forgot to parse)
     assert isinstance(calls[0].arguments, dict)
 
 
 @pytest.mark.live
-def test_real_llm_describes_rf_mcp_capabilities(rf_mcp_server: Any, mcp_kw: MCPKeywords) -> None:
+def test_real_llm_describes_rf_mcp_capabilities(rf_mcp_server: Any, mcp_kw: MCP) -> None:
     """Sanity check: the model can summarise rf-mcp's tool list given names + descriptions.
 
     No tool-call required; this just exercises the LLM round-trip with the API key

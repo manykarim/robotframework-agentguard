@@ -5,7 +5,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/manykarim/robotframework-agentguard/ci.yml?branch=main)](https://github.com/manykarim/robotframework-agentguard/actions)
 
-> Robot Framework library for testing **MCP servers, Agent Skills, Hooks, SubAgents, and coding-agent CLIs** — provider-agnostic via LiteLLM, BFCL-grade tool-call matching, statistical N≥10 by default. Phase 1 shipped **55 keywords** across 6 sub-libraries; Phase 2 added Hooks + SubAgents + sandbox for **83 keywords** across 8 sub-libraries; Phase 3 (in progress) extends the surface to **~110+ keywords** with the CodingAgent harness, the #42796 behavioral metric pack, and SWE-Bench / Aider / HumanEval / MBPP / LiveCodeBench benchmarks (see [phased delivery](#phased-delivery)).
+> Robot Framework library for testing **MCP servers, Agent Skills, Hooks, SubAgents, and coding-agent CLIs** — provider-agnostic via LiteLLM, BFCL-grade tool-call matching, statistical N≥10 by default. Phase 1 shipped **55 keywords** across 6 sub-libraries; Phase 2 added Hooks + SubAgents + sandbox for **83 keywords** across 8 sub-libraries; Phase 3 added the CodingAgent harness, the #42796 behavioral metric pack, and SWE-Bench / Aider / HumanEval / MBPP / LiveCodeBench benchmarks. **Phase 4-D** (v0.2.0) adopts `robotframework-assertion-engine` and ships 11 PascalCase singular façades (`AgentGuard.MCP`, `AgentGuard.Skill`, …), collapsing the Get/Should pairs into one operator-driven keyword each (see [phased delivery](#phased-delivery) and [ADR-022](docs/adr/ADR-022-assertion-engine-adoption.md)).
 
 ## 60-second quickstart
 
@@ -18,6 +18,51 @@ AgentGuard Should Be Loaded
     ${info}=    Get AgentGuard Info
     Log    ${info}
 ```
+
+## Sub-library imports
+
+Phase-4-D ships 11 PascalCase singular façades — short import paths for
+users who want a smaller namespace (per
+[`docs/proposals/PROPOSAL-library-import-structure.md`](docs/proposals/PROPOSAL-library-import-structure.md)).
+The kitchen-sink `Library AgentGuard` continues to expose every keyword;
+sub-library imports are purely additive.
+
+| Import line | Internal class | Purpose |
+|---|---|---|
+| `Library AgentGuard` | composes all 11 (kitchen-sink, default) | Library introspection + every keyword reachable |
+| `Library AgentGuard.MCP` | `MCPKeywords` | Test MCP servers (stdio / SSE / streamable-HTTP / in-memory) |
+| `Library AgentGuard.Skill` | `SkillsKeywords` | Discover, parse, validate, grade Agent Skills |
+| `Library AgentGuard.Tool` | `ToolCallKeywords` | BFCL-style tool-call AST + trajectory matching |
+| `Library AgentGuard.Stats` | `StatsKeywords` | Mann-Whitney U, Cliff's δ, Vargha-Delaney A, bootstrap CIs, pass@k, TARr@N |
+| `Library AgentGuard.Judge` | `JudgeKeywords` | Classification-based LLM-as-Judge with Cohen's κ calibration |
+| `Library AgentGuard.Security` | `SecurityKeywords` | Default-deny skill scanner, redactor, sandbox, AIDefence |
+| `Library AgentGuard.Hook` | `HooksKeywords` | Claude Code hook lifecycle (12 events × 4 handler types) |
+| `Library AgentGuard.SubAgent` | `SubAgentsKeywords` | A2A 1.0 task lifecycle, framework bridges |
+| `Library AgentGuard.Coding` | `CodingAgentKeywords` | Drive Claude Code / Codex / Aider / OpenCode + #42796 metric pack |
+| `Library AgentGuard.Benchmark` | `CodingBenchmarkKeywords` | SWE-bench Verified, Aider, HumanEval, MBPP, LiveCodeBench |
+| `Library AgentGuard.Scenario` | `MCPScenarioKeywords` | Unified scenario harness — drop-in for `manykarim/rf-mcp` `tests/e2e/` |
+
+```robot
+*** Settings ***
+Library    AgentGuard.MCP
+Library    AgentGuard.Skill
+Library    AgentGuard.Stats
+```
+
+See [`examples/14_facade_imports.robot`](examples/14_facade_imports.robot)
+for a runnable side-by-side demo.
+
+### Operator-driven assertions (ADR-022)
+
+Phase 4-D adopts `robotframework-assertion-engine` as a Shared Kernel
+utility. Every collapsible Get-style keyword now accepts the standard
+`(assertion_operator, assertion_expected, message)` parameters, so
+`Tool Hit Rate ${result} >= ${0.7}` replaces the old
+`Tool Hit Rate Should Be Above ${result} 0.7` pair. See
+[`examples/13_assertion_engine_idiom.robot`](examples/13_assertion_engine_idiom.robot)
+for the side-by-side proof and
+[`docs/adr/ADR-022-assertion-engine-adoption.md`](docs/adr/ADR-022-assertion-engine-adoption.md)
+for the full rationale.
 
 ## Installation
 
@@ -75,7 +120,8 @@ See [`docs/ddd/bounded-contexts.md`](docs/ddd/bounded-contexts.md) for aggregate
 | 0 | Research, ADRs, DDD, experiments | Done |
 | 1 | MCP + Skills + Stats + Judge + Security baseline | Done |
 | 2 | Hooks + SubAgents + Sandbox | Done |
-| 3 | Coding-agent harness + #42796 metrics + benchmarks | In progress |
+| 3 | Coding-agent harness + #42796 metrics + benchmarks | Done |
+| 4-D | AssertionEngine adoption + sub-library façades (v0.2.0) | Done |
 | 4 | OSS hardening + RuFlo SONA / HNSW / hive-mind integration | Planned |
 
 ### Phase 2 keywords (in progress)

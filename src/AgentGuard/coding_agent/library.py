@@ -8,11 +8,11 @@ imported lazily inside each keyword: if a sibling has not landed yet during
 the parallel Phase-3 race, ``library.py`` still imports cleanly and the
 affected keyword raises ``RuntimeError("phase3 module not yet wired")``.
 
-The 24 metric Get/Should keywords live in
+The 12 metric Get keywords (operator-driven per ADR-022) live in
 :mod:`AgentGuard.coding_agent._metric_keywords` to keep this file under the
 300-line per-file budget; we mix them in below.
 
-Total keywords: ~33 (3 driver + 4 parser + 24 metric + 3 aggregate).
+Total keywords: ~22 (3 driver + 4 parser + 12 metric + 3 aggregate).
 """
 
 from __future__ import annotations
@@ -88,7 +88,7 @@ class CodingAgentKeywords(_MetricKeywordsMixin):
         self._default_model = default_model
         self._last_result: DriverResult | None = None
 
-    # ---- shared helpers consumed by the metric mixin -------------------
+    # ---- shared helper consumed by the metric mixin --------------------
     @staticmethod
     def _value(session: Session, key: str) -> float:
         """Run a single metric calculator from ``metrics.registry.METRICS``."""
@@ -98,27 +98,10 @@ class CodingAgentKeywords(_MetricKeywordsMixin):
         except KeyError as exc:
             raise DriverDispatchError(str(exc)) from exc
         # ``threshold=None`` keeps the calculator from setting ``passed`` —
-        # the keyword layer owns assertions; calculators only return the value.
+        # the keyword layer owns assertions (now via AssertionEngine); the
+        # calculator only returns the value.
         result = spec.compute(session, threshold=None)
         return float(getattr(result, "value", result))
-
-    @staticmethod
-    def _assert(*, metric: str, value: float, threshold: float, direction: str) -> float:
-        """Shared ``Should Be Above|Below|Zero`` assertion body."""
-        ok = (
-            (direction == "above" and value > threshold)
-            or (direction == "below" and value < threshold)
-            or (direction == "zero" and value == 0)
-        )
-        if not ok:
-            op = {"above": ">", "below": "<", "zero": "=="}[direction]
-            raise MetricThresholdViolated(
-                f"{metric} = {value:g} fails {op} {threshold:g}",
-                metric=metric,
-                value=value,
-                threshold=threshold,
-            )
-        return value
 
     # ---- Driver --------------------------------------------------------
     @keyword(name="Run Coding Agent")

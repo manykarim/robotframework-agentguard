@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "robotframework-agentguard"
-version = "0.1.0"
+version = "0.2.0"
 description = "Robot Framework library for testing Agent Skills, Hooks, SubAgents, and MCP Servers — provider-agnostic, BFCL-grade tool-call matching, #42796 behavioral metrics, statistical non-determinism handling."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -41,6 +41,8 @@ dependencies = [
   "docker>=7.1.0",
   "jsonlines>=4.0",
   "gitpython>=3.1",
+  # ADR-022: Shared Kernel for assertion operators (Browser Library / SeleniumLibrary idiom).
+  "robotframework-assertion-engine>=4.0,<5.0",
 ]
 
 [project.optional-dependencies]

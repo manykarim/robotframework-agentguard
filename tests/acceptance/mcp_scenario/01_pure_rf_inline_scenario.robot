@@ -3,7 +3,7 @@ Documentation    ADR-021 acceptance — pure Robot Framework keyword-driven
 ...              scenario with no YAML. Demonstrates that every concept maps
 ...              to a clean RF keyword: Create Scenario, Add Expected Tool,
 ...              Start Tracked MCP Session, Call Tracked Tool, Compute
-...              Scenario Result, Tool Hit Rate Should Be Above.
+...              Scenario Result, Tool Hit Rate (operator form per ADR-022).
 Library          AgentGuard
 Suite Setup      Connect Echo
 Suite Teardown   Stop MCP Server    ${HANDLE}
@@ -23,10 +23,13 @@ Inline Scenario Hits 100 Percent
 
     ${result}=    Compute Scenario Result    ${scenario}    ${session}
     Scenario Result Should Be Successful    ${result}
-    Tool Hit Rate Should Be Above    ${result}    0.99
-    Failed Tool Call Count Should Be At Most    ${result}    0
-    Tool Call Count Should Be Between    ${result}    min_count=2    max_count=4
-    Tool Call Count Should Be Between    ${result}    min_count=1    max_count=1    name=echo
+    Tool Hit Rate    ${result}    >=    ${0.99}
+    Failed Tool Call Count    ${result}    <=    ${0}
+    # `between` decomposes into paired `>=` / `<=` checks per ADR-022; the
+    # single-call `validate` form is gated by ADR-013 sandbox policy.
+    Tool Call Count    ${result}    assertion_operator=>=    assertion_expected=${2}
+    Tool Call Count    ${result}    assertion_operator=<=    assertion_expected=${4}
+    Tool Call Count    ${result}    name=echo    assertion_operator===    assertion_expected=${1}
 
 Required Params Assertion Catches Param Drift
     [Tags]    mcp-scenario    inline    required-params

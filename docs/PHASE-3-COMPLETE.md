@@ -27,7 +27,10 @@ This report mirrors the structure of [`PHASE-2-COMPLETE.md`](PHASE-2-COMPLETE.md
 
 `Library    AgentGuard    provider=litellm    model=openrouter/anthropic/claude-sonnet-4-5`
 
-Composed via `robotlibcore.DynamicCore` from 9 sub-libraries (lazy-imported):
+Composed via `robotlibcore.DynamicCore` from 9 sub-libraries (lazy-imported)
+— post-Phase-4-D the surface grew to 11 sub-libraries / 147 keywords (the
+163 transient peak after MCPScenario landed reduced via ADR-022 collapse)
+per [`PHASE-4-D-COMPLETE.md`](PHASE-4-D-COMPLETE.md):
 
 ```python
 {'MCPKeywords', 'SkillsKeywords', 'ToolCallKeywords',

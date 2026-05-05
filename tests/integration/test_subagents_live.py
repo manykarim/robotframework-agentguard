@@ -104,7 +104,7 @@ def test_travel_planner_lisbon_live() -> None:
     kw = SubAgentsKeywords()
 
     task = kw.send_task(url, "Plan a 2-day trip to Lisbon")
-    kw.task_should_have_status(task, "completed")
+    kw.get_task_status(task, "==", "completed")
 
     text = kw.get_task_artifact_text(task)
     assert text  # LLM produced *something*

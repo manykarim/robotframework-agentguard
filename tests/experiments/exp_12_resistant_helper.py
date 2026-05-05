@@ -10,7 +10,6 @@ from typing import Any
 
 from robot.api.deco import keyword
 
-
 # Mann-Whitney result — both shapes the existing AgentGuard code already returns.
 
 @dataclass

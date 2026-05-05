@@ -1,9 +1,59 @@
 # AgentGuard Robot Framework Keywords — Complete Reference
 
-**163 keywords** across **11 sub-libraries**, all composed via `DynamicCore` on the top-level
-`Library AgentGuard`. Importing `AgentGuard` makes every keyword in this document
-available; advanced users can also import a single sub-library directly
-(e.g. `Library AgentGuard.mcp.library`) for namespace isolation.
+**147 keywords** across **11 sub-libraries** plus the top-level `Library AgentGuard`,
+all composed via `DynamicCore`. Importing `AgentGuard` makes every keyword in this
+document available; advanced users can also import a single sub-library directly
+via the Phase-4-D PascalCase singular façades (e.g. `Library AgentGuard.MCP`)
+for namespace isolation.
+
+> **Phase 4-D (v0.2.0) update.** Per ADR-022 the previously-shipping Should-pair
+> keywords (`Read Edit Ratio Should Be Above`, `Tool Hit Rate Should Be Above`,
+> `Edits Without Prior Read Percent Should Be Below`, …) have been **collapsed**
+> into their Get-style siblings. Each Get keyword now accepts the standard
+> `(assertion_operator, assertion_expected, message)` parameters from
+> `robotframework-assertion-engine`, so::
+>
+>     Read Edit Ratio    ${session}    >=    ${4.0}
+>     Tool Hit Rate      ${result}     >=    ${0.7}
+>     Tool Call Count    ${result}     ==    ${3}
+>
+> reads the same shape as Browser Library / SeleniumLibrary. The kept Should
+> keywords (`Hook Should Block`, `Skill Should Pass Security Scan`,
+> `Mann Whitney U Should Show Improvement`, etc.) are documented in ADR-022 §3
+> as "edge cases that resist collapse" — they're predicates over composite
+> values where the Should-form reads better at the call site.
+>
+> Final keyword count (post-Phase-4-D): **147** total = 146 across the 11
+> sub-libraries + 1 top-level (`Get AgentGuard Info`). The original target of
+> 131 was conservative; the swarm preserved a few extra Should-pair predicates
+> (e.g. `Cliffs Delta Should Be At Least`, `Vargha Delaney A Should Be At Least`)
+> per the §6 [NEEDS DECISION] register. See [`docs/proposals/keyword-reduction-table.md`](proposals/keyword-reduction-table.md) for the per-keyword
+> migration table.
+
+## Sub-library imports (Phase 4-D)
+
+Per [`docs/proposals/PROPOSAL-library-import-structure.md`](proposals/PROPOSAL-library-import-structure.md), AgentGuard exposes 11 PascalCase singular façades for users
+who want a smaller namespace than the kitchen-sink `Library AgentGuard`.
+Façades are purely additive — every keyword stays reachable via the
+top-level import.
+
+| Façade | Internal class | Bounded context |
+|---|---|---|
+| `Library AgentGuard` | composes all 11 (kitchen-sink, default) | cross-cutting |
+| `Library AgentGuard.MCP` | `MCPKeywords` | MCP |
+| `Library AgentGuard.Skill` | `SkillsKeywords` | Skills |
+| `Library AgentGuard.Tool` | `ToolCallKeywords` | ToolCallCorrectness |
+| `Library AgentGuard.Stats` | `StatsKeywords` | Statistics |
+| `Library AgentGuard.Judge` | `JudgeKeywords` | Judge |
+| `Library AgentGuard.Security` | `SecurityKeywords` | Security |
+| `Library AgentGuard.Hook` | `HooksKeywords` | Hooks |
+| `Library AgentGuard.SubAgent` | `SubAgentsKeywords` | SubAgents |
+| `Library AgentGuard.Coding` | `CodingAgentKeywords` | CodingAgent + BehavioralMetrics |
+| `Library AgentGuard.Benchmark` | `CodingBenchmarkKeywords` | CodingAgent (benchmarks) |
+| `Library AgentGuard.Scenario` | `MCPScenarioKeywords` | TestHarness (ADR-021) |
+
+See [`examples/14_facade_imports.robot`](../examples/14_facade_imports.robot)
+for a runnable side-by-side demo.
 
 ## Index
 
@@ -16,10 +66,10 @@ available; advanced users can also import a single sub-library directly
 | [JudgeKeywords](#judgekeywords-7) | 7 | Judge | Classification-based LLM-as-Judge with Cohen's κ calibration. |
 | [SecurityKeywords](#securitykeywords-10) | 10 | Security | Default-deny skill scanner, redactor, sandbox dispatch, AIDefence integration. |
 | [HooksKeywords](#hookskeywords-11) | 11 | Hooks | Synthesize and drive the 12 Claude Code hook events across 4 handler types. |
-| [SubAgentsKeywords](#subagentskeywords-13) | 13 | SubAgents | A2A 1.0 task lifecycle; trajectory comparison; framework bridges. |
-| [CodingAgentKeywords](#codingagentkeywords-34) | 34 | CodingAgent + BehavioralMetrics | Drive coding agents (Claude Code, Codex, Aider, …) + the 12 #42796 metrics. |
+| [SubAgentsKeywords](#subagentskeywords-12) | 12 | SubAgents | A2A 1.0 task lifecycle; trajectory comparison; framework bridges. |
+| [CodingAgentKeywords](#codingagentkeywords-22) | 22 | CodingAgent + BehavioralMetrics | Drive coding agents (Claude Code, Codex, Aider, …) + the 12 #42796 metrics. |
 | [CodingBenchmarkKeywords](#codingbenchmarkkeywords-15) | 15 | CodingAgent | SWE-bench Verified, Aider, HumanEval, MBPP, LiveCodeBench loaders + scorers. |
-| [MCPScenarioKeywords](#mcpscenariokeywords-31) | 31 | TestHarness (ADR-021) | Unified scenario harness — drop-in replacement for rf-mcp `tests/e2e/`. |
+| [MCPScenarioKeywords](#mcpscenariokeywords-28) | 28 | TestHarness (ADR-021) | Unified scenario harness — drop-in replacement for rf-mcp `tests/e2e/`. |
 | [Top-level AgentGuard](#top-level-agentguard-1) | 1 | cross-cutting | Library introspection. |
 
 **Conventions used below**
@@ -28,28 +78,32 @@ available; advanced users can also import a single sub-library directly
 - Tier-1 (deterministic, no LLM) keywords are marked **T1**; Tier-2/3 (LLM-touching) are marked **T2/3**.
 - All assertion keywords raise `AssertionError` so Robot Framework reports them as test failures.
 - Default model resolution: `OPENROUTER_API_KEY` from `.env` → `default_model()` from `AgentGuard.config`.
+- Get-style keywords with the AssertionEngine surface accept the canonical
+  `(assertion_operator, assertion_expected, message)` triple. With operator omitted
+  they return the value; with operator supplied they assert in-place AND return
+  the value (per ADR-022).
 
 ---
 
 ## MCPKeywords (13)
 
-`AgentGuard.mcp.library.MCPKeywords` — wrap any MCP server (stdio / SSE / streamable-HTTP / in-memory).
+`AgentGuard.mcp.library.MCPKeywords` — wrap any MCP server (stdio / SSE / streamable-HTTP / in-memory). Façade: `Library AgentGuard.MCP`.
 
 | Keyword | Tier | Purpose |
 |---|:-:|---|
-| `Start MCP Server` | T1 | Spawn or bind an MCP server; returns a `ServerHandle`. |
-| `Stop MCP Server` | T1 | Tear down an owned server; returns child exit code. |
+| `Call MCP Tool` | T1 | Invoke a tool; returns `{data, is_error, structured_content, raw}`. |
 | `Connect To MCP Server` | T1 | Connect to an already-running server; handle does not own its lifetime. |
 | `Get MCP Capabilities` | T1 | Returns `{tools, resources, prompts}` (lists of names). |
-| `MCP Server Should Implement Capabilities` | T1 | Assert every expected name appears in capabilities. |
-| `List MCP Tools` | T1 | Return tool dicts (`name`, `description`, `inputSchema`, `outputSchema`). |
-| `List MCP Resources` | T1 | Return resource dicts. |
 | `List MCP Prompts` | T1 | Return prompt dicts. |
-| `Call MCP Tool` | T1 | Invoke a tool; returns `{data, is_error, structured_content, raw}`. |
+| `List MCP Resources` | T1 | Return resource dicts. |
+| `List MCP Tools` | T1 | Return tool dicts (`name`, `description`, `inputSchema`, `outputSchema`). |
+| `MCP Inspector List Tools` | T1 | Inspector CLI `--method tools/list`; returns the tools array. |
+| `MCP Inspector Should Connect` | T1 | Wrap `npx @modelcontextprotocol/inspector --cli`; assert exit 0. |
+| `MCP Server Should Implement Capabilities` | T1 | Assert every expected name appears in capabilities. |
 | `MCP Tool Output Should Match Schema` | T1 | Validate `result.data` against a JSON Schema (dict, JSON string, or path). |
 | `Measure MCP Tool Latency` | T1 | Run N times; return `{runs, mean, p50, p95, p99, min, max}` in ms. |
-| `MCP Inspector Should Connect` | T1 | Wrap `npx @modelcontextprotocol/inspector --cli`; assert exit 0. |
-| `MCP Inspector List Tools` | T1 | Inspector CLI `--method tools/list`; returns the tools array. |
+| `Start MCP Server` | T1 | Spawn or bind an MCP server; returns a `ServerHandle`. |
+| `Stop MCP Server` | T1 | Tear down an owned server; returns child exit code. |
 
 ```robot
 ${handle}=    Start MCP Server    uv run python my_server.py    transport=stdio
@@ -64,121 +118,123 @@ Stop MCP Server    ${handle}
 
 ## SkillsKeywords (9)
 
-`AgentGuard.skills.library.SkillsKeywords` — discover, parse, validate, and grade Agent Skills (rf-skill-eval pattern).
+`AgentGuard.skills.library.SkillsKeywords` — discover, parse, validate, and grade Agent Skills. Façade: `Library AgentGuard.Skill`.
 
 | Keyword | Tier | Purpose |
 |---|:-:|---|
-| `Load Skill` | T1 | Parse `SKILL.md` (or skill directory) and validate frontmatter. |
-| `Discover Skills` | T1 | Scan the four standard install paths (or custom roots); returns `{tool: [Skill]}`. |
-| `Discover Skills Full` | T1 | Same as `Discover Skills` but returns the full `DiscoveryResult` (errors + warnings). |
-| `Validate Skill Frontmatter` | T1 | Assert spec compliance (name regex, description, allowed-tools shape). |
-| `Skill Output For Prompts` | T2/3 | Drive the configured provider with the skill loaded as system message. |
-| `Run Skill Eval` | T2/3 | Wrap an Inspect AI Task; returns `SkillScorecard`. |
-| `Convention Violation Rate Should Be Below` | T1 | Run conventions checker; raise if rate ≥ threshold. |
-| `Save Baseline` | T1 | Persist a `SkillScorecard` as JSON for later diffing. |
+| `Convention Violation Rate` | T1 | Returns the convention violation rate over `responses`; supports operator. |
+| `Discover Skills` | T1 | Scan the four standard install paths; returns `{tool: [Skill]}`. |
+| `Discover Skills Full` | T1 | Same as `Discover Skills` but returns full `DiscoveryResult`. |
 | `Load Baseline` | T1 | Inverse of `Save Baseline`. |
+| `Load Skill` | T1 | Parse `SKILL.md` (or skill directory) and validate frontmatter. |
+| `Run Skill Eval` | T2/3 | Wrap an Inspect AI Task; returns `SkillScorecard`. |
+| `Save Baseline` | T1 | Persist a `SkillScorecard` as JSON for later diffing. |
+| `Skill Output For Prompts` | T2/3 | Drive the configured provider with the skill loaded as system message. |
+| `Validate Skill Frontmatter` | T1 | Assert spec compliance (name regex, description, allowed-tools shape). |
 
 ```robot
 ${skill}=    Load Skill    skills/robotframework-browser-skill
 Skill Should Pass Security Scan    ${skill}    allow_unsigned=${True}
 ${scorecard}=    Run Skill Eval    ${skill}    runs=10    judge_model=openrouter/openai/gpt-4o-mini
-Save Baseline    ${scorecard}    baselines/browser-2026-q2.json
+Convention Violation Rate    ${responses}    <=    ${0.05}
 ```
 
 ---
 
 ## ToolCallKeywords (10)
 
-`AgentGuard.tool_calls.library.ToolCallKeywords` — BFCL-style per-call AST equality + trajectory matching.
+`AgentGuard.tool_calls.library.ToolCallKeywords` — BFCL-style per-call AST equality + trajectory matching. Façade: `Library AgentGuard.Tool`.
 
 | Keyword | Tier | Purpose |
 |---|:-:|---|
-| `Tool Call Should Match Name` | T1 | Exact-string assertion on the called tool's name. |
-| `Tool Call Arguments Should Match` | T1 | AST equality of arguments; `mode` ∈ `{strict, ast, semantic}`. |
-| `Required Parameters Should Be Present` | T1 | Validate `actual.arguments` against a JSON Schema (`required` only). |
-| `Parallel Tool Calls Should Match` | T1 | Multiset equality of `(name, args)` over the two lists. |
-| `Tool Sequence Should Match` | T1 | Ordered subsequence match; `"*"` matches any single call. |
-| `Should Not Call Any Tool` | T1 | BFCL "decide-not-to-act"; assert empty trajectory. |
-| `Load BFCL Dataset` | T1 | Load BFCL cases from `inspect_evals.bfcl` (or fixture fallback). |
-| `BFCL Score Should Be Above` | T1 | Compute mean per-case score; assert ≥ threshold. |
-| `Generate Tool Call` | T2/3 | Call the suite-level provider; return parsed tool calls. |
+| `BFCL Score` | T1 | Compute mean per-case BFCL score; supports operator (e.g. `>= 0.85`). |
 | `Extract Tool Names From Messages` | T1 | Pull the ordered tool-name list from an assistant transcript. |
+| `Generate Tool Call` | T2/3 | Call the suite-level provider; return parsed tool calls. |
+| `Load BFCL Dataset` | T1 | Load BFCL cases from `inspect_evals.bfcl` (or fixture fallback). |
+| `Parallel Tool Calls Should Match` | T1 | Multiset equality of `(name, args)` over the two lists. |
+| `Required Parameters Should Be Present` | T1 | Validate `actual.arguments` against a JSON Schema (`required` only). |
+| `Should Not Call Any Tool` | T1 | BFCL "decide-not-to-act"; assert empty trajectory. |
+| `Tool Call Arguments Should Match` | T1 | AST equality of arguments; `mode` ∈ `{strict, ast, semantic}`. |
+| `Tool Call Should Match Name` | T1 | Exact-string assertion on the called tool's name. |
+| `Tool Sequence Should Match` | T1 | Ordered subsequence match; `"*"` matches any single call. |
 
 ```robot
 ${call}=    Generate Tool Call    Find weather in Lisbon    tools=${TOOLS}
 Tool Call Should Match Name    ${call}[0]    weather.lookup
 Tool Call Arguments Should Match    ${call}[0]    {"city": "Lisbon"}    mode=ast
+BFCL Score    ${results}    >=    ${0.85}
 ```
 
 ---
 
 ## StatsKeywords (9)
 
-`AgentGuard.stats.library.StatsKeywords` — non-determinism math; default `N≥10` per ADR-005.
+`AgentGuard.stats.library.StatsKeywords` — non-determinism math; default `N≥10` per ADR-005. Façade: `Library AgentGuard.Stats`.
 
 | Keyword | Tier | Purpose |
 |---|:-:|---|
-| `Run N Times` | T1 | Run a keyword N times and collect return values. |
-| `Pass At K Should Be Above` | T1 | HumanEval-formula `pass@k(outcomes) > threshold`. |
-| `Total Agreement Rate Should Be Above` | T1 | TARr@N (raw) or TARa@N (parsed-answer) over outputs. |
-| `Mann Whitney U Should Show Improvement` | T1 | scipy MW-U; assert `p < alpha`. |
-| `Cliffs Delta Should Be At Least` | T1 | Effect-size assertion (`δ ∈ [-1, 1]`). |
-| `Vargha Delaney A Should Be At Least` | T1 | A12 effect size. |
 | `Bootstrap Confidence Interval` | T1 | Returns `(low, high)` for a sample. |
 | `Bootstrap Confidence Interval Should Contain` | T1 | Assert expected value ∈ bootstrap CI. |
+| `Cliffs Delta Should Be At Least` | T1 | Effect-size assertion (`δ ∈ [-1, 1]`). |
 | `Compute Variance Banner` | T1 | Run-to-run variance summary for the log.html header. |
+| `Mann Whitney U Should Show Improvement` | T1 | scipy MW-U; assert `p < alpha`. |
+| `Pass At K` | T1 | HumanEval-formula `pass@k(outcomes)`; supports operator (e.g. `>= 0.6`). |
+| `Run N Times` | T1 | Run a keyword N times and collect return values. |
+| `Total Agreement Rate` | T1 | TARr@N (raw) or TARa@N (parsed-answer); supports operator. |
+| `Vargha Delaney A Should Be At Least` | T1 | A12 effect size. |
 
 ```robot
 ${current}=    Run N Times    runs=30    Skill Eval    skill=${SKILL}
 ${baseline}=   Load Baseline    baselines/2026-q1.json
 Mann Whitney U Should Show Improvement    ${current}    ${baseline}    alpha=0.05
 Cliffs Delta Should Be At Least           ${current}    ${baseline}    delta=0.2
+Pass At K    ${current}    >=    ${0.6}
 ```
 
 ---
 
 ## JudgeKeywords (7)
 
-`AgentGuard.judge.library.JudgeKeywords` — classification-based LLM-as-Judge; calibration-gated per ADR-011.
+`AgentGuard.judge.library.JudgeKeywords` — classification-based LLM-as-Judge; calibration-gated per ADR-011. Façade: `Library AgentGuard.Judge`.
 
 | Keyword | Tier | Purpose |
 |---|:-:|---|
-| `Load Rubric` | T1 | Load a rubric from `.md` / `.yaml` / dict / Rubric. |
-| `LLM Judge Should Score At Least` | T2/3 | Classification judge over N runs; assert mean ≥ threshold. |
-| `LLM Judge Pairwise` | T2/3 | Pairwise winner: `"A"` / `"B"` / `"TIE"`. |
-| `LLM Judge Reference Based` | T2/3 | Classify each response against its corresponding reference. |
-| `Tool Output Should Be Semantically Equal` | T2/3 | Equivalent / partial / not — short-output specialised. |
 | `Calibrate Judge` | T2/3 | Run model over labeled set; compute Cohen's κ vs human labels. |
 | `Judge Should Be Calibrated` | T1 | Assert cached κ ≥ threshold within expiry. |
+| `LLM Judge Pairwise` | T2/3 | Pairwise winner: `"A"` / `"B"` / `"TIE"`. |
+| `LLM Judge Reference Based` | T2/3 | Classify each response against its corresponding reference. |
+| `LLM Judge Score` | T2/3 | Run classification judge `runs` times per response; return mean score. Supports operator (e.g. `>= 0.85`). |
+| `Load Rubric` | T1 | Load a rubric from `.md` / `.yaml` / dict / Rubric. |
+| `Tool Output Should Be Semantically Equal` | T2/3 | Equivalent / partial / not — short-output specialised. |
 
 ```robot
 Calibrate Judge    openrouter/openai/gpt-4o-mini    fixtures/calibration_set.jsonl    min_kappa=0.7
-LLM Judge Should Score At Least    ${responses}    rubric=eval/rubric.md    threshold=0.85
+LLM Judge Score    ${responses}    rubric=eval/rubric.md    >=    ${0.85}
 ```
 
 ---
 
 ## SecurityKeywords (10)
 
-`AgentGuard.security.library.SecurityKeywords` — supply-chain default-deny + sandbox + redaction.
+`AgentGuard.security.library.SecurityKeywords` — supply-chain default-deny + sandbox + redaction. Façade: `Library AgentGuard.Security`.
 
 | Keyword | Tier | Purpose |
 |---|:-:|---|
-| `Skill Should Pass Security Scan` | T1 | Full 7-stage pipeline; raise on findings exceeding `max_severity` or deny verdict. |
-| `Scan Skill` | T1 | Run pipeline; return report without asserting. |
-| `Trajectory Should Not Leak Secrets` | T1 | Scan trajectory for credentials/PII; raise if found; optionally redact. |
-| `Redact Trajectory` | T1 | Strict / balanced / tokenize redaction modes. |
 | `AIDefence Should Find No Injection` | T2/3 | Call AIDefence over MCP; raise if injection score ≥ threshold. |
-| `Trajectory Should Not Contain PII` | T2/3 | AIDefence `has_pii`; optionally filter by PII type. |
-| `Sandbox Should Be Available` | T1 | Probe Docker / K8s / Proxmox / process backend. |
+| `Get Sandbox Exit Code` | T1 | Returns `result.exit_code` as int; supports operator (e.g. `== 0`). |
+| `Redact Trajectory` | T1 | Strict / balanced / tokenize redaction modes. |
 | `Run In Sandbox` | T1 | Execute command inside the configured sandbox; ADR-013 defaults enforced. |
 | `Sandbox Output Should Contain` | T1 | Substring assertion on `result.stdout` or stderr. |
-| `Sandbox Exit Code Should Be` | T1 | Assert `result.exit_code == expected`. |
+| `Sandbox Should Be Available` | T1 | Probe Docker / K8s / Proxmox / process backend. |
+| `Scan Skill` | T1 | Run pipeline; return report without asserting. |
+| `Skill Should Pass Security Scan` | T1 | Full 7-stage pipeline; raise on findings exceeding `max_severity` or deny verdict. |
+| `Trajectory Should Not Contain PII` | T2/3 | AIDefence `has_pii`; optionally filter by PII type. |
+| `Trajectory Should Not Leak Secrets` | T1 | Scan trajectory for credentials/PII; raise if found; optionally redact. |
 
 ```robot
 ${report}=    Skill Should Pass Security Scan    ${SKILL_PATH}    max_severity=HIGH
 ${result}=    Run In Sandbox    ["python", "-c", "print('ok')"]    image=python:3.12-alpine
-Sandbox Exit Code Should Be    ${result}    0
+Get Sandbox Exit Code    ${result}    ==    ${0}
 Sandbox Output Should Contain  ${result}    ok
 ```
 
@@ -186,21 +242,21 @@ Sandbox Output Should Contain  ${result}    ok
 
 ## HooksKeywords (11)
 
-`AgentGuard.hooks.library.HooksKeywords` — Claude Code hook lifecycle (12 events × 4 handlers).
+`AgentGuard.hooks.library.HooksKeywords` — Claude Code hook lifecycle (12 events × 4 handlers). Façade: `Library AgentGuard.Hook`.
 
 | Keyword | Tier | Purpose |
 |---|:-:|---|
-| `Synthesize Hook Input` | T1 | Build canonical Claude Code stdin JSON envelope for a given event. |
+| `Detect Stop Hook Loop` | T1 | Detect `stop_hook_active` infinite-Stop antipatterns. |
+| `Hook Decision Should Be` | T1 | Assert `result.decision == expected` (block / allow / escalate). |
+| `Hook Should Allow` | T1 | Assert exit_code == 0 AND decision != "block". |
+| `Hook Should Block` | T1 | Assert exit_code == 2 OR decision == "block". |
+| `Hook Should Inject Context` | T1 | Assert injected-context string contains substring. |
+| `Hook Should Modify Tool Input To` | T1 | Assert hook returned `modified_tool_input == expected`. |
+| `Run Hook Agent` | T1 | Invoke a Python callable or `pkg.module:attr` import-path. |
 | `Run Hook Command` | T1 | Shell handler — JSON-on-stdin, exit-2 = block. |
 | `Run Hook HTTP` | T1 | POST envelope to URL (Feb 2026 HTTP handler type). |
 | `Run Hook Prompt` | T2/3 | Suite-level provider evaluates the envelope (LLM-judged hook). |
-| `Run Hook Agent` | T1 | Invoke a Python callable or `pkg.module:attr` import-path. |
-| `Hook Should Block` | T1 | Assert exit_code == 2 OR decision == "block". |
-| `Hook Should Allow` | T1 | Assert exit_code == 0 AND decision != "block". |
-| `Hook Decision Should Be` | T1 | Assert `result.decision == expected` (block / allow / escalate). |
-| `Hook Should Inject Context` | T1 | Assert injected-context string contains substring. |
-| `Hook Should Modify Tool Input To` | T1 | Assert hook returned `modified_tool_input == expected`. |
-| `Detect Stop Hook Loop` | T1 | Detect `stop_hook_active` infinite-Stop antipatterns. |
+| `Synthesize Hook Input` | T1 | Build canonical Claude Code stdin JSON envelope for a given event. |
 
 ```robot
 ${envelope}=  Synthesize Hook Input    event=PreToolUse    tool_name=Bash    tool_input={"command": "rm -rf /"}
@@ -210,40 +266,45 @@ Hook Should Block    ${result}
 
 ---
 
-## SubAgentsKeywords (13)
+## SubAgentsKeywords (12)
 
-`AgentGuard.subagents.library.SubAgentsKeywords` — A2A 1.0 (Linux Foundation) task lifecycle; framework bridges (LangGraph, CrewAI, AutoGen, OpenAI Agents) when their optional deps are installed.
+`AgentGuard.subagents.library.SubAgentsKeywords` — A2A 1.0 (Linux Foundation) task lifecycle; framework bridges (LangGraph, CrewAI, AutoGen, OpenAI Agents) when their optional deps are installed. Façade: `Library AgentGuard.SubAgent`.
 
 | Keyword | Tier | Purpose |
 |---|:-:|---|
-| `Get Agent Card` | T1 | Fetch `/.well-known/agent.json` from a URL. |
-| `Validate Agent Card` | T1 | Validate dict / Path / URL against A2A 1.0 AgentCard schema. |
-| `List Agent Skills` | T1 | Return skill list declared on a card. |
-| `Connect To A2A Agent` | T1 | Build a client for a card / URL / in-process server. |
-| `Send Task` | T2/3 | Submit a task to an agent and return `Task`. |
-| `Get Task Status` | T1 | Return current status string. |
-| `Wait For Task Completion` | T1 | Block until terminal state or timeout. |
-| `Task Should Have Status` | T1 | Assert `task.status == expected`. |
 | `Cancel Task` | T1 | Request cancellation; assert transition. |
+| `Connect To A2A Agent` | T1 | Build a client for a card / URL / in-process server. |
+| `Get Agent Card` | T1 | Fetch `/.well-known/agent.json` from a URL. |
 | `Get Task Artifact` | T1 | Return artifacts (optionally filtered by mime type). |
 | `Get Task Artifact Text` | T1 | Concatenate text content of all artifacts. |
+| `Get Task Status` | T1 | Returns current status string; supports operator (e.g. `== completed`). |
 | `Get Task Trajectory` | T1 | Extract tool-call sequence from task. |
+| `List Agent Skills` | T1 | Return skill list declared on a card. |
+| `Send Task` | T2/3 | Submit a task to an agent and return `Task`. |
 | `Task Trajectory Should Match` | T1 | Assert trajectory matches expected (delegates to BFCL matcher). |
+| `Validate Agent Card` | T1 | Validate dict / Path / URL against A2A 1.0 AgentCard schema. |
+| `Wait For Task Completion` | T1 | Block until terminal state or timeout. |
 
 ```robot
 ${card}=    Get Agent Card    http://localhost:7001/.well-known/agent.json
 ${client}=  Connect To A2A Agent    ${card}    transport=http
 ${task}=    Send Task    ${client}    Plan a 3-day trip to Lisbon
 Wait For Task Completion    ${task}    timeout=60s
-Task Should Have Status    ${task}    completed
+Get Task Status    ${task}    ==    completed
 Task Trajectory Should Match    ${task}    ["weather.lookup", "places.search", "summary.compose"]
 ```
 
 ---
 
-## CodingAgentKeywords (34)
+## CodingAgentKeywords (22)
 
-`AgentGuard.coding_agent.library.CodingAgentKeywords` — drive coding-agent CLIs + the 12 `#42796` behavioral metric calculators.
+`AgentGuard.coding_agent.library.CodingAgentKeywords` — drive coding-agent CLIs + the 12 `#42796` behavioral metric calculators. Façade: `Library AgentGuard.Coding`.
+
+The Phase-4-D collapse merged the previously-shipping 12 Get/Should pairs
+into a single keyword each. Every metric Get keyword now accepts
+`(assertion_operator, assertion_expected, message)` per ADR-022 — calling
+without the operator returns the float; with operator the keyword asserts
+AND returns the float for chaining.
 
 ### Driver + parser (8)
 
@@ -258,24 +319,25 @@ Task Trajectory Should Match    ${task}    ["weather.lookup", "places.search", "
 | `Load Session Snapshot` | Inverse. |
 | `Compute 42796 Metric Pack` | Run all 12 calculators; return `BehavioralReport`. |
 
-### #42796 metric Get/Should pairs (24)
+### #42796 metric pack — operator-driven (12)
 
-Every metric below ships in a Get-then-Should pair (e.g. `Read Edit Ratio` and `Read Edit Ratio Should Be Above`). Defaults follow research §2.6 baseline values.
+Each metric is a single Get-style keyword that returns a float and supports
+the AssertionEngine operator triple. Defaults follow research §2.6 baselines.
 
-| Metric | Default threshold | Direction |
+| Keyword | Default operator + threshold | Direction |
 |---|---|---|
-| `Read Edit Ratio` | ≥ 4.0 | above |
-| `Edits Without Prior Read Percent` | ≤ 10 % | below |
-| `Reasoning Loops Per 1K Tool Calls` | ≤ 12 | below |
-| `User Interrupts Per 1K Tool Calls` | ≤ 2 | below |
-| `Stop Hook Violation Count` | = 0 | zero |
-| `First Run Test Pass Rate` | ≥ 0.9 | above |
-| `Token Usage Per Prompt` | baseline × 1.5 | below |
-| `Self Admitted Errors Per 1K` | ≤ 0.2 | below |
-| `Write Mutation Ratio` | ≤ 6 % | below |
-| `Repeated Edits Per File Count` | ≤ 3 | below |
-| `Simplest Word Frequency Per 1K` | ≤ 5 | below |
-| `Convention Violation Rate For Session` | ≤ 5 % | below |
+| `Read Edit Ratio` | `>= 4.0` | above |
+| `Edits Without Prior Read Percent` | `<= 10.0` | below |
+| `Reasoning Loops Per 1K Tool Calls` | `<= 12.0` | below |
+| `User Interrupts Per 1K Tool Calls` | `<= 2.0` | below |
+| `Stop Hook Violation Count` | `== 0` | zero |
+| `First Run Test Pass Rate` | `>= 0.9` | above |
+| `Token Usage Per Prompt` | `<= baseline × 1.5` | below |
+| `Self Admitted Errors Per 1K` | `<= 0.2` | below |
+| `Write Mutation Ratio` | `<= 0.06` | below |
+| `Repeated Edits Per File Count` | `<= 3` | below |
+| `Simplest Word Frequency Per 1K` | `<= 5` | below |
+| `Convention Violation Rate For Session` | `<= 0.05` | below |
 
 ### Aggregate (2)
 
@@ -287,24 +349,25 @@ Every metric below ships in a Get-then-Should pair (e.g. `Read Edit Ratio` and `
 ```robot
 ${result}=  Run Coding Agent    Refactor src/foo.py to use type hints    driver=local
 ${session}=  Set Variable    ${result.session}
-Read Edit Ratio Should Be Above              ${session}    threshold=4.0
-Edits Without Prior Read Percent Should Be Below    ${session}    10
-First Run Test Pass Rate Should Be Above     ${session}    0.9
-Behavioral Report Should Match Baseline      ${result.report}    baselines/2026-q1.json
+Read Edit Ratio                       ${session}    >=    ${4.0}
+Edits Without Prior Read Percent      ${session}    <=    ${10}
+First Run Test Pass Rate              ${session}    >=    ${0.9}
+Stop Hook Violation Count             ${session}    ==    ${0}
+Behavioral Report Should Match Baseline    ${result.report}    baselines/2026-q1.json
 ```
 
 ---
 
 ## CodingBenchmarkKeywords (15)
 
-`AgentGuard.coding_agent.benchmarks.library.CodingBenchmarkKeywords` — five benchmark loaders + per-benchmark scorers (delegates pass@k to Stats).
+`AgentGuard.coding_agent.benchmarks.library.CodingBenchmarkKeywords` — five benchmark loaders + per-benchmark scorers (delegates pass@k to Stats). Façade: `Library AgentGuard.Benchmark`.
 
 | Group | Keywords |
 |---|---|
-| **SWE-bench Verified** | `Load SWE Bench Dataset`, `Run SWE Bench Task`, `SWE Bench Pass At K Should Be Above` |
-| **Aider** | `Load Aider Benchmark Dataset`, `Run Aider Benchmark Task`, `Aider Benchmark Pass Rate Should Be Above` |
-| **HumanEval** | `Load HumanEval Dataset`, `Run HumanEval Task`, `HumanEval Pass At K Should Be Above` |
-| **MBPP** | `Load MBPP Dataset`, `Run MBPP Task`, `MBPP Pass At K Should Be Above` |
+| **SWE-bench Verified** | `Load SWE Bench Dataset`, `Run SWE Bench Task`, `SWE Bench Pass At K` (operator-driven) |
+| **Aider** | `Load Aider Benchmark Dataset`, `Run Aider Benchmark Task`, `Aider Benchmark Pass Rate` (operator-driven) |
+| **HumanEval** | `Load HumanEval Dataset`, `Run HumanEval Task`, `HumanEval Pass At K` (operator-driven) |
+| **MBPP** | `Load MBPP Dataset`, `Run MBPP Task`, `MBPP Pass At K` (operator-driven) |
 | **LiveCodeBench** | `Load LiveCodeBench Dataset`, `Run LiveCodeBench Task` |
 | **Convenience** | `Run Benchmark Suite` (load → iterate → score in one call) |
 
@@ -315,14 +378,14 @@ FOR    ${task}    IN    @{tasks}
     ${r}=    Run HumanEval Task    ${task}    driver=local    model=openrouter/openai/gpt-4o-mini
     Append To List    ${results}    ${r}
 END
-HumanEval Pass At K Should Be Above    ${results}    k=1    threshold=0.6
+HumanEval Pass At K    ${results}    k=1    >=    ${0.6}
 ```
 
 ---
 
-## MCPScenarioKeywords (31)
+## MCPScenarioKeywords (28)
 
-`AgentGuard.mcp_scenario.library.MCPScenarioKeywords` — **Phase 4-A test harness (ADR-021)**. Drop-in replacement for `manykarim/rf-mcp` `tests/e2e/`. Two equally first-class usage patterns: pure RF keywords (no YAML) and YAML-driven (rf-mcp v1 schema).
+`AgentGuard.mcp_scenario.library.MCPScenarioKeywords` — **Phase 4-A test harness (ADR-021)**. Drop-in replacement for `manykarim/rf-mcp` `tests/e2e/`. Two equally first-class usage patterns: pure RF keywords (no YAML) and YAML-driven (rf-mcp v1 schema). Façade: `Library AgentGuard.Scenario`.
 
 ### Scenario lifecycle (5)
 
@@ -344,23 +407,25 @@ HumanEval Pass At K Should Be Above    ${results}    k=1    threshold=0.6
 | `Reset Tracked MCP Session` | Clear records (scope hit rate to one suite phase). |
 | `End Tracked MCP Session` | Mark session ended; records remain readable. |
 
-### Aggregate assertions — the rf-mcp parity surface (10)
+### Aggregate assertions — the rf-mcp parity surface (8)
+
+Phase-4-D collapsed `Tool Hit Rate Should Be Above`, `Tool Call Success Rate Should Be Above`,
+`Tool Call Count Should Be Between`, `Failed Tool Call Count Should Be At Most`, and
+`Scenario Result Should Be Successful` (operator parity) into the operator-driven Get
+keywords below.
 
 | Keyword | Purpose |
 |---|---|
 | `Compute Scenario Result` | Aggregate session.records vs scenario.expected_tools → `ScenarioResult`. |
-| `Tool Hit Rate` | rf-mcp formula: (met expected) / total expected. |
-| `Tool Hit Rate Should Be Above` | Assert ≥ threshold (the canonical rf-mcp gate). |
-| `Tool Call Success Rate` | successful / total over recorded calls. |
-| `Tool Call Success Rate Should Be Above` | Assertion variant. |
-| `Tool Call Count` | Total or per-tool count (`name=`). |
-| `Tool Call Count Should Be Between` | Min/max bounds. |
-| `Failed Tool Call Count Should Be At Most` | Direct upper bound on errors. |
+| `Tool Hit Rate` | rf-mcp formula: (met expected) / total expected. Supports operator (e.g. `>= 0.99`). |
+| `Tool Call Success Rate` | successful / total over recorded calls. Supports operator. |
+| `Tool Call Count` | Total or per-tool count (`name=`). Supports operator. |
+| `Failed Tool Call Count` | Direct count of `success=False` records. Supports operator (e.g. `<= 2`). |
 | `Required Tool Should Have Been Called With Params` | Per `ExpectedToolCall.required_params` semantics. |
 | `Scenario Result Should Be Successful` | Assert `result.success` flag. |
 | `Tool Call Statistics` | Return rf-mcp-shaped summary stats dict. |
 
-### Artifact analysis (4)
+### Artifact analysis (5)
 
 | Keyword | Purpose |
 |---|---|
@@ -396,7 +461,7 @@ End Tracked MCP Session    ${session}
 
 ${result}=    Compute Scenario Result    ${scenario}    ${session}
 Scenario Result Should Be Successful    ${result}
-Tool Hit Rate Should Be Above    ${result}    0.99
+Tool Hit Rate    ${result}    >=    ${0.99}
 Required Tool Should Have Been Called With Params    ${session}    add    {"x": 2, "y": 3}
 ```
 
@@ -405,7 +470,7 @@ Required Tool Should Have Been Called With Params    ${session}    add    {"x": 
 ${scenario}=    Load MCP Scenario    scenarios/restful_booker_api.yaml
 ${result}=    Run MCP Scenario    ${scenario}    server=${HANDLE}
 ...    driver=local    model=openrouter/openai/gpt-4o-mini
-Tool Hit Rate Should Be Above    ${result}    ${scenario.min_tool_hit_rate}
+Tool Hit Rate    ${result}    >=    ${scenario.min_tool_hit_rate}
 Save Scenario Result    ${result}    metrics/${scenario.id}.json
 ```
 
@@ -459,27 +524,28 @@ Skill Improves Over Baseline
     Mann Whitney U Should Show Improvement    ${current}    ${baseline}    alpha=0.05
 ```
 
-### #42796 behavioral regression
+### #42796 behavioral regression (operator form, post-ADR-022)
 ```robot
 *** Test Cases ***
 Coding Agent Maintains Healthy Discipline
     ${result}=    Run Coding Agent    Refactor src/   driver=claude-code
-    Read Edit Ratio Should Be Above              ${result.session}    4.0
-    Edits Without Prior Read Percent Should Be Below    ${result.session}    10
-    Reasoning Loops Per 1K Tool Calls Should Be Below    ${result.session}    12
-    Stop Hook Violations Should Be Zero          ${result.session}
-    First Run Test Pass Rate Should Be Above     ${result.session}    0.9
+    Read Edit Ratio                       ${result.session}    >=    ${4.0}
+    Edits Without Prior Read Percent      ${result.session}    <=    ${10}
+    Reasoning Loops Per 1K Tool Calls     ${result.session}    <=    ${12}
+    Stop Hook Violation Count             ${result.session}    ==    ${0}
+    First Run Test Pass Rate              ${result.session}    >=    ${0.9}
 ```
 
-### MCP scenario harness — drop-in for rf-mcp e2e
+### MCP scenario harness — drop-in for rf-mcp e2e (operator form)
 ```robot
 *** Test Cases ***
 Restful Booker API Scenario
     ${scenario}=    Load MCP Scenario    scenarios/restful_booker_api.yaml
     ${result}=    Run MCP Scenario    ${scenario}    server=${RF_MCP_HANDLE}
     ...    driver=local    model=openrouter/openai/gpt-4o-mini
-    Tool Hit Rate Should Be Above              ${result}    ${scenario.min_tool_hit_rate}
-    Failed Tool Call Count Should Be At Most   ${result}    2
+    ${threshold}=    Convert To Number    ${scenario.min_tool_hit_rate}
+    Tool Hit Rate              ${result}    >=    ${threshold}
+    Failed Tool Call Count     ${result}    <=    ${2}
     ${suite}=    Get Generated Robot Suite Path    ${result}
     Generated Robot Suite Should Pass    ${suite}
     Save Scenario Result    ${result}    metrics/${scenario.id}.json
@@ -489,7 +555,10 @@ Restful Booker API Scenario
 
 ## How to regenerate this document
 
-Run `uv run python tests/scripts/dump_keywords.py` (script captured below for reference) to re-emit the keyword tables when new keywords land. The `libdoc` HTMLs under `docs/api/` provide a richer browser-friendly view per sub-library.
+Run the introspection script below (also captured in
+`tests/scripts/dump_keywords.py`) to re-emit the keyword tables when new
+keywords land. The `libdoc` HTMLs under `docs/api/` provide a richer
+browser-friendly view per sub-library and per façade.
 
 ```python
 import importlib, inspect

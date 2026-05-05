@@ -20,9 +20,9 @@ from typing import Any, Protocol
 
 from robot.api.deco import keyword
 
+from AgentGuard._assertions import AssertionOperator, assert_value
 from AgentGuard.subagents import a2a_client as _client_mod
 from AgentGuard.subagents.exceptions import (
-    SubAgentError,
     TaskFailed,
 )
 from AgentGuard.subagents.trajectory import (
@@ -160,23 +160,62 @@ class SubAgentsKeywords:
     # ------------------------------------------------------------------
 
     @keyword(name="Get Task Status")
-    def get_task_status(self, task: Task) -> str:
-        """Return the current status string of ``task``."""
-        return task.status.value
-
-    @keyword(name="Task Should Have Status")
-    def task_should_have_status(
+    def get_task_status(
         self,
         task: Task,
-        expected: str | TaskStatus,
-    ) -> None:
-        """Assert ``task.status == expected`` (case-insensitive string ok)."""
-        expected_status = TaskStatus.from_str(expected)
-        if task.status != expected_status:
-            err: type[SubAgentError] = TaskFailed if expected_status == TaskStatus.COMPLETED else SubAgentError
-            err_text = task.error or ""
-            extra = f" (error: {err_text})" if err_text else ""
-            raise err(f"task {task.id}: expected status {expected_status.value!r}, got {task.status.value!r}{extra}")
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: str | TaskStatus | None = None,
+        message: str | None = None,
+    ) -> str:
+        """Return ``task.status.value``; optionally assert against it.
+
+        ADR-022 collapse: replaces the old ``Task Should Have Status`` Should-
+        pair keyword. Call without an operator to read; pair with ``==`` /
+        ``!=`` / ``*=`` / ``validate`` to assert in-place::
+
+            ${status}=    Get Task Status    ${task}
+            Get Task Status    ${task}    ==    completed
+
+        When the operator is ``==`` and the expected value normalises to
+        ``completed`` but the actual status differs, a :class:`TaskFailed`
+        exception is raised (preserving the legacy behaviour of the deleted
+        ``Task Should Have Status`` keyword for the most common assertion).
+        """
+        actual_value = task.status.value
+        if assertion_operator is None:
+            return actual_value
+
+        # Normalise the expected value so callers can pass either a string
+        # like ``"completed"`` (case-insensitive) or a :class:`TaskStatus`.
+        expected_for_engine: Any = assertion_expected
+        if assertion_expected is not None:
+            try:
+                expected_status = TaskStatus.from_str(assertion_expected)
+                expected_for_engine = expected_status.value
+            except ValueError:
+                expected_status = None
+        else:
+            expected_status = None
+
+        # AssertionEngine raises a plain AssertionError on mismatch. For the
+        # canonical "expected completed" case keep the historical ``TaskFailed``
+        # so existing exception-catching tests still work.
+        try:
+            return assert_value(  # type: ignore[no-any-return]
+                actual_value,
+                assertion_operator,
+                expected_for_engine,
+                message=message,
+            )
+        except AssertionError:
+            if expected_status == TaskStatus.COMPLETED and task.status != TaskStatus.COMPLETED:
+                err_text = task.error or ""
+                extra = f" (error: {err_text})" if err_text else ""
+                raise TaskFailed(
+                    f"task {task.id}: expected status {expected_status.value!r}, "
+                    f"got {task.status.value!r}{extra}"
+                ) from None
+            raise
 
     @keyword(name="Get Task Artifact")
     def get_task_artifact(

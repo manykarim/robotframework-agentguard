@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any
 from robot.api import logger
 from robot.api.deco import keyword
 
+from AgentGuard._assertions import AssertionOperator, assert_value
 from AgentGuard.judge._helpers import (
     build_calibration_report,
     call_provider_with_retry,
@@ -72,21 +73,29 @@ class JudgeKeywords:
         """Load a rubric from a path (.md / .yaml), a dict, or pass-through."""
         return load_rubric(source)
 
-    @keyword(name="LLM Judge Should Score At Least")
-    def llm_judge_should_score_at_least(
+    @keyword(name="LLM Judge Score")
+    def llm_judge_score(
         self,
         responses: list[Any] | str,
         rubric: str | Path | Rubric,
-        threshold: float,
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
         model: str | None = None,
         runs: int = 1,
         mock_response: str | None = None,
     ) -> float:
-        """Run the classification judge ``runs`` times per response; assert mean ≥ threshold."""
+        """Run the classification judge ``runs`` times per response; return mean score.
+
+        With ``assertion_operator`` supplied, asserts in-place per ADR-022
+        (e.g. ``LLM Judge Score    ${responses}    ${rubric}    >=    0.8``).
+        Tier-2 — polling is rejected by the AssertionAdapter; use
+        ``Stats.Run N Times`` plus ``Stats.Pass At K`` for re-sampling.
+        """
         rubric_obj = load_rubric(rubric)
         items = [responses] if isinstance(responses, str) else list(responses)
         if not items:
-            raise ValueError("LLM Judge Should Score At Least: no responses provided.")
+            raise ValueError("LLM Judge Score: no responses provided.")
         per_response_scores: list[float] = []
         for resp in items:
             run_scores = [
@@ -99,14 +108,9 @@ class JudgeKeywords:
                 for _ in range(int(runs))
             ]
             per_response_scores.append(statistics.fmean(run_scores))
-        mean_score = statistics.fmean(per_response_scores)
-        logger.info(
-            f"LLM Judge mean score = {mean_score:.4f} over "
-            f"{len(items)} response(s) × {runs} run(s)  (threshold {threshold:g})"
-        )
-        if mean_score < float(threshold):
-            raise AssertionError(f"Mean judge score {mean_score:.4f} is below threshold {threshold:g}.")
-        return mean_score
+        mean_score = float(statistics.fmean(per_response_scores))
+        logger.info(f"LLM Judge mean score = {mean_score:.4f} over {len(items)} response(s) × {runs} run(s)")
+        return float(assert_value(mean_score, assertion_operator, assertion_expected, message=message))
 
     @keyword(name="Tool Output Should Be Semantically Equal")
     def tool_output_should_be_semantically_equal(

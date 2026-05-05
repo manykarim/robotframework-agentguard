@@ -139,10 +139,17 @@ def test_run_skill_eval_with_rubric_path(tmp_path: Path, kw: SkillsKeywords) -> 
 # ---------------- conventions ----------------
 
 
-def test_convention_violation_rate_passes_when_clean(kw: SkillsKeywords) -> None:
+def test_convention_violation_rate_returns_float(kw: SkillsKeywords) -> None:
     responses = ["The weather is sunny.", "Done."]
-    report = kw.convention_violation_rate_should_be_below(responses, threshold=0.99)
-    assert report.rate < 0.99
+    rate = kw.convention_violation_rate(responses)
+    assert isinstance(rate, float)
+    assert rate < 0.99
+
+
+def test_convention_violation_rate_passes_with_operator(kw: SkillsKeywords) -> None:
+    responses = ["The weather is sunny.", "Done."]
+    rate = kw.convention_violation_rate(responses, assertion_operator="<=", assertion_expected=0.99)
+    assert rate == pytest.approx(0.0)
 
 
 def test_convention_violation_rate_raises_when_high(tmp_path: Path, kw: SkillsKeywords) -> None:
@@ -150,15 +157,20 @@ def test_convention_violation_rate_raises_when_high(tmp_path: Path, kw: SkillsKe
     rules.write_text("# Banned phrases\n- simply\n- obviously\n", encoding="utf-8")
     responses = ["This is simply great.", "Obviously correct.", "simply fine"]
     with pytest.raises(AssertionError, match="convention violation rate"):
-        kw.convention_violation_rate_should_be_below(responses, rules=str(rules), threshold=0.05)
+        kw.convention_violation_rate(
+            responses,
+            assertion_operator="<=",
+            assertion_expected=0.05,
+            rules=str(rules),
+        )
 
 
 def test_convention_violation_accepts_skill_response_objects(kw: SkillsKeywords) -> None:
     responses = [
         SkillResponse(prompt="p", output="output text", run_index=0, model="m"),
     ]
-    report = kw.convention_violation_rate_should_be_below(responses, threshold=0.99)
-    assert report is not None
+    rate = kw.convention_violation_rate(responses, assertion_operator="<=", assertion_expected=0.99)
+    assert isinstance(rate, float)
 
 
 # ---------------- baseline IO ----------------

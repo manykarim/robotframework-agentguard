@@ -66,7 +66,7 @@ def test_travel_planner_full_delegation(travel_planner: str) -> None:
     assert card.name == "travel_planner"
 
     task = kw.send_task(travel_planner, "Lisbon")
-    kw.task_should_have_status(task, "completed")
+    kw.get_task_status(task, "==", "completed")
 
     text = kw.get_task_artifact_text(task)
     assert "weather" in text.lower()
