@@ -212,8 +212,7 @@ class SubAgentsKeywords:
                 err_text = task.error or ""
                 extra = f" (error: {err_text})" if err_text else ""
                 raise TaskFailed(
-                    f"task {task.id}: expected status {expected_status.value!r}, "
-                    f"got {task.status.value!r}{extra}"
+                    f"task {task.id}: expected status {expected_status.value!r}, got {task.status.value!r}{extra}"
                 ) from None
             raise
 

@@ -65,9 +65,7 @@ def coerce_operator(value: AssertionOperator | str | None) -> AssertionOperator 
         return AssertionOperator[value]
     except KeyError as exc:
         valid = sorted({member.name for member in AssertionOperator})
-        raise ValueError(
-            f"Unknown assertion operator {value!r}. Valid: {valid}"
-        ) from exc
+        raise ValueError(f"Unknown assertion operator {value!r}. Valid: {valid}") from exc
 
 
 def assert_value(

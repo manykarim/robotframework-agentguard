@@ -12,6 +12,7 @@ from robot.api.deco import keyword
 
 # Mann-Whitney result — both shapes the existing AgentGuard code already returns.
 
+
 @dataclass
 class MWResult:
     statistic: float
@@ -33,6 +34,7 @@ def synthesize_mw_dataclass(statistic: float, pvalue: float, alternative: str = 
 
 # Tool-call list — domain-specific predicates over a list of dicts.
 
+
 @keyword(name="Synthesize Tool Calls")
 def synthesize_tool_calls(*entries: str) -> list[dict[str, Any]]:
     """Each ``entries`` arg is a JSON string for one tool-call record."""
@@ -40,6 +42,7 @@ def synthesize_tool_calls(*entries: str) -> list[dict[str, Any]]:
 
 
 # Skill security report — composite pipeline output.
+
 
 @dataclass
 class _ScanReport:
@@ -54,6 +57,7 @@ def synthesize_skill_report(decision: str, critical_findings: int) -> _ScanRepor
 
 # Sandbox result — the existing SandboxResult dataclass shape.
 
+
 @dataclass
 class _SandboxResult:
     exit_code: int
@@ -66,6 +70,7 @@ def synthesize_sandbox_result(exit_code: int, stdout: str) -> _SandboxResult:
 
 
 # Bootstrap CI — dict shape AgentGuard's stats module returns.
+
 
 @keyword(name="Synthesize CI")
 def synthesize_ci(low: float, high: float) -> dict[str, float]:

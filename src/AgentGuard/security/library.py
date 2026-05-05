@@ -213,7 +213,5 @@ class SecurityKeywords:
         """
         actual = getattr(result, "exit_code", None)
         if not isinstance(actual, int):
-            raise AssertionError(
-                f"Sandbox result has no integer exit_code attribute (got {actual!r})."
-            )
+            raise AssertionError(f"Sandbox result has no integer exit_code attribute (got {actual!r}).")
         return assert_value(actual, assertion_operator, assertion_expected, message=message)  # type: ignore[no-any-return]
