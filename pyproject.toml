@@ -74,6 +74,39 @@ Documentation = "https://github.com/manykarim/robotframework-agentguard#readme"
 [tool.hatch.build.targets.wheel]
 packages = ["src/AgentGuard"]
 
+# Sdist: ship just what a downstream consumer needs to install, run the test
+# suite, and skim the examples — explicitly exclude internal tooling state
+# (RuFlo `.claude/` / `.swarm/` / `.claude-flow/`), CI config, the rendered
+# `docs/` site (browsable on GitHub Pages instead), runtime output, and the
+# lockfile (a development pin, not an install dependency).
+#
+# `only-include` is restrictive (vs the additive `include`); without it
+# hatchling falls back to "everything tracked by git minus the excludes"
+# and `.claude/`, `.github/`, `.swarm/`, etc. all leak in.
+[tool.hatch.build.targets.sdist]
+only-include = [
+  "src/AgentGuard",
+  "tests",
+  "examples",
+  "benchmarks",
+  "/pyproject.toml",
+  "/README.md",
+  "/LICENSE",
+  "/SECURITY.md",
+  "/CONTRIBUTING.md",
+]
+exclude = [
+  "**/__pycache__",
+  "**/*.py[cod]",
+  "**/.pytest_cache",
+  "**/.mypy_cache",
+  "**/.ruff_cache",
+  "tests/**/_robot_out*",
+  "tests/**/output.xml",
+  "tests/**/log.html",
+  "tests/**/report.html",
+]
+
 [dependency-groups]
 dev = [
   "pytest>=9.0.3",

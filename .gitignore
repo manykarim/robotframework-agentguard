@@ -30,6 +30,7 @@ agentdb.rvf.lock
 ruvector.db
 _inspect_log/
 _robot_out/
+_robot_out*/
 logs/
 
 # Robot Framework outputs
