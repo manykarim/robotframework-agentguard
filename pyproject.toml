@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "robotframework-agentguard"
-version = "0.2.0"
+version = "0.2.1"
 description = "Robot Framework library for testing Agent Skills, Hooks, SubAgents, and MCP Servers — provider-agnostic, BFCL-grade tool-call matching, #42796 behavioral metrics, statistical non-determinism handling."
 readme = "README.md"
 requires-python = ">=3.12"
