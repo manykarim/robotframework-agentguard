@@ -255,7 +255,7 @@ File: `src/AgentGuard/mcp_scenario/library.py`
 |---|---|---|---|---|---|
 | `Tool Hit Rate` | `Tool Hit Rate Should Be Above` | `Tool Hit Rate` (gains `assertion_operator=`, `assertion_expected=`) | `>=`, `>`, `validate` | Returns float; with `>= 0.99` raises | -1. The canonical rf-mcp gate. |
 | `Tool Call Success Rate` | `Tool Call Success Rate Should Be Above` | `Tool Call Success Rate` (gains operator) | `>=`, `>`, `validate` | Returns float | -1. |
-| `Tool Call Count` | `Tool Call Count Should Be Between` | `Tool Call Count` (gains operator) | `==`, `>=`, `<=`, `validate` (for between use `validate "${low} <= x <= ${high}"`) | Returns int | -1. **[NEEDS DECISION]** — `between` is not a native AssertionEngine op; `validate` workaround documented or add custom op (see §5). |
+| `Tool Call Count` | `Tool Call Count Should Be Between` | `Tool Call Count` (gains operator) | `==`, `>=`, `<=`, **`validate    ${low} <= value <= ${high}`** | Returns int (`-> int` mandatory) | -1. **RESOLVED 2026-05-05** via `tests/experiments/exp_11_validate_under_robot.robot` (19/19 PASS): `validate` covers `between` cleanly with RF substitution. No custom op needed. |
 | `Tool Call Count` (per-tool error variant) | `Failed Tool Call Count Should Be At Most` | `Failed Tool Call Count` (gains operator, default `<=`) | `<=`, `<`, `==`, `validate` | New Get exposes failed-count scalar | -1. |
 | `Compute Scenario Result` | `Scenario Result Should Be Successful` | `Compute Scenario Result` (gains `assertion_operator=`, `assertion_expected=`, `assertion_field='success'`) | `==`, `validate` | Returns ScenarioResult; `assertion_field='success'` + `== True` asserts | -1. Soft alternative: keep `Scenario Result Should Be Successful` as a thin alias. |
 | `Tool Call Statistics` | — | unchanged | n/a | Returns dict | Stays — composite. |
@@ -367,16 +367,14 @@ Top-3 sub-libraries by reduction:
 | `<=` | **9** | Edits Without Prior Read Percent, Reasoning Loops, User Interrupts, Token Usage, Self Admitted Errors, Write Mutation Ratio, Repeated Edits, Simplest Word Frequency, Convention Violation Rate, Failed Tool Call Count, Scenario Drift |
 | `==` | **6** | Stop Hook Violation Count (`== 0`), Hook Decision (block/allow), Get Task Status, Sandbox Exit Code, Get Session Health, Scenario Result `success` field |
 | `*=` (contains) | **4** | MCP Capabilities, Sandbox Output, Hook Injected Context, Get Task Artifact Text, Bootstrap CI containment |
-| `validate` | **5+** (catch-all) | `between` workaround for `Tool Call Count`, `x <= 1.5*baseline` for Token Usage, p-value gating for MW-U, custom expressions |
+| `validate` | **5+** (catch-all; closes the `between` gap) | `between` via `${low} <= value <= ${high}`, `x <= 1.5*baseline` for Token Usage, p-value gating for MW-U, dict-field comparisons, custom expressions |
 | `matches` | **0–2** | Optional for `Hook Injected Context`, `Sandbox Output` (regex); not currently used by any existing Should. |
 | `^=` / `$=` | **0–2** | Available for `Sandbox Output`, `Hook Injected Context`; no current Should uses these. |
 | `!=` / `not contains` | **0** in collapses | Available; not exercised by current Should set. |
 
 ### Custom-operator extension recommendation
 
-- **`between(low, high)`** — used at least once (`Tool Call Count Should Be Between`) and a natural fit for several composite gates (e.g. latency band, hit-rate band). **[NEEDS DECISION]** — either:
-  1. Document `validate "${low} <= x <= ${high}"` as the canonical workaround (zero AssertionEngine change), OR
-  2. Add a small extension operator `between` (one-line addition) — recommended if more than ~3 sites would benefit.
+- **`between(low, high)`** — ~~used at least once and a natural fit for several composite gates~~ **RESOLVED 2026-05-05**: `validate "${low} <= value <= ${high}"` covers every range case (exp_11, 19/19 PASS); RF substitutes the bounds before the eval. Composite predicates (`value > 0 and value % 2 == 0`), float-tolerance windows (`abs(value - 1.0) < 1e-3`), dict-field comparisons (`value['p95'] < value['p99'] * 1.2`), and set containment (`set(['a','b']).issubset(value)`) all work via the same operator. No custom extension needed.
 - **`schema(jsonschema)`** — would let `… Should Match Schema` keywords collapse, but four sites (MCP tool output, generated artifact, skill frontmatter, agent card) currently use bespoke validators with rich error messages. **Defer** to a later phase.
 
 ---
@@ -390,7 +388,7 @@ Top-3 sub-libraries by reduction:
 5. **Tool Call Should Match Name**: collapse into `Get Tool Call Name` + `==`? Single-call API; thin. Conservative: keep.
 6. **Mann Whitney U Should Show Improvement**: expose Get returning `{U, p, direction}`? Soft addition; +1 keyword (Get) but enables `validate` chaining.
 7. **Scenario Drift Should Not Exceed**: collapse into `Get Scenario Drift` + `<=`? Conservative: -0.
-8. **`between` operator**: native AssertionEngine extension vs. `validate` workaround — count above assumes `validate`.
+8. ~~`between` operator: native AssertionEngine extension vs. `validate` workaround — count above assumes `validate`.~~ **RESOLVED 2026-05-05**: exp_11 confirms `validate` covers it; no custom extension. Final count unchanged.
 
 If all aggressive options are accepted: additional **-5** → final count **126**.
 

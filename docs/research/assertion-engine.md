@@ -1,6 +1,44 @@
 # AssertionEngine — Research Brief for AgentGuard Integration
 
-**Audience:** ADR / DDD / proposal authors deciding whether and how to consume `robotframework-assertion-engine` in `robotframework-agentguard`. **Status:** Facts only, no design recommendations. **Sources:** `MarketSquare/AssertionEngine@main` and `MarketSquare/robotframework-browser@main`, fetched 2026-04-29.
+**Audience:** ADR / DDD / proposal authors deciding whether and how to consume `robotframework-assertion-engine` in `robotframework-agentguard`. **Status:** Facts only, no design recommendations. **Sources:** `MarketSquare/AssertionEngine@main` and `MarketSquare/robotframework-browser@main`, fetched 2026-04-29; experiments under `tests/experiments/exp_11_*.{py,robot}` re-run 2026-05-05 against `robotframework-assertion-engine 4.0.0`.
+
+## Update 2026-05-05 — `validate` covers the `between(low, high)` operator gap
+
+ADR-022 §Rationale flagged `between(low, high)` as a missing operator. Empirical
+test (`tests/experiments/exp_11_validate_under_robot.robot`, **19/19 PASS**)
+confirms the existing `validate` operator covers this case and several others
+without any custom-operator extension:
+
+| Use case | Expression | Verdict |
+|---|---|---|
+| Inclusive range | `validate    0.4 <= value <= 0.7` | ✅ covers `between` |
+| Exclusive range | `validate    0 < value < 100` | ✅ |
+| RF variable substitution of bounds | `validate    ${LO} <= value <= ${HI}` | ✅ — bounds substituted before reaching the eval |
+| Composite predicate | `validate    value > 0 and value % 2 == 0` | ✅ |
+| Float tolerance | `validate    abs(value - 1.0) < 1e-3` | ✅ |
+| Dict field comparison | `validate    value['p95'] < value['p99'] * 1.2` | ✅ |
+| Set containment | `validate    set(['a','b']).issubset(value)` | ✅ |
+| List membership | `validate    value in ['a','b','c']` | ✅ |
+| `then` / `evaluate` returns the result | `then    value * 2` → returns 84 for value=42 | ✅ — same enum member (alias) |
+
+**Critical adoption rule (newly observed):** when `value` is numeric, the wrapping
+keyword **MUST declare its return type** (`-> float`, `-> int`) so AssertionEngine
+sees a real Python value. Robot Framework's positional-arg coercion delivers
+strings by default; without typed returns, `validate '0.4 <= value <= 0.7'`
+fails with `TypeError: '<=' not supported between instances of 'float' and 'str'`.
+Documented in `tests/experiments/exp_11_assertion_helper.py` as the canonical
+adopter pattern. Browser Library follows the same convention.
+
+**Security implication unchanged:** `validate` is still `BuiltIn().evaluate()`
+(Python `eval`); `validate '__import__("os").getpid() > 0'` works exactly as
+expected. ADR-013 sandbox gate remains the right mitigation — the new
+expressiveness does not widen the attack surface (the `validate` op was already
+arbitrary code).
+
+**Open question §9.1 in `docs/proposals/PROPOSAL-assertion-engine-adoption.md`
+is now closed.** No custom `between` operator needed.
+
+---
 
 > Naming: the **PyPI distribution** is `robotframework-assertion-engine` (current version **4.0.0**); the **import name** is `assertionengine`. "AssertionEngine" in Browser docs and the AgentGuard prompt refers to the same artifact.
 

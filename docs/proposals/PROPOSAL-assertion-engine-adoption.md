@@ -129,7 +129,7 @@ The 81 Should-pair keywords being collapsed are **public API**. We do not break 
 
 - **Phase 4-D and Phase 4-E (deprecation window).** Each Should-pair keyword stays in libdoc as a *thin wrapper* that:
   1. Logs a `DeprecationWarning` once per suite, naming the AssertionEngine replacement.
-  2. Internally invokes the new operator-driven keyword with the appropriate operator literal (`Should Be Above` → `>`, `Should Be Below` → `<`, `Should Be Between` → custom `between` op, `Should Be Zero` → `==  0`).
+  2. Internally invokes the new operator-driven keyword with the appropriate operator literal (`Should Be Above` → `>`, `Should Be Below` → `<`, `Should Be Between` → `validate    ${lo} <= value <= ${hi}` per exp_11, `Should Be Zero` → `==  0`).
   3. Preserves the original signature exactly so that copy-pasted Robot suites and shared keyword resources continue to pass.
 - **Phase 4-F.** The wrappers are removed in a new minor version (`X.(Y+1).0`). Release notes flag the removal; the deprecation message during 4-D/4-E will have warned for at least one prior release.
 
@@ -170,7 +170,8 @@ src/AgentGuard/_assertions/
 ├── adapter.py                 # AssertionAdapter — wraps assertionengine.verify_assertion,
 │                              #   enforces tier policy, polling allow/deny, sandbox gate
 └── operators.py               # re-exports operator enum from `assertionengine`
-                               #   plus AgentGuard-custom `between(low, high)` (TBD §9.1)
+                               #   no custom operators needed — exp_11 confirmed `validate`
+                               #   covers every range / composite / dict-field use case.
 
 pyproject.toml                 # add `robotframework-assertion-engine >= 4.0, < 5.0`
                                #   to [project].dependencies (matches Browser Library 19.14.x pin).
@@ -197,7 +198,7 @@ No keyword definitions are proposed in this document beyond the per-sub-library 
 
 ## 9. Open questions for review
 
-1. **Custom `between(low, high)` operator?** Keywords like `Tool Call Count Should Be Between` and `Edits Without Prior Read Percent Should Be Between` need a binary `expected` argument. Upstream AssertionEngine does not ship `between`. **Recommend**: yes, add a single AgentGuard-custom operator in `_assertions/operators.py`. Cleaner than splitting into two `>=` and `<=` lines.
+1. **~~Custom `between(low, high)` operator?~~ RESOLVED 2026-05-05 — no custom operator needed.** `tests/experiments/exp_11_validate_under_robot.robot` (19/19 PASS against `robotframework-assertion-engine 4.0.0`) confirms `validate    ${low} <= value <= ${high}` covers the range case cleanly with RF-native variable substitution. The same pattern handles composite predicates (`value > 0 and value % 2 == 0`), dict-field comparisons (`value['p95'] < value['p99'] * 1.2`), set containment (`set(['a','b']).issubset(value)`), and float-tolerance windows (`abs(value - 1.0) < 1e-3`). One implementation rule: every Get keyword MUST declare a typed return (`-> float`, `-> int`) so AssertionEngine sees a Python value rather than the RF positional string default; this becomes part of the AssertionAdapter contract and is enforced via mypy `--strict`. See `docs/research/assertion-engine.md` §"Update 2026-05-05".
 2. **Polling enabled by default for any keyword?** **Recommend**: NO. Polling is explicit opt-in via `polling=...` keyword arg. Most AgentGuard metrics are *over a Session* (already-captured artifact), not over a live system, so polling is rarely meaningful. Live keywords (MCP latency, telemetry) accept it explicitly.
 3. **`validate` operator when user passes `--allow-code-execution`?** **Recommend**: YES. ADR-013 already gates code execution behind that flag, so a user with the flag set has already consented to the same trust boundary. The adapter checks `library.allow_code_execution` once at init and adds `validate` to the operator allowlist accordingly.
 4. **Robot Framework < 7.x compatibility?** RF 7+ is already required by Phase 0 (`pyproject.toml`). The `enum`-typed `@keyword` parameter that AssertionEngine relies on for IDE completion is rougher pre-7. **Recommend**: keep the RF >= 7.x pin already in place; document in the migration guide that older RF will accept string operators only (functional but no IDE hints).

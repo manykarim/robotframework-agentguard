@@ -1,0 +1,47 @@
+==============================================================================
+Exp 11 Validate Under Robot :: exp_11 — does AssertionEngine's `validate` o...
+==============================================================================
+Validate Inclusive Range — Value In Range Passes                      | PASS |
+------------------------------------------------------------------------------
+Validate Inclusive Range — Value Below Lower Raises                   | PASS |
+------------------------------------------------------------------------------
+Validate Inclusive Range — Value Above Upper Raises                   | PASS |
+------------------------------------------------------------------------------
+Validate Inclusive Range — Lower Boundary Passes                      | PASS |
+------------------------------------------------------------------------------
+Validate Inclusive Range — Upper Boundary Passes                      | PASS |
+------------------------------------------------------------------------------
+Validate Exclusive Range — Strict Bounds                              | PASS |
+------------------------------------------------------------------------------
+Validate Composite Predicate — Positive AND Even                      | PASS |
+------------------------------------------------------------------------------
+Validate Composite Predicate — Positive Odd Raises                    | PASS |
+------------------------------------------------------------------------------
+Validate With RF Variable Substitution Of Bounds                      | PASS |
+------------------------------------------------------------------------------
+Validate With Float Tolerance                                         | PASS |
+------------------------------------------------------------------------------
+Validate List Membership                                              | PASS |
+------------------------------------------------------------------------------
+Validate Set Containment                                              | PASS |
+------------------------------------------------------------------------------
+Validate Dict Field Range                                             | PASS |
+------------------------------------------------------------------------------
+Then Returns Evaluated Expression                                     | PASS |
+------------------------------------------------------------------------------
+Evaluate Is Alias For Then                                            | PASS |
+------------------------------------------------------------------------------
+Untyped Numeric Comparison Fails — Documents The Gotcha               | PASS |
+------------------------------------------------------------------------------
+Tool Call Count Between Two And Five                                  | PASS |
+------------------------------------------------------------------------------
+Latency P95 Between 50 And 200 ms                                     | PASS |
+------------------------------------------------------------------------------
+Hit Rate Within Acceptance Band                                       | PASS |
+------------------------------------------------------------------------------
+Exp 11 Validate Under Robot :: exp_11 — does AssertionEngine's `va... | PASS |
+19 tests, 19 passed, 0 failed
+==============================================================================
+Output:  /home/many/workspace/robotframework-agentguard/_robot_out/output.xml
+Log:     /home/many/workspace/robotframework-agentguard/_robot_out/log.html
+Report:  /home/many/workspace/robotframework-agentguard/_robot_out/report.html
