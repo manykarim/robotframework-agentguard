@@ -1,0 +1,41 @@
+==============================================================================
+Exp 12 Aggressive Collapse :: exp_12 — can the analyst's "edge cases that r...
+==============================================================================
+MW U Tuple Result — validate p-value via index access                 | PASS |
+------------------------------------------------------------------------------
+MW U Tuple Result — high p-value fails                                | PASS |
+------------------------------------------------------------------------------
+MW U Dataclass — validate via attribute access                        | PASS |
+------------------------------------------------------------------------------
+MW U Dataclass — composite predicate (p < α AND U significant)        | PASS |
+------------------------------------------------------------------------------
+Hook Should Block Replacement — Get Hook Decision == block            | PASS |
+------------------------------------------------------------------------------
+Hook Should Allow Replacement — Get Hook Decision != block            | PASS |
+------------------------------------------------------------------------------
+Should Not Call Any Tool Replacement — len(value) == 0 via validate   | PASS |
+------------------------------------------------------------------------------
+Should Not Call Any Tool — non-empty fails                            | PASS |
+------------------------------------------------------------------------------
+Required Params — every call carries level=INFO                       | PASS |
+------------------------------------------------------------------------------
+Required Params — one call misses param fails                         | PASS |
+------------------------------------------------------------------------------
+Tool Sequence Subsequence — exact match via validate                  | PASS |
+------------------------------------------------------------------------------
+Tool Sequence Subsequence — wildcard removed via list filter          | PASS |
+------------------------------------------------------------------------------
+Scan Skill Decision — pass via decision attribute                     | PASS |
+------------------------------------------------------------------------------
+Scan Skill Decision — deny on critical fails                          | PASS |
+------------------------------------------------------------------------------
+Sandbox Exit Code — value-object access via validate                  | PASS |
+------------------------------------------------------------------------------
+Bootstrap CI Contains Expected — via dict-attribute compare           | PASS |
+------------------------------------------------------------------------------
+Exp 12 Aggressive Collapse :: exp_12 — can the analyst's "edge cas... | PASS |
+16 tests, 16 passed, 0 failed
+==============================================================================
+Output:  /home/many/workspace/robotframework-agentguard/_robot_out/output.xml
+Log:     /home/many/workspace/robotframework-agentguard/_robot_out/log.html
+Report:  /home/many/workspace/robotframework-agentguard/_robot_out/report.html

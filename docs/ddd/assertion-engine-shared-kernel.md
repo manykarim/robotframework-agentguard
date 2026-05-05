@@ -1,10 +1,12 @@
 # AssertionEngine — Utility Shared Kernel
 
 > **Status**: Proposed (gates on **ADR-022**,
-> `docs/adr/ADR-022-assertion-engine-shared-kernel.md`).
+> `docs/adr/ADR-022-assertion-engine-adoption.md`).
 > Cross-references: **ADR-013** (sandbox policy),
 > **ADR-019** (3-tier model routing),
-> `docs/research/assertion-engine.md` (operator catalogue).
+> `docs/research/assertion-engine.md` (operator catalogue),
+> `tests/experiments/exp_11_validate_under_robot.robot` (operator coverage),
+> `tests/experiments/exp_12_aggressive_collapse.robot` (resistant-case feasibility).
 
 This document specifies the DDD model for adopting the PyPI
 `robotframework-assertion-engine` library (Python import name `assertionengine`)
@@ -16,6 +18,13 @@ It owns no aggregates, no domain events, no repositories. It is *shared
 plumbing*, modelled the same way Python's `dataclasses` would be: a vocabulary
 of value-comparison primitives consumed identically across the bounded
 contexts that need them.
+
+> **Adoption strategy (revised 2026-05-05)**: ADR-022 ships as a **single-phase
+> full replacement**, not a multi-phase deprecation. Should-pair keywords
+> selected for collapse are *deleted* in the same commit that introduces the
+> operator-driven Get equivalent. No shim wrappers exist in the steady state.
+> See `docs/adr/ADR-022-assertion-engine-adoption.md` §"Phase 4-D — One-Shot
+> Replacement". The collapse policy is articulated below in §6.
 
 ---
 
@@ -198,6 +207,39 @@ forcing AssertionEngine to know what a sandbox is.
 - No domain events are added. Assertion outcomes are observable through
   whichever context's existing events already cover the keyword (e.g.,
   `JudgmentScored`, `ToolCallRecorded`, `MetricComputed`).
+
+---
+
+## 6. Collapse policy — what migrates, what stays (revised 2026-05-05)
+
+The single-phase replacement (no shims, no deprecation) makes the
+"what to collapse?" question crisp: **a Should-pair keyword collapses iff its
+operator-form replacement reads at least as cleanly at the call site.**
+This rule is articulated as a hard policy here so future sub-libraries do not
+re-litigate it.
+
+| Keyword shape | Decision | Rationale (with experimental backing) |
+|---|---|---|
+| Pure scalar comparison: `<Metric> Should Be {Above\|Below\|Equal To\|Zero\|Between}` | **COLLAPSE.** Delete Should-pair; add `(operator, expected, message)` to the Get keyword. | The operator form (`Read Edit Ratio ${s} >= 4.0`) is shorter and IDE-completable. exp_11 confirms `validate` covers the `between` case via `${low} <= value <= ${high}` so no custom operator is needed. 32 collapses per `docs/proposals/keyword-reduction-table.md`. |
+| Domain predicate: `Should Not Call Any Tool`, `Hook Should Block`, `Hook Should Allow`, `Hook Decision Should Be`, `Skill Should Pass Security Scan`, `Required Tool Should Have Been Called With Params`, `Tool Sequence Should Match` | **KEEP** as named keyword. | exp_12 (16/16 PASS) confirms each *technically* folds into a `validate` expression over the keyword's typed return. Kept because the named-keyword call site reads cleaner than the equivalent inline `validate ...`. Example: `Skill Should Pass Security Scan ${path}` vs `Scan Skill ${path} validate value.decision != 'deny' and not [f for f in value.findings if f.severity.name == 'CRITICAL']` — the named form wins on simple-syntax + focused-keyword grounds. |
+| Distribution-shaped assertion: `Mann Whitney U Should Show Improvement`, `Tool Hit Rate Distribution Should Stochastically Dominate`, `Cliffs Delta Should Be At Least` | **KEEP** as named keyword. | The "expected" argument is a *distribution*, not a scalar — AssertionEngine's operator algebra is value-vs-value, not distribution-vs-distribution. exp_12 demonstrates the underlying `MannWhitneyResult` *can* be exposed via a `Get` + `validate value.pvalue < 0.05`, but the named keyword carries the statistical intent more clearly. |
+| Composite multi-stage pipeline: `Behavioral Report Should Match Baseline`, `Skill Should Pass Security Scan` (7-stage scanner) | **KEEP** as named keyword. | Pipelines that fan out to per-element checks lose readability when forced through a single `validate` expression. Keep the dedicated keyword; the underlying machinery still uses the AssertionAdapter for the per-comparison primitives it does perform. |
+
+### Why "readability beats raw count"
+
+The user-stated goal is *"small amount of focused keywords with simple
+syntax and a clean and maintainable codebase"*. The two halves of that goal
+trade off in the resistant-case set:
+
+- **Smallest count**: aggressive collapse → 115 keywords, every assertion via
+  `Get + validate <python expr>`.
+- **Simplest syntax**: focused predicate keywords → 131 keywords, semantic
+  Should-style for predicates, operator-driven for scalars.
+
+We pick the second (131) because the inline `validate` expressions for the
+resistant cases are *less* simple at the call site than the existing named
+predicate. Both trades respect "no shims, no deprecation"; the policy above
+makes the choice deterministic for new sub-libraries.
 - No new aggregate is introduced. AssertionEngine remains stateless from
   AgentGuard's perspective — every call is pure relative to the supplied
   formatter scope and polling window.
