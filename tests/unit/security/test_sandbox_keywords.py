@@ -43,16 +43,36 @@ def test_sandbox_output_should_contain_raises_when_missing(kw: SecurityKeywords)
         kw.sandbox_output_should_contain(_ok_result(stdout="actual", stderr=""), "expected")
 
 
-# ---- Sandbox Exit Code Should Be ----
+# ---- Get Sandbox Exit Code (collapse: ADR-022) ----
 
 
-def test_sandbox_exit_code_should_be_passes(kw: SecurityKeywords) -> None:
-    kw.sandbox_exit_code_should_be(_ok_result(exit_code=0), 0)
+def test_get_sandbox_exit_code_returns_value(kw: SecurityKeywords) -> None:
+    assert kw.get_sandbox_exit_code(_ok_result(exit_code=0)) == 0
+    assert kw.get_sandbox_exit_code(_ok_result(exit_code=42)) == 42
 
 
-def test_sandbox_exit_code_should_be_raises_on_mismatch(kw: SecurityKeywords) -> None:
-    with pytest.raises(AssertionError, match="exit code mismatch"):
-        kw.sandbox_exit_code_should_be(_ok_result(exit_code=1), 0)
+def test_get_sandbox_exit_code_with_eq_operator_passes(kw: SecurityKeywords) -> None:
+    # operator form mirrors the deleted `Sandbox Exit Code Should Be`
+    assert kw.get_sandbox_exit_code(_ok_result(exit_code=0), "==", 0) == 0
+
+
+def test_get_sandbox_exit_code_with_eq_operator_raises_on_mismatch(
+    kw: SecurityKeywords,
+) -> None:
+    with pytest.raises(AssertionError):
+        kw.get_sandbox_exit_code(_ok_result(exit_code=1), "==", 0)
+
+
+def test_get_sandbox_exit_code_with_ne_operator(kw: SecurityKeywords) -> None:
+    assert kw.get_sandbox_exit_code(_ok_result(exit_code=1), "!=", 0) == 1
+
+
+def test_get_sandbox_exit_code_rejects_non_int_attribute(kw: SecurityKeywords) -> None:
+    class _Bogus:
+        exit_code = "not-an-int"
+
+    with pytest.raises(AssertionError, match="integer exit_code"):
+        kw.get_sandbox_exit_code(_Bogus())
 
 
 # ---- Run In Sandbox (mocked dispatcher) ----

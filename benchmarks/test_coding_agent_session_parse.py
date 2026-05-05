@@ -166,9 +166,7 @@ def with_tools_fixture(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
 
 @pytest.mark.benchmark(group="coding-agent-parse")
-def test_parse_session_jsonl_200_line_budget(
-    benchmark: Any, with_tools_fixture: Path
-) -> None:
+def test_parse_session_jsonl_200_line_budget(benchmark: Any, with_tools_fixture: Path) -> None:
     """Parse a 200-line claude-code JSONL — mean ≤ 50 ms."""
     try:
         from AgentGuard.coding_agent.session import parser
@@ -185,14 +183,11 @@ def test_parse_session_jsonl_200_line_budget(
         sess = parser.parse(with_tools_fixture, format="claude-code")
         return len(sess.tool_calls)
 
-    result = benchmark.pedantic(
-        _parse_once, rounds=20, iterations=1, warmup_rounds=2
-    )
+    result = benchmark.pedantic(_parse_once, rounds=20, iterations=1, warmup_rounds=2)
     assert result > 0, "fixture parse produced no tool_calls"
 
     mean_ms = float(benchmark.stats.stats.mean) * 1000.0
     if mean_ms > BUDGET_MEAN_MS:
         pytest.fail(
-            f"session parse mean {mean_ms:.3f} ms exceeds budget "
-            f"{BUDGET_MEAN_MS} ms (Phase-3 session-parser budget)"
+            f"session parse mean {mean_ms:.3f} ms exceeds budget {BUDGET_MEAN_MS} ms (Phase-3 session-parser budget)"
         )

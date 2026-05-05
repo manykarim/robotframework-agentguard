@@ -85,18 +85,14 @@ def _resolve_format(p: Path, explicit: str | None) -> Format:
     if explicit is not None:
         normalised = FORMAT_ALIASES.get(explicit.lower().strip())
         if normalised is None:
-            raise UnknownSessionFormatError(
-                f"Unknown format alias: {explicit!r}"
-            )
+            raise UnknownSessionFormatError(f"Unknown format alias: {explicit!r}")
         return normalised
 
     suffix = p.suffix.lower()
     if suffix == ".md":
         return "aider"
     if suffix not in {".jsonl", ".json", ".log", ""}:
-        raise UnknownSessionFormatError(
-            f"Cannot auto-detect format for {p.name!r} (extension {suffix!r})"
-        )
+        raise UnknownSessionFormatError(f"Cannot auto-detect format for {p.name!r} (extension {suffix!r})")
     return _sniff_jsonl(p)
 
 
@@ -121,9 +117,7 @@ def _sniff_jsonl(p: Path, *, max_peek: int = 5) -> Format:
                 if seen >= max_peek:
                     break
     except jsonlines.InvalidLineError as exc:
-        raise UnknownSessionFormatError(
-            f"First line of {p.name} is not valid JSON: {exc}"
-        ) from exc
+        raise UnknownSessionFormatError(f"First line of {p.name} is not valid JSON: {exc}") from exc
     if seen == 0:
         raise UnknownSessionFormatError(f"{p.name} contains no JSON records")
     return _classify_keys(union_keys)
@@ -133,9 +127,7 @@ def _classify_keys(keys: set[str]) -> Format:
     """Classify based on the union of top-level keys across the peek window."""
     # Claude Code: distinctive combo — sessionId + type appear on every
     # record; uuid + parentUuid appear on most (but not the very first).
-    if "sessionId" in keys and "type" in keys and (
-        "uuid" in keys or "parentUuid" in keys or "permissionMode" in keys
-    ):
+    if "sessionId" in keys and "type" in keys and ("uuid" in keys or "parentUuid" in keys or "permissionMode" in keys):
         return "claude-code"
     # Codex: session_id + turn-shaped fields.
     if "session_id" in keys and ("turn" in keys or "role" in keys):

@@ -152,11 +152,7 @@ class LangGraphBridge:
         frames: list[dict[str, Any]] = []
         for step in history:
             step_config = _state_config(step)
-            configurable = (
-                step_config.get("configurable", {})
-                if isinstance(step_config, dict)
-                else {}
-            )
+            configurable = step_config.get("configurable", {}) if isinstance(step_config, dict) else {}
             values = getattr(step, "values", None) or {}
             values_dict: dict[str, Any] = values if isinstance(values, dict) else {}
             messages = values_dict.get("messages", []) if values_dict else []
@@ -223,9 +219,7 @@ def _resolve_state_history(state: Any) -> list[Any]:
 
     raise BridgeUnavailable(
         "langgraph",
-        "LangGraph replay requires a checkpointer-bound graph "
-        "(builder.compile(checkpointer=...)). "
-        + _INSTALL_HINT,
+        "LangGraph replay requires a checkpointer-bound graph (builder.compile(checkpointer=...)). " + _INSTALL_HINT,
     )
 
 

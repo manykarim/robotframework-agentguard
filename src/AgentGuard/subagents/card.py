@@ -100,10 +100,7 @@ def card_to_dict(card: AgentCard) -> dict[str, Any]:
         "default_input_modes": list(card.default_input_modes),
         "default_output_modes": list(card.default_output_modes),
         "capabilities": asdict(card.capabilities),
-        "skills": [
-            asdict(s) | {"tags": list(s.tags), "examples": list(s.examples)}
-            for s in card.skills
-        ],
+        "skills": [asdict(s) | {"tags": list(s.tags), "examples": list(s.examples)} for s in card.skills],
         "supported_interfaces": [asdict(i) for i in card.supported_interfaces],
     }
     if card.url:

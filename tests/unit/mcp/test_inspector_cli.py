@@ -12,8 +12,8 @@ from typing import Any
 
 import pytest
 
-from AgentGuard.mcp.exceptions import MCPInspectorError
 from AgentGuard.mcp import inspector_cli
+from AgentGuard.mcp.exceptions import MCPInspectorError
 
 
 class TestNpxAvailable:
@@ -116,9 +116,7 @@ class TestBuildTargetArgs:
         assert "--" in args
 
     def test_http_returns_server_url(self) -> None:
-        args = inspector_cli.build_target_args(
-            "http://x/mcp", transport="http", headers={"Auth": "Bearer xxx"}
-        )
+        args = inspector_cli.build_target_args("http://x/mcp", transport="http", headers={"Auth": "Bearer xxx"})
         assert "--transport" in args and "http" in args
         assert "--server-url" in args
         assert any("Auth: Bearer" in a for a in args)

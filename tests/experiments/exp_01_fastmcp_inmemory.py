@@ -3,9 +3,11 @@
 Assumption: FastMCP `Client(server)` can bind to an in-process FastMCP instance
 without a transport, enabling deterministic unit tests with negligible overhead.
 """
+
 import asyncio
 import time
-from fastmcp import FastMCP, Client
+
+from fastmcp import Client, FastMCP
 
 
 def build_server() -> FastMCP:

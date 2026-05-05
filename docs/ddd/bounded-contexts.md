@@ -1,8 +1,27 @@
 # Bounded Contexts — robotframework-agentguard
 
-Twelve contexts. Each section lists: **purpose**, **aggregates**, **value objects**, **domain events**, **repositories**, and **ACL** required at every boundary with adjacent contexts. Aggregates are described conceptually — no Python class definitions.
+Twelve contexts (Phase 1–3 baseline) plus **TestHarness / MCPScenario** as a 13th
+context proposed by **ADR-021** (status: Proposed; full spec in
+`docs/ddd/MCPScenario-bounded-context.md`). Each section lists: **purpose**,
+**aggregates**, **value objects**, **domain events**, **repositories**, and
+**ACL** required at every boundary with adjacent contexts. Aggregates are
+described conceptually — no Python class definitions.
 
-Research citations point to `docs/research/research.md`.
+Research citations point to `docs/research/research.md`. ADR-021 cites
+`manykarim/rf-mcp/tests/e2e/` as the load-bearing prior art for the
+TestHarness context's shape.
+
+> **Shared Kernel addition — AssertionEngine (ADR-022).** Per
+> `docs/adr/ADR-022-assertion-engine-shared-kernel.md`, the PyPI
+> `assertionengine` library is adopted as a **utility-level Shared Kernel** for
+> value-comparison primitives (`AssertionOperator`, `verify_assertion`,
+> formatter scope, polling). It is consumed by every context that ships
+> `Get/Should` keyword pairs — Stats, MCP, Skills, Hooks, SubAgents, CodingAgent,
+> MCPScenario, ToolCallCorrectness, Security, Judge — through a thin
+> `AssertionAdapter` ACL per sub-library. AssertionEngine owns no domain and is
+> therefore **not** a 14th bounded context; it is a shared kernel utility in
+> the same sense Python's `dataclasses` is. Full DDD model in
+> `docs/ddd/assertion-engine-shared-kernel.md`.
 
 ---
 

@@ -82,9 +82,7 @@ def test_each_event_carries_only_known_default_keys(event: HookEvent) -> None:
     allowed = EVENT_FIELDS[event]
     # All envelope keys (minus known overrides) must be a subset of allowed.
     for key in env.keys():
-        assert key in allowed or key in BASE_KEYS, (
-            f"Event {event!r} produced unexpected key {key!r}"
-        )
+        assert key in allowed or key in BASE_KEYS, f"Event {event!r} produced unexpected key {key!r}"
 
 
 def test_envelope_unknown_field_passes_through() -> None:

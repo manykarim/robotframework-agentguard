@@ -9,7 +9,6 @@ import pytest
 from AgentGuard.subagents.types import (
     AgentCapabilities,
     AgentCard,
-    AgentInterface,
     AgentProvider,
     AgentSkill,
     Artifact,
@@ -24,7 +23,6 @@ from AgentGuard.subagents.types import (
     from_dict_card,
     text_artifact,
 )
-
 
 # ---------------- TaskStatus ----------------
 
@@ -129,9 +127,7 @@ def test_from_dict_card_with_provider_and_interfaces() -> None:
     raw = {
         "name": "x",
         "provider": {"organization": "acme", "url": "https://acme"},
-        "supported_interfaces": [
-            {"url": "https://x", "protocol_binding": "grpc", "protocol_version": "2.0"}
-        ],
+        "supported_interfaces": [{"url": "https://x", "protocol_binding": "grpc", "protocol_version": "2.0"}],
     }
     card = from_dict_card(raw)
     assert card.provider is not None
@@ -202,9 +198,7 @@ def test_task_touch_updates_timestamp() -> None:
 def test_delegation_chain_agent_names() -> None:
     chain = DelegationChain(
         links=(
-            DelegationLink(
-                parent_task_id="p1", child_task_id="c1", agent_url="inproc://w", agent_name="weather"
-            ),
+            DelegationLink(parent_task_id="p1", child_task_id="c1", agent_url="inproc://w", agent_name="weather"),
             DelegationLink(parent_task_id="p1", child_task_id="c2", agent_url="inproc://places"),
         )
     )

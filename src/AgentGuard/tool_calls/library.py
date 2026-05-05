@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, Protocol
 import jsonschema
 from robot.api.deco import keyword
 
+from AgentGuard._assertions import AssertionOperator, assert_value
 from AgentGuard.tool_calls.bfcl_matcher import (
     coerce_tool_call,
     match_arguments_detailed,
@@ -94,9 +95,7 @@ class ToolCallKeywords:
         """Assert the actual tool call invokes ``expected`` (exact string)."""
         if not match_name(actual, expected):
             got = self._safe_name(actual)
-            raise AssertionError(
-                f"Tool name mismatch: expected {expected!r}, got {got!r}"
-            )
+            raise AssertionError(f"Tool name mismatch: expected {expected!r}, got {got!r}")
 
     @keyword(name="Tool Call Arguments Should Match")
     def tool_call_arguments_should_match(
@@ -115,9 +114,7 @@ class ToolCallKeywords:
         result = match_arguments_detailed(actual, expected, schema=schema, mode=mode)
         if not result:
             reasons = "; ".join(result.reasons) or "no reason recorded"
-            raise AssertionError(
-                f"Tool arguments do not match (mode={mode}): {reasons}"
-            )
+            raise AssertionError(f"Tool arguments do not match (mode={mode}): {reasons}")
 
     @keyword(name="Required Parameters Should Be Present")
     def required_parameters_should_be_present(
@@ -137,9 +134,7 @@ class ToolCallKeywords:
         required_errors = [e for e in errors if e.validator == "required"]
         if required_errors:
             details = "; ".join(e.message for e in required_errors)
-            raise AssertionError(
-                f"Missing required parameter(s) for {call.name!r}: {details}"
-            )
+            raise AssertionError(f"Missing required parameter(s) for {call.name!r}: {details}")
 
     # ---- parallel / sequence ------------------------------------------------
 
@@ -152,8 +147,7 @@ class ToolCallKeywords:
         """Assert multiset equality of (name, args) over the two lists."""
         if not match_parallel(actual, expected):
             raise AssertionError(
-                f"Parallel tool calls do not match: "
-                f"got {len(actual)} call(s), expected {len(expected)}"
+                f"Parallel tool calls do not match: got {len(actual)} call(s), expected {len(expected)}"
             )
 
     @keyword(name="Tool Sequence Should Match")
@@ -168,9 +162,7 @@ class ToolCallKeywords:
         With ``wildcards=False`` the comparison is element-for-element.
         """
         if not match_sequence(actual_seq, expected_seq, wildcards=wildcards):
-            actual_names = [
-                self._safe_name(c) for c in actual_seq
-            ]
+            actual_names = [self._safe_name(c) for c in actual_seq]
             raise AssertionError(
                 f"Tool sequence does not match expected order. "
                 f"Actual names: {actual_names}; expected length: {len(expected_seq)}"
@@ -184,9 +176,7 @@ class ToolCallKeywords:
         """BFCL ``decide-not-to-act``: assert no tool was called."""
         if not _should_not_call_any_tool(actual_seq):
             names = [self._safe_name(c) for c in actual_seq]
-            raise AssertionError(
-                f"Expected no tool calls, but got {len(names)}: {names}"
-            )
+            raise AssertionError(f"Expected no tool calls, but got {len(names)}: {names}")
 
     # ---- BFCL dataset + scoring --------------------------------------------
 
@@ -201,42 +191,42 @@ class ToolCallKeywords:
         logger.info("loaded %d BFCL case(s) for category=%r", len(cases), category)
         return cases
 
-    @keyword(name="BFCL Score Should Be Above")
-    def bfcl_score_should_be_above(
+    @keyword(name="BFCL Score")
+    def bfcl_score(
         self,
         predictions: list[Prediction],
-        threshold: float,
         dataset: str = "simple",
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
     ) -> float:
-        """Compute mean per-case score; raise if it is below ``threshold``."""
+        """Compute mean per-case BFCL score; optionally assert against it.
+
+        ADR-022 collapse: replaces the old ``BFCL Score Should Be Above``
+        Should-pair keyword. Call without an operator to read the value;
+        pair with ``>=`` / ``>`` / ``validate`` to assert in-place::
+
+            ${score}=    BFCL Score    ${predictions}
+            BFCL Score    ${predictions}    >=    0.85
+        """
         if not predictions:
             raise AssertionError("BFCL Score: predictions list is empty")
-        if not 0.0 <= threshold <= 1.0:
-            raise ValueError(f"threshold must be in [0,1], got {threshold!r}")
 
         scores: list[float] = [
             bfcl_score(
                 actual=list(p.actual),
-                expected=[
-                    ToolCall(name=ec.name, arguments=dict(ec.arguments))
-                    for ec in p.case.expected
-                ],
+                expected=[ToolCall(name=ec.name, arguments=dict(ec.arguments)) for ec in p.case.expected],
             )
             for p in predictions
         ]
         mean = sum(scores) / len(scores)
         logger.info(
-            "BFCL %s score over %d case(s): %.3f (threshold %.3f)",
+            "BFCL %s score over %d case(s): %.3f",
             dataset,
             len(predictions),
             mean,
-            threshold,
         )
-        if mean < threshold:
-            raise AssertionError(
-                f"BFCL {dataset} score {mean:.3f} < threshold {threshold:.3f}"
-            )
-        return mean
+        return assert_value(mean, assertion_operator, assertion_expected, message=message)  # type: ignore[no-any-return]
 
     # ---- provider-touching keyword -----------------------------------------
 

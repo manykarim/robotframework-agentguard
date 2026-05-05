@@ -2,20 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 import pytest
 
 from AgentGuard.subagents import a2a_client, a2a_server
 from AgentGuard.subagents.exceptions import (
     AgentCardInvalid,
-    TaskTimeout,
     TransportError,
 )
 from AgentGuard.subagents.types import (
     AgentCard,
     AgentInterface,
-    AgentSkill,
     TaskStatus,
     text_artifact,
 )
@@ -178,9 +174,7 @@ def test_async_handler_supported() -> None:
 
 
 def test_handler_returning_artifact_object() -> None:
-    handle = a2a_server.start_server(
-        "art", handler=lambda m: text_artifact("payload", artifact_id="art-7")
-    )
+    handle = a2a_server.start_server("art", handler=lambda m: text_artifact("payload", artifact_id="art-7"))
     task = a2a_client.send_task(handle.url, "x")
     assert task.artifacts[0].artifact_id == "art-7"
 

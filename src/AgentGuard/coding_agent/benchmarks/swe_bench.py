@@ -35,12 +35,7 @@ from .scorer import pass_rate, resolved_rate
 __all__ = ["SWEBenchLoader", "FIXTURE_PATH", "DATASET_VERIFIED", "DATASET_FULL"]
 
 FIXTURE_PATH = (
-    Path(__file__).resolve().parents[4]
-    / "tests"
-    / "fixtures"
-    / "coding_agent"
-    / "benchmarks"
-    / "swe_bench_mini.json"
+    Path(__file__).resolve().parents[4] / "tests" / "fixtures" / "coding_agent" / "benchmarks" / "swe_bench_mini.json"
 )
 
 DATASET_VERIFIED = "princeton-nlp/SWE-bench_Verified"

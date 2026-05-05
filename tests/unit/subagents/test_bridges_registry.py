@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 import pytest
 
 from AgentGuard.subagents.bridges import BRIDGES, available_bridges, get_bridge
 from AgentGuard.subagents.bridges.base import (
     BridgeUnavailable,
-    FrameworkBridge,
     find_spec_any,
     make_agent_card,
     make_agent_skill,

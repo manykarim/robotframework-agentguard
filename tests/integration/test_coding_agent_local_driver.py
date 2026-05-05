@@ -23,8 +23,7 @@ try:
     from AgentGuard.providers.base import ChatResponse, Usage
     from AgentGuard.providers.mock import MockProvider
 except ImportError:  # pragma: no cover — Phase 3 race
-    pytest.skip("phase3: drivers.local or session.parser not yet implemented",
-                allow_module_level=True)
+    pytest.skip("phase3: drivers.local or session.parser not yet implemented", allow_module_level=True)
 
 
 def _resp(text: str = "ok", tool_calls: list[dict[str, Any]] | None = None) -> ChatResponse:

@@ -9,7 +9,6 @@ lives in ``test_subagents_live.py``).
 from __future__ import annotations
 
 from collections.abc import Iterator
-from typing import Any
 
 import pytest
 
@@ -19,7 +18,6 @@ from AgentGuard.subagents.types import (
     Artifact,
     Message,
     MessagePart,
-    TaskStatus,
     text_artifact,
 )
 
@@ -68,7 +66,7 @@ def test_travel_planner_full_delegation(travel_planner: str) -> None:
     assert card.name == "travel_planner"
 
     task = kw.send_task(travel_planner, "Lisbon")
-    kw.task_should_have_status(task, "completed")
+    kw.get_task_status(task, "==", "completed")
 
     text = kw.get_task_artifact_text(task)
     assert "weather" in text.lower()
@@ -89,7 +87,6 @@ def test_travel_planner_trajectory_shape(travel_planner: str) -> None:
     # The default in-process planner doesn't auto-emit tool_calls; emulate
     # what a real A2A agent would post by injecting tool-call metadata into
     # the task message history.
-    from AgentGuard.subagents.types import Message, MessagePart, Task
 
     task.messages.append(
         Message(

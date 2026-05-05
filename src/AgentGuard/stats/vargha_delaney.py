@@ -32,9 +32,7 @@ def vargha_delaney_a12(x: Sequence[float], y: Sequence[float]) -> float:
     """
     nx, ny = len(x), len(y)
     if nx == 0 or ny == 0:
-        raise ValueError(
-            f"vargha_delaney_a12 requires non-empty samples (got nx={nx}, ny={ny})."
-        )
+        raise ValueError(f"vargha_delaney_a12 requires non-empty samples (got nx={nx}, ny={ny}).")
 
     gt = 0
     eq = 0

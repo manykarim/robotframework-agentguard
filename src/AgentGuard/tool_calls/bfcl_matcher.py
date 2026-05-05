@@ -92,9 +92,7 @@ def _parse_arguments(raw: Any) -> dict[str, JSON]:
         except json.JSONDecodeError as exc:
             raise ValueError(f"tool call arguments are not valid JSON: {exc.msg}") from exc
         if not isinstance(parsed, Mapping):
-            raise ValueError(
-                f"tool call arguments must decode to a JSON object, got {type(parsed).__name__}"
-            )
+            raise ValueError(f"tool call arguments must decode to a JSON object, got {type(parsed).__name__}")
         return dict(parsed)
     raise ValueError(f"unsupported arguments type: {type(raw).__name__}")
 
@@ -284,13 +282,9 @@ def _ast_equal_with_reasons(
             reasons.append(f"{path or '<root>'}: type mismatch (list vs {type(b_n).__name__})")
             return False
         if len(a_n) != len(b_n):
-            reasons.append(
-                f"{path or '<root>'}: length mismatch ({len(a_n)} vs {len(b_n)})"
-            )
+            reasons.append(f"{path or '<root>'}: length mismatch ({len(a_n)} vs {len(b_n)})")
             return False
-        item_schema = (
-            schema.get("items", {}) if isinstance(schema, Mapping) else {}
-        )
+        item_schema = schema.get("items", {}) if isinstance(schema, Mapping) else {}
         ok = True
         for i, (ai, bi) in enumerate(zip(a_n, b_n, strict=True)):
             if not _ast_equal_with_reasons(

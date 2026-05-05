@@ -69,8 +69,9 @@ def _roundtrip_once() -> int:
 def test_subagents_a2a_inmemory_roundtrip_100x(benchmark: Any) -> None:
     """100 in-memory A2A roundtrips per round — assert p50 ≤ 10 ms / call."""
     try:
-        from AgentGuard.subagents.bridges import base  # noqa: F401
         import a2a.types  # noqa: F401
+
+        from AgentGuard.subagents.bridges import base  # noqa: F401
     except ImportError:
         pytest.skip("AgentGuard.subagents.bridges or a2a-sdk not available")
 
@@ -90,7 +91,4 @@ def test_subagents_a2a_inmemory_roundtrip_100x(benchmark: Any) -> None:
     assert samples, "no roundtrip samples collected"
     p50 = statistics.median(samples)
     if p50 > BUDGET_P50_MS:
-        pytest.fail(
-            f"A2A in-memory roundtrip p50 {p50:.3f} ms exceeds budget "
-            f"{BUDGET_P50_MS} ms (Phase-2 A2A budget)"
-        )
+        pytest.fail(f"A2A in-memory roundtrip p50 {p50:.3f} ms exceeds budget {BUDGET_P50_MS} ms (Phase-2 A2A budget)")

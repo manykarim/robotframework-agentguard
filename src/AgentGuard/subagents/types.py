@@ -13,9 +13,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
 
-JSON = (
-    str | int | float | bool | None | list["JSON"] | dict[str, "JSON"]
-)
+JSON = str | int | float | bool | None | list["JSON"] | dict[str, "JSON"]
 """Recursive JSON-compatible value type used by artifact / message parts."""
 
 

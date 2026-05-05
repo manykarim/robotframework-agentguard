@@ -62,9 +62,7 @@ def _local_scan(text: str) -> AIDefenceResult:
         if pat.search(text):
             findings.append(name)
             score = max(score, weight)
-    return AIDefenceResult(
-        injection_score=score, findings=tuple(findings), source="local_fallback"
-    )
+    return AIDefenceResult(injection_score=score, findings=tuple(findings), source="local_fallback")
 
 
 def _local_has_pii(text: str) -> PIIResult:
@@ -109,9 +107,7 @@ class _MCPSession:
         cmd = tuple(cmd_env.split()) if cmd_env else _DEFAULT_CMD
         executable = cmd[0]
         if shutil.which(executable) is None:
-            logger.info(
-                "AIDefence MCP launcher %r not on PATH — using local fallback.", executable
-            )
+            logger.info("AIDefence MCP launcher %r not on PATH — using local fallback.", executable)
             return None
         try:
             from fastmcp import Client  # noqa: F401  (presence check only)
@@ -145,7 +141,7 @@ class _MCPSession:
         async def _open() -> tuple[Any, Any]:
             transport = StdioTransport(command=self._cmd[0], args=list(self._cmd[1:]))
             client = Client(transport)
-            cm = client.__aenter__()
+            cm = client.__aenter__()  # type: ignore[no-untyped-call]
             entered = await cm
             return client, entered
 
@@ -177,6 +173,7 @@ class _MCPSession:
 
     def close(self) -> None:
         if self._client is not None:
+
             async def _close() -> None:
                 try:
                     await self._client.__aexit__(None, None, None)
@@ -219,9 +216,7 @@ def scan(text: str) -> AIDefenceResult:
         return _local_scan(text)
     score = _coerce_score(raw)
     findings = _coerce_findings(raw)
-    return AIDefenceResult(
-        injection_score=score, findings=findings, source="mcp", raw=raw
-    )
+    return AIDefenceResult(injection_score=score, findings=findings, source="mcp", raw=raw)
 
 
 def has_pii(text: str) -> PIIResult:

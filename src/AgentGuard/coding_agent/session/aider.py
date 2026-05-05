@@ -26,9 +26,7 @@ from .types import Message, Session, ToolCall
 
 __all__ = ["parse"]
 
-_SESSION_HEADER_RE = re.compile(
-    r"^#\s+aider\s+chat\s+started\s+at\s+(?P<ts>.+)$", re.IGNORECASE
-)
+_SESSION_HEADER_RE = re.compile(r"^#\s+aider\s+chat\s+started\s+at\s+(?P<ts>.+)$", re.IGNORECASE)
 _USER_PROMPT_RE = re.compile(r"^####\s+(.*)$")
 _FENCE_RE = re.compile(r"^```")
 _FILENAME_HINT_RE = re.compile(r"^[A-Za-z0-9_./-]+\.[A-Za-z0-9]+$")

@@ -23,9 +23,7 @@ class CopilotDriver:
         prompt: str,
         config: DriverConfig | None = None,
     ) -> DriverResult:
-        raise DriverUnavailable(
-            "Phase 4 — gh-copilot driver pending implementation."
-        )
+        raise DriverUnavailable("Phase 4 — gh-copilot driver pending implementation.")
 
 
 __all__ = ["CopilotDriver"]

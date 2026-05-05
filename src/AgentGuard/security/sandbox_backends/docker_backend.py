@@ -136,9 +136,7 @@ class DockerBackend:
                     **run_kwargs,
                 )
             except ImageNotFound as exc:
-                raise SandboxUnavailable(
-                    f"image not available: {chosen_image}: {exc.explanation}"
-                ) from exc
+                raise SandboxUnavailable(f"image not available: {chosen_image}: {exc.explanation}") from exc
             except (APIError, ContainerError, docker.errors.DockerException) as exc:
                 raise SandboxUnavailable(f"docker run failed: {exc}") from exc
 
@@ -150,18 +148,14 @@ class DockerBackend:
                     container.kill()
                 except Exception:  # noqa: BLE001
                     pass
-                raise SandboxUnavailable(
-                    f"sandbox exec timed out after {timeout}s: {exc}"
-                ) from exc
+                raise SandboxUnavailable(f"sandbox exec timed out after {timeout}s: {exc}") from exc
 
             exit_code = int(wait_result.get("StatusCode", -1))
             stdout_bytes = container.logs(stdout=True, stderr=False) or b""
             stderr_bytes = container.logs(stdout=False, stderr=True) or b""
             container_id = container.id
 
-            stdout, stderr, truncated = _truncate(
-                stdout_bytes, stderr_bytes, self._max_output_bytes
-            )
+            stdout, stderr, truncated = _truncate(stdout_bytes, stderr_bytes, self._max_output_bytes)
             duration_ms = (time.perf_counter() - start) * 1000.0
             return SandboxResult(
                 exit_code=exit_code,
@@ -206,9 +200,7 @@ class DockerBackend:
             "read_only": policy.read_only_root,
             "tmpfs": {"/tmp": "size=64m,mode=1777"},  # noqa: S108 — guest path inside container, not host
             "cap_drop": ["ALL"] if policy.drop_caps else [],
-            "security_opt": (
-                ["no-new-privileges:true"] if policy.no_new_privileges else []
-            ),
+            "security_opt": (["no-new-privileges:true"] if policy.no_new_privileges else []),
             "user": DEFAULT_USER,
             "mem_limit": f"{policy.mem_limit_mb}m",
             "pids_limit": policy.pid_limit,
@@ -250,24 +242,17 @@ def _validate_mounts(
             raise SandboxUnavailable(f"invalid mount source {raw_src!r}: {exc}") from exc
 
         if raw_src in FORBIDDEN_HOST_PATHS or src_resolved in FORBIDDEN_HOST_PATHS:
-            raise SandboxUnavailable(
-                f"refusing to mount forbidden host path {raw_src!r} into sandbox"
-            )
+            raise SandboxUnavailable(f"refusing to mount forbidden host path {raw_src!r} into sandbox")
         # Reject anything that resolves under /proc or /sys
         if any(src_resolved == p or src_resolved.startswith(p + "/") for p in ("/proc", "/sys")):
-            raise SandboxUnavailable(
-                f"refusing to mount kernel pseudo-fs {raw_src!r} into sandbox"
-            )
+            raise SandboxUnavailable(f"refusing to mount kernel pseudo-fs {raw_src!r} into sandbox")
         # Destination guards: refuse mounting over the docker socket path or kernel fs
         if dst in FORBIDDEN_HOST_PATHS:
-            raise SandboxUnavailable(
-                f"refusing mount destination {dst!r} (would shadow protected path)"
-            )
+            raise SandboxUnavailable(f"refusing mount destination {dst!r} (would shadow protected path)")
         # Allowlist gate (if the policy declares any mounts, restrict to them)
         if allowlist and src_resolved not in allowlist:
             raise SandboxUnavailable(
-                f"mount {raw_src!r} not in policy allowlist "
-                f"(allowed: {sorted(allowlist) or '<none>'})"
+                f"mount {raw_src!r} not in policy allowlist (allowed: {sorted(allowlist) or '<none>'})"
             )
         out.append((src_resolved, dst))
     return out

@@ -28,6 +28,8 @@ ADRs use a MADR-lite template. All ADRs are **Proposed** as of 2026-04-29; nothi
 | [ADR-018](ADR-018-multi-agent-swarm-test-generation.md) | Multi-Agent Swarm Test Generation | cross-cutting | Proposed |
 | [ADR-019](ADR-019-3-tier-model-routing.md) | 3-Tier Model Routing | Provider, Judge | Proposed |
 | [ADR-020](ADR-020-aidefence-skill-scanner.md) | AIDefence Skill Scanner & PII Filter | Security, Judge | Proposed |
+| [ADR-021](ADR-021-unified-scenario-test-harness.md) | Unified Scenario Test Harness for MCP Servers, Agent Skills, Coding Agents | TestHarness (NEW), MCP, CodingAgent | Proposed |
+| [ADR-022](ADR-022-assertion-engine-adoption.md) | AssertionEngine Adoption as Shared Kernel for Get-Style Keywords | cross-cutting (Shared Kernel) | Proposed |
 
 ## Cross-References to Parallel Workstreams
 

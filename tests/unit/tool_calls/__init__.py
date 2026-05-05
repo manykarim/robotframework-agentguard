@@ -7,5 +7,5 @@ Keywords (research §3.1, ADR-004):
 - Parallel Tool Calls Should Match      (multiset)
 - Tool Sequence Should Match            (ordered subsequence with wildcards)
 - Should Not Call Any Tool              (decide-not-to-act)
-- BFCL Score Should Be Above            (aggregated dataset score)
+- BFCL Score                            (aggregated dataset score; ADR-022 collapse)
 """

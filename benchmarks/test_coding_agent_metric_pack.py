@@ -13,7 +13,7 @@ Skips cleanly when ``metrics.pack`` is missing (parallel Phase-3 race).
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import pytest
@@ -43,7 +43,7 @@ def _build_synthetic_session(n_messages: int = 100) -> Any:
         Usage,
     )
 
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     messages: list[Message] = []
     tool_calls: list[ToolCall] = []
     tool_responses: list[ToolResponse] = []
@@ -112,9 +112,7 @@ def synthetic_session() -> Any:
 
 
 @pytest.mark.benchmark(group="coding-agent-metrics")
-def test_compute_42796_pack_100_msg_budget(
-    benchmark: Any, synthetic_session: Any
-) -> None:
+def test_compute_42796_pack_100_msg_budget(benchmark: Any, synthetic_session: Any) -> None:
     """Run all 12 calculators on a 100-msg session — mean ≤ 5 ms."""
     try:
         from AgentGuard.coding_agent.metrics import compute_42796_pack
@@ -125,14 +123,11 @@ def test_compute_42796_pack_100_msg_budget(
         report = compute_42796_pack(synthetic_session)
         return len(report.metrics)
 
-    result = benchmark.pedantic(
-        _pack_once, rounds=50, iterations=1, warmup_rounds=2
-    )
+    result = benchmark.pedantic(_pack_once, rounds=50, iterations=1, warmup_rounds=2)
     assert result == 12, f"expected 12 metrics, got {result}"
 
     mean_ms = float(benchmark.stats.stats.mean) * 1000.0
     if mean_ms > BUDGET_MEAN_MS:
         pytest.fail(
-            f"#42796 pack mean {mean_ms:.3f} ms exceeds budget "
-            f"{BUDGET_MEAN_MS} ms (Phase-3 metric-pack budget)"
+            f"#42796 pack mean {mean_ms:.3f} ms exceeds budget {BUDGET_MEAN_MS} ms (Phase-3 metric-pack budget)"
         )

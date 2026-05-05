@@ -5,5 +5,5 @@ Keywords (research §6.2, ADR-006):
 - Skill Frontmatter Should Be Valid
 - Skill Should Pass Security Scan
 - Run Skill Eval (uses Inspect AI Task → Solver → Scorer)
-- Convention Violation Rate Should Be Below
+- Convention Violation Rate (operator-driven, ADR-022)
 """

@@ -25,12 +25,7 @@ logger = logging.getLogger("AgentGuard.coding_agent.benchmarks.mbpp")
 __all__ = ["MBPPLoader", "FIXTURE_PATH"]
 
 FIXTURE_PATH = (
-    Path(__file__).resolve().parents[4]
-    / "tests"
-    / "fixtures"
-    / "coding_agent"
-    / "benchmarks"
-    / "mbpp_mini.json"
+    Path(__file__).resolve().parents[4] / "tests" / "fixtures" / "coding_agent" / "benchmarks" / "mbpp_mini.json"
 )
 
 

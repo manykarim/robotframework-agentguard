@@ -93,9 +93,7 @@ class TestListener:
     def test_listener_api_v3(self) -> None:
         assert OTelListener.ROBOT_LISTENER_API_VERSION == 3
 
-    def test_lifecycle_emits_html_block(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_lifecycle_emits_html_block(self, monkeypatch: pytest.MonkeyPatch) -> None:
         listener = OTelListener()
 
         embedded: list[str] = []
@@ -139,6 +137,7 @@ class TestListener:
 
         import sys
         import types
+
         fake_module = types.ModuleType("robot.libraries.BuiltIn")
         fake_module.BuiltIn = _Boom  # type: ignore[attr-defined]
         monkeypatch.setitem(sys.modules, "robot.libraries.BuiltIn", fake_module)
@@ -147,13 +146,12 @@ class TestListener:
         listener.start_test(data, _FakeResult())
         listener.end_test(data, _FakeResult())  # no spans → no log
 
-    def test_end_test_swallows_log_failures(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_end_test_swallows_log_failures(self, monkeypatch: pytest.MonkeyPatch) -> None:
         listener = OTelListener()
 
         # Make the BuiltIn import fail entirely.
         import builtins
+
         real_import = builtins.__import__
 
         def fail_import(name: str, *a: Any, **kw: Any) -> Any:
@@ -191,6 +189,7 @@ class TestListener:
 
         # Force ImportError from the OTLP exporter import.
         import builtins
+
         real_import = builtins.__import__
 
         def fake_import(name: str, *a: Any, **kw: Any) -> Any:
@@ -200,6 +199,7 @@ class TestListener:
 
         monkeypatch.setattr(builtins, "__import__", fake_import)
         import logging
+
         with caplog.at_level(logging.WARNING, logger="AgentGuard.telemetry.listener"):
             _ensure_tracer_provider()
         assert any("OTLP" in m for m in caplog.messages)

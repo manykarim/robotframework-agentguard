@@ -79,16 +79,13 @@ class Rubric:
                     "name": c.name,
                     "description": c.description,
                     "labels": [
-                        {"value": lbl.value, "description": lbl.description, "score": lbl.score}
-                        for lbl in c.labels
+                        {"value": lbl.value, "description": lbl.description, "score": lbl.score} for lbl in c.labels
                     ],
                 }
                 for c in self.criteria
             ],
         }
-        return hashlib.sha256(
-            json.dumps(payload, sort_keys=True).encode("utf-8")
-        ).hexdigest()
+        return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
 
 
 # ---------------------------------------------------------------------------
@@ -234,13 +231,8 @@ def format_judge_prompt(
     blocks: list[str] = []
     schema_parts: list[str] = []
     for c in rubric.criteria:
-        labels_md = "\n".join(
-            f"  - `{lbl.value}` (score {lbl.score:g}): {lbl.description}"
-            for lbl in c.labels
-        )
-        blocks.append(
-            f"### {c.name}\n{c.description or '(no description)'}\nAllowed labels:\n{labels_md}"
-        )
+        labels_md = "\n".join(f"  - `{lbl.value}` (score {lbl.score:g}): {lbl.description}" for lbl in c.labels)
+        blocks.append(f"### {c.name}\n{c.description or '(no description)'}\nAllowed labels:\n{labels_md}")
         allowed = " | ".join(f'"{lbl.value}"' for lbl in c.labels)
         schema_parts.append(f'"{c.name}": <{allowed}>')
 

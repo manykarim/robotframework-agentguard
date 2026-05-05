@@ -57,10 +57,7 @@ def lookup_server(name: str) -> InProcessA2AServer:
         try:
             return _REGISTRY[name]
         except KeyError as exc:
-            raise TransportError(
-                f"no in-process A2A server named {name!r}; "
-                f"known: {sorted(_REGISTRY)}"
-            ) from exc
+            raise TransportError(f"no in-process A2A server named {name!r}; known: {sorted(_REGISTRY)}") from exc
 
 
 def lookup_server_for_url(url: str) -> InProcessA2AServer:
@@ -172,9 +169,7 @@ class InProcessA2AServer:
         import concurrent.futures
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-            return pool.submit(
-                lambda: asyncio.run(self.submit_async(message, metadata=metadata))
-            ).result()
+            return pool.submit(lambda: asyncio.run(self.submit_async(message, metadata=metadata))).result()
 
     def get_task(self, task_id: str) -> Task:
         if task_id not in self.tasks:
@@ -204,10 +199,7 @@ def start_server(
     """Register an in-process A2A agent and return its :class:`ServerHandle`."""
     with _REGISTRY_LOCK:
         if name in _REGISTRY and not overwrite:
-            raise TransportError(
-                f"in-process A2A server {name!r} already registered; "
-                f"pass overwrite=True to replace."
-            )
+            raise TransportError(f"in-process A2A server {name!r} already registered; pass overwrite=True to replace.")
         if card is None:
             card = _default_card(name, description, skills)
         server = InProcessA2AServer(name=name, handler=handler, card=card)
@@ -282,14 +274,24 @@ def _coerce_handler_output(raw: HandlerOutput) -> list[Artifact]:
     if isinstance(raw, str):
         return [text_artifact(raw)]
     if isinstance(raw, dict):
-        return [Artifact(
-            artifact_id=uuid.uuid4().hex,
-            name="result",
-            parts=(MessagePart(kind="data", data=raw, media_type="application/json"),),
-        )]
+        return [
+            Artifact(
+                artifact_id=uuid.uuid4().hex,
+                name="result",
+                parts=(MessagePart(kind="data", data=raw, media_type="application/json"),),
+            )
+        ]
     return [text_artifact(str(raw))]
 
 
-__all__ = ["Handler", "InProcessA2AServer", "ServerHandle", "list_servers",
-           "lookup_server", "lookup_server_for_url", "reset_registry",
-           "start_server", "stop_server"]
+__all__ = [
+    "Handler",
+    "InProcessA2AServer",
+    "ServerHandle",
+    "list_servers",
+    "lookup_server",
+    "lookup_server_for_url",
+    "reset_registry",
+    "start_server",
+    "stop_server",
+]

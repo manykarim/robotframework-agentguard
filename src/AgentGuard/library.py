@@ -37,11 +37,15 @@ _SUB_LIBRARIES: tuple[tuple[str, str], ...] = (
     # silently skipped so the top-level `AgentGuard` import remains green.
     ("AgentGuard.coding_agent.library", "CodingAgentKeywords"),
     ("AgentGuard.coding_agent.benchmarks.library", "CodingBenchmarkKeywords"),
+    # Phase 4-A — MCPScenario / TestHarness (ADR-021): unified scenario test
+    # harness for MCP servers, Agent Skills, and Coding Agents. Drop-in for
+    # `manykarim/rf-mcp` `tests/e2e/`. Same lazy-import contract.
+    ("AgentGuard.mcp_scenario.library", "MCPScenarioKeywords"),
 )
 
 
 @library(scope="SUITE", version=__version__, auto_keywords=False)
-class AgentGuard(DynamicCore):
+class AgentGuard(DynamicCore):  # type: ignore[misc]
     """`Library AgentGuard provider=litellm model=openrouter/...` — see README."""
 
     def __init__(

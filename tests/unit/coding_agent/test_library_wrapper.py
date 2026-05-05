@@ -3,22 +3,23 @@
 The wrapper composes drivers + parser + metric pack into a single Robot
 Library. We test the public surface (Robot keyword names + assertion
 contracts) without invoking real CLIs.
+
+Per ADR-022 / Phase 4-D one-shot replacement, the 12 #42796 metric Get/Should
+pairs collapsed into 12 operator-driven Get keywords. The Should pairs are
+gone; assertions go through ``robotframework-assertion-engine`` via
+``AgentGuard._assertions.assert_value`` (raises plain ``AssertionError``).
 """
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
 
 import pytest
-
-from tests.conftest import load_session_json
 
 try:
     from AgentGuard.coding_agent.exceptions import (
         DriverDispatchError,
-        MetricThresholdViolated,
         SessionParseFailed,
         SessionSchemaInvalid,
     )
@@ -52,9 +53,7 @@ def test_parse_session_jsonl(kw: CodingAgentKeywords) -> None:
     assert s.source == "claude-code"
 
 
-def test_parse_session_jsonl_unknown_format_raises(
-    kw: CodingAgentKeywords, tmp_path: Path
-) -> None:
+def test_parse_session_jsonl_unknown_format_raises(kw: CodingAgentKeywords, tmp_path: Path) -> None:
     bad = tmp_path / "bad.jsonl"
     bad.write_text("not json\n")
     with pytest.raises(SessionParseFailed):
@@ -71,9 +70,7 @@ def test_save_and_load_session_snapshot_roundtrip(
     assert payload["id"] == "healthy-001"
 
 
-def test_validate_session_schema_passes_for_good(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
+def test_validate_session_schema_passes_for_good(kw: CodingAgentKeywords, healthy_session: Session) -> None:
     assert kw.validate_session_schema(healthy_session) is True
 
 
@@ -91,135 +88,104 @@ def test_read_edit_ratio_value(kw: CodingAgentKeywords, healthy_session: Session
     assert val > 0
 
 
-def test_read_edit_ratio_should_be_above_passes(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
-    # healthy session has ratio 5 — passes threshold=4.0
-    kw.read_edit_ratio_should_be_above(healthy_session, threshold=4.0)
+def test_read_edit_ratio_with_operator_passes(kw: CodingAgentKeywords, healthy_session: Session) -> None:
+    # healthy session has ratio 5 — passes >= 4.0
+    out = kw.read_edit_ratio(healthy_session, ">=", 4.0)
+    assert out > 0
 
 
-def test_read_edit_ratio_should_be_above_fails(
-    kw: CodingAgentKeywords, degraded_session: Session
-) -> None:
-    with pytest.raises(MetricThresholdViolated) as excinfo:
-        kw.read_edit_ratio_should_be_above(degraded_session, threshold=4.0)
-    assert excinfo.value.metric == "read_edit_ratio"
+def test_read_edit_ratio_with_operator_fails(kw: CodingAgentKeywords, degraded_session: Session) -> None:
+    with pytest.raises(AssertionError):
+        kw.read_edit_ratio(degraded_session, ">=", 4.0)
 
 
-def test_stop_hook_violations_should_be_zero_passes(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
-    kw.stop_hook_violations_should_be_zero(healthy_session)
+def test_stop_hook_violations_zero_passes(kw: CodingAgentKeywords, healthy_session: Session) -> None:
+    out = kw.stop_hook_violation_count(healthy_session, "==", 0)
+    assert out == 0
 
 
-def test_stop_hook_violations_should_be_zero_fails(
-    kw: CodingAgentKeywords, degraded_session: Session
-) -> None:
-    with pytest.raises(MetricThresholdViolated):
-        kw.stop_hook_violations_should_be_zero(degraded_session)
+def test_stop_hook_violations_zero_fails(kw: CodingAgentKeywords, degraded_session: Session) -> None:
+    with pytest.raises(AssertionError):
+        kw.stop_hook_violation_count(degraded_session, "==", 0)
 
 
-def test_first_run_test_pass_rate_value(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
+def test_first_run_test_pass_rate_value(kw: CodingAgentKeywords, healthy_session: Session) -> None:
     val = kw.first_run_test_pass_rate(healthy_session)
     assert 0.0 <= val <= 1.0
 
 
-def test_token_usage_per_prompt_value(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
+def test_token_usage_per_prompt_value(kw: CodingAgentKeywords, healthy_session: Session) -> None:
     val = kw.token_usage_per_prompt(healthy_session)
     assert val > 0
 
 
-def test_token_usage_below_with_explicit_threshold(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
+def test_token_usage_per_prompt_with_operator_passes(kw: CodingAgentKeywords, healthy_session: Session) -> None:
     # healthy session has 1200 total tokens / 2 user prompts = 600 — well below 100k.
-    kw.token_usage_per_prompt_should_be_below(healthy_session, threshold=100_000)
+    out = kw.token_usage_per_prompt(healthy_session, "<=", 100_000)
+    assert out > 0
 
 
-def test_token_usage_below_requires_threshold_or_baseline(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
-    with pytest.raises(DriverDispatchError):
-        kw.token_usage_per_prompt_should_be_below(healthy_session)
+def test_token_usage_per_prompt_no_operator_returns_value(kw: CodingAgentKeywords, healthy_session: Session) -> None:
+    """Without operator AND without baseline, the keyword returns the value."""
+    out = kw.token_usage_per_prompt(healthy_session)
+    assert out > 0
 
 
 # ---------------------------- aggregate keywords --------------------------
 
 
-def test_compute_42796_metric_pack(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
+def test_compute_42796_metric_pack(kw: CodingAgentKeywords, healthy_session: Session) -> None:
     report = kw.compute_42796_metric_pack(healthy_session)
     assert hasattr(report, "metrics")
     assert len(report.metrics) == 12
 
 
-def test_get_session_health_for_clean(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
+def test_get_session_health_for_clean(kw: CodingAgentKeywords, healthy_session: Session) -> None:
     assert kw.get_session_health(healthy_session) == "healthy"
 
 
-def test_get_session_health_for_degraded(
-    kw: CodingAgentKeywords, degraded_session: Session
-) -> None:
+def test_get_session_health_for_degraded(kw: CodingAgentKeywords, degraded_session: Session) -> None:
     assert kw.get_session_health(degraded_session) == "degraded"
 
 
-def test_compute_metric_pack_chains_into_health(
-    kw: CodingAgentKeywords, degraded_session: Session
-) -> None:
+def test_compute_metric_pack_chains_into_health(kw: CodingAgentKeywords, degraded_session: Session) -> None:
     report = kw.compute_42796_metric_pack(degraded_session)
     # Multiple thresholds breach in degraded fixture.
     failures = [k for k, v in report.metrics.items() if v.passed is False]
     assert len(failures) >= 5
 
 
-# ---------------------------- ratio/loops Should Be helpers ----------------
+# ---------------------------- ratio/loops operator-driven assertions ------
 
 
-def test_simplest_word_should_be_below_threshold_passes(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
-    kw.simplest_word_frequency_per_1k_should_be_below(healthy_session, threshold=10.0)
+def test_simplest_word_below_threshold_passes(kw: CodingAgentKeywords, healthy_session: Session) -> None:
+    out = kw.simplest_word_frequency_per_1k(healthy_session, "<=", 10.0)
+    assert out >= 0
 
 
-def test_self_admitted_errors_should_be_below_passes(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
-    kw.self_admitted_errors_per_1k_should_be_below(healthy_session, threshold=1.0)
+def test_self_admitted_errors_below_passes(kw: CodingAgentKeywords, healthy_session: Session) -> None:
+    out = kw.self_admitted_errors_per_1k(healthy_session, "<=", 1.0)
+    assert out >= 0
 
 
-def test_self_admitted_errors_should_be_below_fails(
-    kw: CodingAgentKeywords, degraded_session: Session
-) -> None:
-    with pytest.raises(MetricThresholdViolated):
-        kw.self_admitted_errors_per_1k_should_be_below(degraded_session, threshold=0.2)
+def test_self_admitted_errors_below_fails(kw: CodingAgentKeywords, degraded_session: Session) -> None:
+    with pytest.raises(AssertionError):
+        kw.self_admitted_errors_per_1k(degraded_session, "<=", 0.2)
 
 
-def test_write_mutation_ratio_should_be_below_fails(
-    kw: CodingAgentKeywords, degraded_session: Session
-) -> None:
-    with pytest.raises(MetricThresholdViolated):
-        kw.write_mutation_ratio_should_be_below(degraded_session, threshold=0.06)
+def test_write_mutation_ratio_below_fails(kw: CodingAgentKeywords, degraded_session: Session) -> None:
+    with pytest.raises(AssertionError):
+        kw.write_mutation_ratio(degraded_session, "<=", 0.06)
 
 
-def test_user_interrupts_per_1k_should_be_below_fails(
-    kw: CodingAgentKeywords, degraded_session: Session
-) -> None:
-    with pytest.raises(MetricThresholdViolated):
-        kw.user_interrupts_per_1k_should_be_below(degraded_session, threshold=2.0)
+def test_user_interrupts_per_1k_below_fails(kw: CodingAgentKeywords, degraded_session: Session) -> None:
+    with pytest.raises(AssertionError):
+        kw.user_interrupts_per_1k_tool_calls(degraded_session, "<=", 2.0)
 
 
-def test_reasoning_loops_should_be_below_fails(
-    kw: CodingAgentKeywords, degraded_session: Session
-) -> None:
-    with pytest.raises(MetricThresholdViolated):
-        kw.reasoning_loops_per_1k_tool_calls_should_be_below(degraded_session, threshold=12.0)
+def test_reasoning_loops_below_fails(kw: CodingAgentKeywords, degraded_session: Session) -> None:
+    with pytest.raises(AssertionError):
+        kw.reasoning_loops_per_1k_tool_calls(degraded_session, "<=", 12.0)
 
 
 # ---------------------------- run_coding_agent ----------------------------
@@ -272,9 +238,7 @@ def test_run_coding_agent_and_save_session_writes_snapshot(tmp_path: Path) -> No
     )
     kw = CodingAgentKeywords(provider=provider)
     snap = tmp_path / "snap.json"
-    kw.run_coding_agent_and_save_session(
-        "hello", driver="local", save_to=str(snap)
-    )
+    kw.run_coding_agent_and_save_session("hello", driver="local", save_to=str(snap))
     assert snap.exists()
 
 
@@ -293,9 +257,7 @@ def test_get_last_session_after_run(tmp_path: Path) -> None:
         ]
     )
     kw = CodingAgentKeywords(provider=provider)
-    kw.run_coding_agent(
-        "hello", driver="local", jsonl_path=str(tmp_path / "out.jsonl")
-    )
+    kw.run_coding_agent("hello", driver="local", jsonl_path=str(tmp_path / "out.jsonl"))
     sess = kw.get_last_coding_agent_session()
     assert sess is not None
 
@@ -303,9 +265,7 @@ def test_get_last_session_after_run(tmp_path: Path) -> None:
 # ---------------------------- snapshot load --------------------------------
 
 
-def test_load_session_snapshot_failure_path(
-    kw: CodingAgentKeywords, tmp_path: Path
-) -> None:
+def test_load_session_snapshot_failure_path(kw: CodingAgentKeywords, tmp_path: Path) -> None:
     bad = tmp_path / "bad.json"
     bad.write_text("not valid json")
     with pytest.raises(SessionParseFailed):
@@ -335,9 +295,7 @@ def test_load_behavioral_report_passes_through_object(kw: CodingAgentKeywords) -
     assert kw.load_behavioral_report(obj) is obj  # type: ignore[arg-type]
 
 
-def test_behavioral_report_should_match_baseline_no_samples(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
+def test_behavioral_report_should_match_baseline_no_samples(kw: CodingAgentKeywords, healthy_session: Session) -> None:
     """When neither current nor baseline has samples, MW comparison is skipped
     and the keyword returns an empty pvalues dict (no regressions)."""
     cur = kw.compute_42796_metric_pack(healthy_session)
@@ -345,7 +303,7 @@ def test_behavioral_report_should_match_baseline_no_samples(
     assert pvalues == {}
 
 
-# ---------------------------- exhaustive metric Get + Should ---------------
+# ---------------------------- exhaustive metric Get + assertions ----------
 
 
 _GET_KEYWORDS = (
@@ -357,76 +315,59 @@ _GET_KEYWORDS = (
 
 
 @pytest.mark.parametrize("name", _GET_KEYWORDS)
-def test_every_get_keyword_returns_float(
-    kw: CodingAgentKeywords, healthy_session: Session, name: str
-) -> None:
+def test_every_get_keyword_returns_float(kw: CodingAgentKeywords, healthy_session: Session, name: str) -> None:
     val = getattr(kw, name)(healthy_session)
     assert isinstance(val, float)
 
 
-def test_edits_without_prior_read_should_be_below_passes(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
-    kw.edits_without_prior_read_percent_should_be_below(healthy_session, threshold=0.5)
+def test_edits_without_prior_read_below_passes(kw: CodingAgentKeywords, healthy_session: Session) -> None:
+    out = kw.edits_without_prior_read_percent(healthy_session, "<=", 0.5)
+    assert out >= 0
 
 
-def test_repeated_edits_per_file_should_be_below_passes(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
-    kw.repeated_edits_per_file_should_be_below(healthy_session, threshold=3.0)
+def test_repeated_edits_per_file_below_passes(kw: CodingAgentKeywords, healthy_session: Session) -> None:
+    out = kw.repeated_edits_per_file_count(healthy_session, "<=", 3.0)
+    assert out >= 0
 
 
-def test_convention_violation_rate_should_be_below_passes(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
-    kw.convention_violation_rate_for_session_should_be_below(healthy_session, threshold=0.5)
+def test_convention_violation_rate_below_passes(kw: CodingAgentKeywords, healthy_session: Session) -> None:
+    out = kw.convention_violation_rate_for_session(healthy_session, "<=", 0.5)
+    assert out >= 0
 
 
-def test_first_run_test_pass_rate_should_be_above_passes(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
-    kw.first_run_test_pass_rate_should_be_above(healthy_session, threshold=0.5)
+def test_first_run_test_pass_rate_above_passes(kw: CodingAgentKeywords, healthy_session: Session) -> None:
+    out = kw.first_run_test_pass_rate(healthy_session, ">=", 0.5)
+    assert out >= 0
 
 
-def test_edits_without_prior_read_should_be_below_fails(
-    kw: CodingAgentKeywords, degraded_session: Session
-) -> None:
-    with pytest.raises(MetricThresholdViolated):
-        kw.edits_without_prior_read_percent_should_be_below(degraded_session, threshold=0.10)
+def test_edits_without_prior_read_below_fails(kw: CodingAgentKeywords, degraded_session: Session) -> None:
+    with pytest.raises(AssertionError):
+        kw.edits_without_prior_read_percent(degraded_session, "<=", 0.10)
 
 
-def test_repeated_edits_per_file_should_be_below_fails(
-    kw: CodingAgentKeywords, degraded_session: Session
-) -> None:
-    with pytest.raises(MetricThresholdViolated):
-        kw.repeated_edits_per_file_should_be_below(degraded_session, threshold=1.0)
+def test_repeated_edits_per_file_below_fails(kw: CodingAgentKeywords, degraded_session: Session) -> None:
+    with pytest.raises(AssertionError):
+        kw.repeated_edits_per_file_count(degraded_session, "<=", 1.0)
 
 
-def test_simplest_word_should_be_below_fails(
-    kw: CodingAgentKeywords, degraded_session: Session
-) -> None:
-    with pytest.raises(MetricThresholdViolated):
-        kw.simplest_word_frequency_per_1k_should_be_below(degraded_session, threshold=5.0)
+def test_simplest_word_below_fails(kw: CodingAgentKeywords, degraded_session: Session) -> None:
+    with pytest.raises(AssertionError):
+        kw.simplest_word_frequency_per_1k(degraded_session, "<=", 5.0)
 
 
-def test_convention_violation_rate_should_be_below_fails(
-    kw: CodingAgentKeywords, degraded_session: Session
-) -> None:
-    with pytest.raises(MetricThresholdViolated):
-        kw.convention_violation_rate_for_session_should_be_below(degraded_session, threshold=0.05)
+def test_convention_violation_rate_below_fails(kw: CodingAgentKeywords, degraded_session: Session) -> None:
+    with pytest.raises(AssertionError):
+        kw.convention_violation_rate_for_session(degraded_session, "<=", 0.05)
 
 
-def test_first_run_test_pass_rate_should_be_above_fails(
-    kw: CodingAgentKeywords, degraded_session: Session
-) -> None:
-    with pytest.raises(MetricThresholdViolated):
-        kw.first_run_test_pass_rate_should_be_above(degraded_session, threshold=0.9)
+def test_first_run_test_pass_rate_above_fails(kw: CodingAgentKeywords, degraded_session: Session) -> None:
+    with pytest.raises(AssertionError):
+        kw.first_run_test_pass_rate(degraded_session, ">=", 0.9)
 
 
-def test_write_mutation_ratio_should_be_below_passes(
-    kw: CodingAgentKeywords, healthy_session: Session
-) -> None:
-    kw.write_mutation_ratio_should_be_below(healthy_session, threshold=0.06)
+def test_write_mutation_ratio_below_passes(kw: CodingAgentKeywords, healthy_session: Session) -> None:
+    out = kw.write_mutation_ratio(healthy_session, "<=", 0.06)
+    assert out >= 0
 
 
 def test_token_usage_per_prompt_with_baseline_path(
@@ -440,6 +381,23 @@ def test_token_usage_per_prompt_with_baseline_path(
     }
     baseline_path.write_text(json.dumps(baseline_data))
     # baseline=1_000_000 × 1.5 = 1_500_000 → healthy session with ~600 passes.
-    kw.token_usage_per_prompt_should_be_below(
-        healthy_session, baseline=str(baseline_path), multiplier=1.5
-    )
+    out = kw.token_usage_per_prompt(healthy_session, baseline=str(baseline_path), multiplier=1.5)
+    assert out > 0
+
+
+# ---------------------------- pass-through (no operator) ------------------
+
+
+def test_metric_keyword_no_operator_returns_value(kw: CodingAgentKeywords, healthy_session: Session) -> None:
+    """When ``assertion_operator=None`` (default), the keyword acts as a pure Get."""
+    assert kw.read_edit_ratio(healthy_session) > 0
+    assert kw.stop_hook_violation_count(healthy_session) == 0
+    assert kw.write_mutation_ratio(healthy_session) >= 0
+
+
+def test_metric_validate_operator_disallowed_by_default(kw: CodingAgentKeywords, healthy_session: Session) -> None:
+    """Per ADR-013, ``validate`` is disabled at the adapter boundary."""
+    from AgentGuard._assertions import ValidateOperatorDisallowed
+
+    with pytest.raises(ValidateOperatorDisallowed):
+        kw.read_edit_ratio(healthy_session, "validate", "value >= 4.0")

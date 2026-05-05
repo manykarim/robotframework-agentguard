@@ -37,9 +37,7 @@ def pytest_configure(config: pytest.Config) -> None:
     )
 
 
-def pytest_collection_modifyitems(
-    config: pytest.Config, items: list[pytest.Item]
-) -> None:
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
     """Mark every collected benchmark with `slow` so unit-test runs skip them."""
     for item in items:
         item.add_marker(pytest.mark.slow)

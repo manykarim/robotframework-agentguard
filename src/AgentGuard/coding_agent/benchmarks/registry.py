@@ -80,7 +80,4 @@ def get_loader(name: str) -> type[BenchmarkLoader]:
         from . import aider_bench
 
         return aider_bench.AiderBenchLoader
-    raise KeyError(
-        f"Unknown benchmark {name!r}; expected one of {BENCHMARK_NAMES} "
-        f"(or an alias)."
-    )
+    raise KeyError(f"Unknown benchmark {name!r}; expected one of {BENCHMARK_NAMES} (or an alias).")

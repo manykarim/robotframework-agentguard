@@ -27,12 +27,7 @@ from .scorer import first_run_pass_rate, pass_rate
 __all__ = ["AiderBenchLoader", "FIXTURE_PATH"]
 
 FIXTURE_PATH = (
-    Path(__file__).resolve().parents[4]
-    / "tests"
-    / "fixtures"
-    / "coding_agent"
-    / "benchmarks"
-    / "aider_mini.json"
+    Path(__file__).resolve().parents[4] / "tests" / "fixtures" / "coding_agent" / "benchmarks" / "aider_mini.json"
 )
 
 

@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
 
 from AgentGuard.coding_agent.drivers.base import DriverConfig, DriverResult
 from AgentGuard.coding_agent.drivers.local import LocalDriver

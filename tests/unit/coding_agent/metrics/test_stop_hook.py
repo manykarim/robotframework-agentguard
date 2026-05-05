@@ -28,32 +28,24 @@ def test_no_events_passes() -> None:
 
 
 def test_stop_with_block_counts() -> None:
-    res = stop_hook.compute(
-        _session([HookEvent(event="Stop", decision="block")])
-    )
+    res = stop_hook.compute(_session([HookEvent(event="Stop", decision="block")]))
     assert res.value == 1.0
     assert res.passed is False
 
 
 def test_stop_with_allow_does_not_count() -> None:
-    res = stop_hook.compute(
-        _session([HookEvent(event="Stop", decision="allow")])
-    )
+    res = stop_hook.compute(_session([HookEvent(event="Stop", decision="allow")]))
     assert res.value == 0.0
     assert res.passed is True
 
 
 def test_non_stop_events_ignored() -> None:
-    res = stop_hook.compute(
-        _session([HookEvent(event="PreToolUse", decision="block")])
-    )
+    res = stop_hook.compute(_session([HookEvent(event="PreToolUse", decision="block")]))
     assert res.value == 0.0
 
 
 def test_multiple_stop_blocks_accumulate() -> None:
-    res = stop_hook.compute(
-        _session([HookEvent(event="Stop", decision="block")] * 3)
-    )
+    res = stop_hook.compute(_session([HookEvent(event="Stop", decision="block")] * 3))
     assert res.value == 3.0
     assert res.passed is False
 

@@ -48,9 +48,7 @@ def test_score_empty_returns_zero() -> None:
 
 
 def test_score_all_pass() -> None:
-    results = [
-        RunResult(task_id=f"t{i}", passed=True, duration_seconds=0.1) for i in range(3)
-    ]
+    results = [RunResult(task_id=f"t{i}", passed=True, duration_seconds=0.1) for i in range(3)]
     out = HumanEvalLoader.score(results)
     assert out["pass_at_1"] == pytest.approx(1.0)
     assert out["pass_rate"] == pytest.approx(1.0)

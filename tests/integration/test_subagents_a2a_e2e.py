@@ -11,9 +11,9 @@ from collections.abc import Iterator
 import pytest
 
 from AgentGuard.subagents import a2a_server
-from AgentGuard.subagents.exceptions import SubAgentError, TaskFailed
+from AgentGuard.subagents.exceptions import TaskFailed
 from AgentGuard.subagents.library import SubAgentsKeywords
-from AgentGuard.subagents.types import TaskStatus, text_artifact
+from AgentGuard.subagents.types import text_artifact
 
 
 @pytest.fixture(autouse=True)
@@ -44,7 +44,7 @@ def test_a2a_inproc_full_lifecycle(kw: SubAgentsKeywords) -> None:
     handle = kw.connect_to_a2a_agent("inproc://echo")
     task = kw.send_task(handle, "hello world")
     completed = kw.wait_for_task_completion(task, handle, timeout=5.0)
-    kw.task_should_have_status(completed, "completed")
+    kw.get_task_status(completed, "==", "completed")
 
     text = kw.get_task_artifact_text(completed)
     assert "echoed: hello world" in text
@@ -57,13 +57,11 @@ def test_a2a_failed_task_raises_taskfailed(kw: SubAgentsKeywords) -> None:
     a2a_server.start_server("bad", handler=boom)
     task = kw.send_task("inproc://bad", "hi")
     with pytest.raises(TaskFailed, match="failed"):
-        kw.task_should_have_status(task, "completed")
+        kw.get_task_status(task, "==", "completed")
 
 
 def test_a2a_get_artifact_text_filter(kw: SubAgentsKeywords) -> None:
-    a2a_server.start_server(
-        "json", handler=lambda msg: {"answer": 42}
-    )
+    a2a_server.start_server("json", handler=lambda msg: {"answer": 42})
     task = kw.send_task("inproc://json", "?")
     json_arts = kw.get_task_artifact(task, type="application/json")
     assert len(json_arts) == 1

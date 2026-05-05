@@ -3,8 +3,10 @@
 Assumption: LiteLLM provides a uniform chat.completions interface, mapped exception
 types, and a `mock_response=` parameter that lets us run unit tests with no API key.
 """
-import litellm
+
 from importlib import metadata
+
+import litellm
 
 
 def main() -> int:
@@ -22,7 +24,6 @@ def main() -> int:
 
     # 2) Exception types importable
     try:
-        from litellm.exceptions import RateLimitError, AuthenticationError, APIError
         ex_ok = True
     except Exception as e:
         ex_ok = False
@@ -38,7 +39,7 @@ def main() -> int:
             mock_response="hi",
         )
         content = resp.choices[0].message.content
-        mock_ok = (content == "hi")
+        mock_ok = content == "hi"
     except Exception as e:
         print("mock_response error:", type(e).__name__, e)
 

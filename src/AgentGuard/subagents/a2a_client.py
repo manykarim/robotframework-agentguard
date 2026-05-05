@@ -172,9 +172,7 @@ def wait_for_task_completion(
 
     from AgentGuard.subagents.a2a_http import http_wait_for_completion
 
-    return http_wait_for_completion(
-        handle, task, timeout=timeout, poll_interval=poll_interval
-    )
+    return http_wait_for_completion(handle, task, timeout=timeout, poll_interval=poll_interval)
 
 
 def cancel_task(handle: A2AClientHandle, task: Task) -> Task:

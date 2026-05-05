@@ -37,10 +37,7 @@ class HookEvent(StrEnum):
         for ev in cls:
             if ev.value == wanted or ev.value.lower() == wanted.lower():
                 return ev
-        raise ValueError(
-            f"Unknown hook event {value!r}; expected one of "
-            f"{', '.join(e.value for e in cls)}."
-        )
+        raise ValueError(f"Unknown hook event {value!r}; expected one of {', '.join(e.value for e in cls)}.")
 
 
 # ---------------------------------------------------------------------------
@@ -49,18 +46,14 @@ class HookEvent(StrEnum):
 # ---------------------------------------------------------------------------
 
 # Fields every event carries.
-_BASE_FIELDS: frozenset[str] = frozenset(
-    {"session_id", "transcript_path", "cwd", "hook_event_name"}
-)
+_BASE_FIELDS: frozenset[str] = frozenset({"session_id", "transcript_path", "cwd", "hook_event_name"})
 
 EVENT_FIELDS: dict[HookEvent, frozenset[str]] = {
     HookEvent.USER_PROMPT_SUBMIT: _BASE_FIELDS | {"prompt"},
     HookEvent.USER_PROMPT_EXPANSION: _BASE_FIELDS | {"prompt", "expanded_prompt"},
     HookEvent.PRE_TOOL_USE: _BASE_FIELDS | {"tool_name", "tool_input"},
-    HookEvent.POST_TOOL_USE: _BASE_FIELDS
-    | {"tool_name", "tool_input", "tool_response"},
-    HookEvent.POST_TOOL_USE_FAILURE: _BASE_FIELDS
-    | {"tool_name", "tool_input", "tool_response", "error"},
+    HookEvent.POST_TOOL_USE: _BASE_FIELDS | {"tool_name", "tool_input", "tool_response"},
+    HookEvent.POST_TOOL_USE_FAILURE: _BASE_FIELDS | {"tool_name", "tool_input", "tool_response", "error"},
     HookEvent.POST_TOOL_BATCH: _BASE_FIELDS | {"tool_calls"},
     HookEvent.NOTIFICATION: _BASE_FIELDS | {"message"},
     HookEvent.STOP: _BASE_FIELDS | {"stop_hook_active"},

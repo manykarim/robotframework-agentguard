@@ -4,6 +4,7 @@ Assumption: `inspect_evals.bfcl` exposes the Berkeley Function Calling Leaderboa
 evaluator with AST matching, importable as a library to power our Tool Sequence /
 Tool Arguments keywords.
 """
+
 import importlib
 import importlib.util
 import pkgutil
@@ -41,6 +42,7 @@ def main() -> int:
     # Inspect file system for AST matcher source
     if spec.submodule_search_locations:
         import os
+
         for root in spec.submodule_search_locations:
             for dp, _, files in os.walk(root):
                 for fn in files:

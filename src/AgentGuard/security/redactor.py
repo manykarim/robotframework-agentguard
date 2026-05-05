@@ -104,6 +104,7 @@ def redact(text: str, mode: Mode = "tokenize") -> str:
         return text
     out = text
     for pat in _PATTERNS:
+
         def _sub(m: re.Match[str], k: str = pat.kind, v: str = pat.extra_validator) -> str:
             value = m.group(0)
             if v == "luhn" and not _luhn_ok(value):

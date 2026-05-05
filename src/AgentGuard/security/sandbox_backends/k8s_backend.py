@@ -39,6 +39,4 @@ class K8sBackend:
         mounts: list[tuple[str, str]] | None = None,  # noqa: ARG002
         timeout_seconds: int | None = None,  # noqa: ARG002
     ) -> SandboxResult:
-        raise NotImplementedError(
-            "Phase 3 - K8s pod-per-sample backend not yet implemented"
-        )
+        raise NotImplementedError("Phase 3 - K8s pod-per-sample backend not yet implemented")

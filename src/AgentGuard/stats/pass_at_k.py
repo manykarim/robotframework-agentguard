@@ -29,9 +29,7 @@ def _pass_at_k_single(n: int, c: int, k: int) -> float:
     if n <= 0:
         raise ValueError(f"n must be >= 1; got {n!r}.")
     if k > n:
-        raise ValueError(
-            f"k ({k}) cannot exceed the number of samples per problem (n={n})."
-        )
+        raise ValueError(f"k ({k}) cannot exceed the number of samples per problem (n={n}).")
     if c <= 0:
         return 0.0
     if c >= n - k + 1:
@@ -66,14 +64,9 @@ def pass_at_k(outcomes: Outcomes, k: int) -> float:
     float
         pass@k in ``[0.0, 1.0]``.
     """
-    if isinstance(outcomes, Sequence) and len(outcomes) > 0 and isinstance(
-        outcomes[0], (list, tuple)
-    ):
+    if isinstance(outcomes, Sequence) and len(outcomes) > 0 and isinstance(outcomes[0], (list, tuple)):
         nested: Iterable[Sequence[bool]] = outcomes  # type: ignore[assignment]
-        per_problem = [
-            _pass_at_k_single(n=len(samples), c=sum(1 for s in samples if s), k=k)
-            for samples in nested
-        ]
+        per_problem = [_pass_at_k_single(n=len(samples), c=sum(1 for s in samples if s), k=k) for samples in nested]
         if not per_problem:
             return 0.0
         return sum(per_problem) / len(per_problem)

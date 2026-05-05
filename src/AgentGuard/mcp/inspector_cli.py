@@ -22,9 +22,7 @@ from AgentGuard.mcp.exceptions import MCPInspectorError
 # We pin an inspector range that has the (undocumented) `--method` flag working.
 # The Phase-0 experiment exercised the latest version available via npx; future
 # users can override via `AGENTGUARD_INSPECTOR_PKG`.
-INSPECTOR_PKG = os.environ.get(
-    "AGENTGUARD_INSPECTOR_PKG", "@modelcontextprotocol/inspector"
-)
+INSPECTOR_PKG = os.environ.get("AGENTGUARD_INSPECTOR_PKG", "@modelcontextprotocol/inspector")
 
 _NPX_AVAILABLE: bool | None = None  # process-level cache
 
@@ -71,9 +69,7 @@ def run(
         MCPInspectorError: if `npx` is missing or the subprocess times out.
     """
     if not npx_available():
-        raise MCPInspectorError(
-            "`npx` not found on PATH — install Node.js to use the MCP Inspector keywords."
-        )
+        raise MCPInspectorError("`npx` not found on PATH — install Node.js to use the MCP Inspector keywords.")
 
     cmd = ["npx", "-y", INSPECTOR_PKG, "--cli", *args]
     env = {**os.environ, "CI": "1"}
@@ -90,9 +86,7 @@ def run(
             check=False,
         )
     except subprocess.TimeoutExpired as exc:
-        raise MCPInspectorError(
-            f"Inspector CLI timed out after {timeout}s: {' '.join(cmd)}"
-        ) from exc
+        raise MCPInspectorError(f"Inspector CLI timed out after {timeout}s: {' '.join(cmd)}") from exc
     except FileNotFoundError as exc:  # pragma: no cover - guarded by npx_available()
         raise MCPInspectorError("`npx` not executable") from exc
 

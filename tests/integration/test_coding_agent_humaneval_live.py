@@ -73,7 +73,5 @@ def test_humaneval_score_dict_shape() -> None:
     if not os.getenv("OPENROUTER_API_KEY"):
         pytest.skip("live test requires OPENROUTER_API_KEY")
 
-    out = HumanEvalLoader.score(
-        [RunResult(task_id="t1", passed=True, duration_seconds=0.1)]
-    )
+    out = HumanEvalLoader.score([RunResult(task_id="t1", passed=True, duration_seconds=0.1)])
     assert {"n", "pass_at_1", "pass_rate"}.issubset(out)

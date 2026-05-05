@@ -61,9 +61,7 @@ def run_cli(
             check=False,
         )
     except subprocess.TimeoutExpired as exc:
-        raise DriverTimeout(
-            f"{argv[0]} exceeded {timeout_seconds}s timeout"
-        ) from exc
+        raise DriverTimeout(f"{argv[0]} exceeded {timeout_seconds}s timeout") from exc
 
     duration_ms = (time.perf_counter() - start) * 1000.0
     return _RunOutcome(

@@ -57,10 +57,7 @@ def _build_task(skill: Skill, prompts: Sequence[str]) -> Any:
     from inspect_ai.scorer import match
     from inspect_ai.solver import generate, system_message
 
-    samples = [
-        Sample(input=prompt, target="", id=f"{skill.name}-{idx}")
-        for idx, prompt in enumerate(prompts)
-    ]
+    samples = [Sample(input=prompt, target="", id=f"{skill.name}-{idx}") for idx, prompt in enumerate(prompts)]
     dataset = MemoryDataset(samples)
     skill_system = system_message(_skill_system_prompt(skill))
     return Task(
@@ -72,10 +69,7 @@ def _build_task(skill: Skill, prompts: Sequence[str]) -> Any:
 
 def _skill_system_prompt(skill: Skill) -> str:
     """Compose the system message that injects the skill into the model."""
-    header = (
-        f"You are operating with the '{skill.name}' Agent Skill loaded.\n"
-        f"Skill description: {skill.description}\n"
-    )
+    header = f"You are operating with the '{skill.name}' Agent Skill loaded.\nSkill description: {skill.description}\n"
     if skill.allowed_tools:
         header += f"Allowed tools (advisory): {', '.join(skill.allowed_tools)}\n"
     return f"{header}\n----- SKILL BODY -----\n{skill.body}".strip()
@@ -85,7 +79,7 @@ def _resolve_model(model: str | None) -> str:
     if model:
         return model
     try:
-        from AgentGuard import config as cfg  # type: ignore[attr-defined]
+        from AgentGuard import config as cfg
     except ImportError:
         return "mockllm/model"
     getter = getattr(cfg, "default_model", None)
@@ -103,7 +97,7 @@ def _resolve_judge_model(judge_model: str | None, model: str) -> str:
     if judge_model:
         return judge_model
     try:
-        from AgentGuard import config as cfg  # type: ignore[attr-defined]
+        from AgentGuard import config as cfg
     except ImportError:
         return model
     getter = getattr(cfg, "default_judge_model", None)
@@ -225,9 +219,7 @@ def run_skill_eval(skill: Skill | str, config: GraderConfig) -> SkillScorecard:
         if not logs:
             continue
         log_obj = logs[0]
-        run_responses, run_scores = _eval_log_to_responses(
-            skill_obj, log_obj, model=model, run_index=run_index
-        )
+        run_responses, run_scores = _eval_log_to_responses(skill_obj, log_obj, model=model, run_index=run_index)
         for resp in run_responses:
             resp.latency_ms = elapsed_ms
         responses.extend(run_responses)

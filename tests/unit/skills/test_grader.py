@@ -24,7 +24,6 @@ from AgentGuard.skills.grader import (
 from AgentGuard.skills.parser import Skill
 from AgentGuard.skills.scorecard import JudgeScore
 
-
 FIXTURE_GOOD = Path(__file__).parent.parent.parent / "fixtures" / "skills" / "good-skill"
 
 
@@ -56,9 +55,7 @@ class TestSystemPrompt:
         assert "DO X" in out
 
     def test_includes_allowed_tools_when_present(self) -> None:
-        s = Skill(
-            name="x", description="y", body="b", allowed_tools=["Read", "Write"]
-        )
+        s = Skill(name="x", description="y", body="b", allowed_tools=["Read", "Write"])
         out = _skill_system_prompt(s)
         assert "Read" in out and "Write" in out
 
@@ -67,9 +64,7 @@ class TestModelResolution:
     def test_resolve_model_prefers_explicit(self) -> None:
         assert _resolve_model("openrouter/foo") == "openrouter/foo"
 
-    def test_resolve_model_falls_back(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_resolve_model_falls_back(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delenv("AGENTGUARD_DEFAULT_MODEL", raising=False)
         out = _resolve_model(None)
         # Either a configured fallback or "mockllm/model"; both acceptable.
@@ -78,9 +73,7 @@ class TestModelResolution:
     def test_resolve_judge_model_explicit(self) -> None:
         assert _resolve_judge_model("oai/judge", model="m") == "oai/judge"
 
-    def test_resolve_judge_model_falls_back_to_model(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_resolve_judge_model_falls_back_to_model(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delenv("AGENTGUARD_JUDGE_MODEL", raising=False)
         out = _resolve_judge_model(None, model="m")
         assert isinstance(out, str) and out

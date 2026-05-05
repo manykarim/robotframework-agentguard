@@ -22,7 +22,6 @@ from AgentGuard.security.sandbox_backends.docker_backend import (
 )
 from AgentGuard.security.types import SandboxUnavailable
 
-
 # ---------------- defaults / constants ----------------
 
 
@@ -151,9 +150,7 @@ def test_is_available_returns_true_when_ping_succeeds() -> None:
 def test_build_run_kwargs_default_network_none() -> None:
     backend = DockerBackend()
     policy = SandboxPolicy(allow_code_execution=True)
-    kwargs = backend._build_run_kwargs(
-        policy=policy, command=["echo", "hi"], stdin=None, env=None, mounts=[]
-    )
+    kwargs = backend._build_run_kwargs(policy=policy, command=["echo", "hi"], stdin=None, env=None, mounts=[])
     assert kwargs["network_mode"] == "none"
     assert kwargs["read_only"] is True
     assert kwargs["cap_drop"] == ["ALL"]
@@ -163,18 +160,14 @@ def test_build_run_kwargs_default_network_none() -> None:
 def test_build_run_kwargs_network_allowed_uses_bridge() -> None:
     backend = DockerBackend()
     policy = SandboxPolicy(allow_code_execution=True, network_allowed=True)
-    kwargs = backend._build_run_kwargs(
-        policy=policy, command=["echo"], stdin=None, env=None, mounts=[]
-    )
+    kwargs = backend._build_run_kwargs(policy=policy, command=["echo"], stdin=None, env=None, mounts=[])
     assert kwargs["network_mode"] == "bridge"
 
 
 def test_build_run_kwargs_includes_resource_caps() -> None:
     backend = DockerBackend()
     policy = SandboxPolicy(allow_code_execution=True, mem_limit_mb=128, pid_limit=64)
-    kwargs = backend._build_run_kwargs(
-        policy=policy, command=["echo"], stdin=None, env=None, mounts=[]
-    )
+    kwargs = backend._build_run_kwargs(policy=policy, command=["echo"], stdin=None, env=None, mounts=[])
     assert kwargs["mem_limit"] == "128m"
     assert kwargs["pids_limit"] == 64
 
@@ -182,8 +175,6 @@ def test_build_run_kwargs_includes_resource_caps() -> None:
 def test_build_run_kwargs_labels_present() -> None:
     backend = DockerBackend()
     policy = SandboxPolicy(allow_code_execution=True)
-    kwargs = backend._build_run_kwargs(
-        policy=policy, command=["echo"], stdin=None, env=None, mounts=[]
-    )
+    kwargs = backend._build_run_kwargs(policy=policy, command=["echo"], stdin=None, env=None, mounts=[])
     assert kwargs["labels"]["agentguard.sandbox"] == "1"
     assert kwargs["auto_remove"] is False

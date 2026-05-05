@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import pytest
 
+from AgentGuard._assertions import AssertionOperator
 from AgentGuard.stats.library import StatsKeywords
 
 
@@ -19,36 +20,65 @@ def _kw() -> StatsKeywords:
     return StatsKeywords()
 
 
-def test_pass_at_k_should_be_above_passes(kw: StatsKeywords) -> None:
-    out = kw.pass_at_k_should_be_above([True] * 9 + [False], k=1, threshold=0.5)
+def test_pass_at_k_returns_value_without_operator(kw: StatsKeywords) -> None:
+    out = kw.pass_at_k([True] * 9 + [False], k=1)
     assert out == pytest.approx(0.9)
 
 
-def test_pass_at_k_should_be_above_fails(kw: StatsKeywords) -> None:
+def test_pass_at_k_passes_with_operator(kw: StatsKeywords) -> None:
+    out = kw.pass_at_k([True] * 9 + [False], k=1, assertion_operator=AssertionOperator[">="], assertion_expected=0.5)
+    assert out == pytest.approx(0.9)
+
+
+def test_pass_at_k_string_operator_alias(kw: StatsKeywords) -> None:
+    out = kw.pass_at_k([True] * 9 + [False], k=1, assertion_operator=">=", assertion_expected=0.5)
+    assert out == pytest.approx(0.9)
+
+
+def test_pass_at_k_fails_with_operator(kw: StatsKeywords) -> None:
     with pytest.raises(AssertionError):
-        kw.pass_at_k_should_be_above([True] + [False] * 9, k=1, threshold=0.5)
+        kw.pass_at_k([True] + [False] * 9, k=1, assertion_operator=">=", assertion_expected=0.5)
 
 
 def test_pass_at_k_accepts_string_outcomes(kw: StatsKeywords) -> None:
     # Robot Framework string args like ${TRUE}/${FALSE} → "True"/"False"
-    out = kw.pass_at_k_should_be_above(
-        ["true", "true", "false", "true", "true"], k=1, threshold=0.5
+    out = kw.pass_at_k(
+        ["true", "true", "false", "true", "true"],
+        k=1,
+        assertion_operator=">=",
+        assertion_expected=0.5,
     )
     assert out == pytest.approx(0.8)
 
 
-def test_total_agreement_rate_raw(kw: StatsKeywords) -> None:
-    out = kw.total_agreement_rate_should_be_above(
-        ["a", "a", "a", "b"], threshold=0.5, mode="raw"
-    )
+def test_total_agreement_rate_raw_returns_value(kw: StatsKeywords) -> None:
+    out = kw.total_agreement_rate(["a", "a", "a", "b"], mode="raw")
+    assert out == pytest.approx(0.75)
+
+
+def test_total_agreement_rate_raw_with_operator(kw: StatsKeywords) -> None:
+    out = kw.total_agreement_rate(["a", "a", "a", "b"], assertion_operator=">=", assertion_expected=0.5, mode="raw")
     assert out == pytest.approx(0.75)
 
 
 def test_total_agreement_rate_answer_default_parser(kw: StatsKeywords) -> None:
-    out = kw.total_agreement_rate_should_be_above(
-        ["YES", "yes", " yes ", "no"], threshold=0.5, mode="answer"
+    out = kw.total_agreement_rate(
+        ["YES", "yes", " yes ", "no"],
+        assertion_operator=">=",
+        assertion_expected=0.5,
+        mode="answer",
     )
     assert out == pytest.approx(0.75)
+
+
+def test_total_agreement_rate_fails_with_operator(kw: StatsKeywords) -> None:
+    with pytest.raises(AssertionError):
+        kw.total_agreement_rate(
+            ["a", "b", "c", "d"],
+            assertion_operator=">=",
+            assertion_expected=0.9,
+            mode="raw",
+        )
 
 
 def test_mann_whitney_passes_for_dominant_sample(kw: StatsKeywords) -> None:
@@ -96,9 +126,7 @@ def test_bootstrap_ci_should_contain_keyword(kw: StatsKeywords) -> None:
 def test_bootstrap_ci_should_contain_fails(kw: StatsKeywords) -> None:
     samples = [0.5] * 20
     with pytest.raises(AssertionError):
-        kw.bootstrap_confidence_interval_should_contain(
-            samples, expected_value=0.9, confidence=0.95, n_resamples=500
-        )
+        kw.bootstrap_confidence_interval_should_contain(samples, expected_value=0.9, confidence=0.95, n_resamples=500)
 
 
 def test_compute_variance_banner_basic(kw: StatsKeywords) -> None:

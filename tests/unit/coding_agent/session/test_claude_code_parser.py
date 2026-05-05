@@ -95,9 +95,7 @@ def test_pair_via_explicit_tool_use_id(tmp_path: Path) -> None:
             "sessionId": "s1",
             "message": {
                 "role": "assistant",
-                "content": [
-                    {"type": "tool_use", "id": "tu-EXPLICIT", "name": "Read", "input": {"path": "x"}}
-                ],
+                "content": [{"type": "tool_use", "id": "tu-EXPLICIT", "name": "Read", "input": {"path": "x"}}],
                 "usage": {"input_tokens": 5, "output_tokens": 3},
             },
         },
@@ -124,9 +122,7 @@ def test_pair_via_parent_chain_when_id_missing(tmp_path: Path) -> None:
             "sessionId": "s1",
             "message": {
                 "role": "assistant",
-                "content": [
-                    {"type": "tool_use", "id": "tu-CHAIN", "name": "Read", "input": {}}
-                ],
+                "content": [{"type": "tool_use", "id": "tu-CHAIN", "name": "Read", "input": {}}],
             },
         },
         {
@@ -170,9 +166,7 @@ def test_thinking_block_signature_length_captured(tmp_path: Path) -> None:
             "sessionId": "s1",
             "message": {
                 "role": "assistant",
-                "content": [
-                    {"type": "thinking", "thinking": "ponder", "signature": "x" * 16}
-                ],
+                "content": [{"type": "thinking", "thinking": "ponder", "signature": "x" * 16}],
             },
         }
     ]
@@ -206,9 +200,7 @@ def test_interrupt_marker_in_assistant_text_block(tmp_path: Path) -> None:
             "sessionId": "s1",
             "message": {
                 "role": "assistant",
-                "content": [
-                    {"type": "text", "text": "Hmm. [Request interrupted by user]"}
-                ],
+                "content": [{"type": "text", "text": "Hmm. [Request interrupted by user]"}],
             },
         }
     ]
@@ -247,9 +239,7 @@ def test_hook_lifecycle_event_recorded(tmp_path: Path) -> None:
         }
     ]
     s = parse(_write(tmp_path, records))
-    assert any(
-        ev.event == "Stop" and ev.decision == "block" for ev in s.hook_events
-    )
+    assert any(ev.event == "Stop" and ev.decision == "block" for ev in s.hook_events)
 
 
 def test_usage_aggregates_across_assistant_records(tmp_path: Path) -> None:

@@ -9,7 +9,7 @@ Suite Teardown   Teardown Inproc Agents
 Send Task Returns Completed
     [Tags]    a2a    subagent    lifecycle    phase2
     ${task}=    Send Task    inproc://travel_planner    Plan a 3-day trip to Lisbon
-    Task Should Have Status    ${task}    completed
+    Get Task Status    ${task}    ==    completed
 
 Get Task Artifact Text Has Trip Summary
     [Tags]    a2a    subagent    artifacts    phase2

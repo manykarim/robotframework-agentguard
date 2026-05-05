@@ -11,7 +11,6 @@ Covers command / http / prompt / agent handlers.
 from __future__ import annotations
 
 import json
-import os
 import stat
 from collections.abc import Callable
 from pathlib import Path
@@ -23,7 +22,6 @@ import pytest
 from AgentGuard.hooks import handlers
 from AgentGuard.hooks.exceptions import HookExecutionError
 from AgentGuard.hooks.types import HookDecision, HookResult
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -58,7 +56,7 @@ def test_command_hook_block_via_exit_code(tmp_path: Path) -> None:
 def test_command_hook_allow_default(tmp_path: Path) -> None:
     script = _write_script(
         tmp_path / "allow.sh",
-        "#!/usr/bin/env bash\necho '{\"decision\": \"allow\"}'\n",
+        '#!/usr/bin/env bash\necho \'{"decision": "allow"}\'\n',
     )
     result = handlers.run_command_hook(script, {"hook_event_name": "PreToolUse"})
     assert result.exit_code == 0
@@ -197,9 +195,7 @@ def test_prompt_hook_uses_provider(mock_provider: Any) -> None:
 def test_prompt_hook_block_response(chat_response_factory: Callable[..., Any]) -> None:
     from AgentGuard.providers.mock import MockProvider
 
-    provider = MockProvider(
-        responses=[chat_response_factory(text='{"decision": "block", "reason": "no"}')]
-    )
+    provider = MockProvider(responses=[chat_response_factory(text='{"decision": "block", "reason": "no"}')])
     result = handlers.run_prompt_hook("Decide.", {}, provider=provider)
     assert result.exit_code == 2
     assert result.decision.decision == "block"
@@ -274,9 +270,7 @@ def test_agent_hook_exception_wraps() -> None:
 
 def test_agent_hook_import_path() -> None:
     # Reach into ourselves via a module path: tests.unit.hooks.test_handlers:_agent_dict
-    result = handlers.run_agent_hook(
-        "tests.unit.hooks.test_handlers:_agent_dict", {}
-    )
+    result = handlers.run_agent_hook("tests.unit.hooks.test_handlers:_agent_dict", {})
     assert result.decision.decision == "allow"
 
 

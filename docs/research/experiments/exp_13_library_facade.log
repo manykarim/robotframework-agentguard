@@ -1,0 +1,35 @@
+==============================================================================
+Exp 13 Facade Proof & Test Facade & Test Alias                                
+==============================================================================
+[ WARN ] Imported library 'tests.experiments.exp_13_facade_proof' contains no keywords.
+Exp 13 Facade Proof & Test Facade & Test Alias.Exp 13 Facade Proof :: exp_1...
+==============================================================================
+Implicit Class Resolution — Library Module Name                       | PASS |
+------------------------------------------------------------------------------
+Explicit Class Resolution — Library Module.Class                      | PASS |
+------------------------------------------------------------------------------
+Add Via Implicit Import                                               | PASS |
+------------------------------------------------------------------------------
+Exp 13 Facade Proof & Test Facade & Test Alias.Exp 13 Facade Proof... | PASS |
+3 tests, 3 passed, 0 failed
+==============================================================================
+Exp 13 Facade Proof & Test Facade & Test Alias.Test Facade :: exp_13b — con...
+==============================================================================
+Implicit Class Resolution Works When Class Matches Module             | PASS |
+------------------------------------------------------------------------------
+Exp 13 Facade Proof & Test Facade & Test Alias.Test Facade :: exp_... | PASS |
+1 test, 1 passed, 0 failed
+==============================================================================
+Exp 13 Facade Proof & Test Facade & Test Alias.Test Alias :: exp_13c — conf...
+==============================================================================
+Aliased Class Imports Cleanly                                         | PASS |
+------------------------------------------------------------------------------
+Exp 13 Facade Proof & Test Facade & Test Alias.Test Alias :: exp_1... | PASS |
+1 test, 1 passed, 0 failed
+==============================================================================
+Exp 13 Facade Proof & Test Facade & Test Alias                        | PASS |
+5 tests, 5 passed, 0 failed
+==============================================================================
+Output:  /home/many/workspace/robotframework-agentguard/_robot_out/output.xml
+Log:     /home/many/workspace/robotframework-agentguard/_robot_out/log.html
+Report:  /home/many/workspace/robotframework-agentguard/_robot_out/report.html

@@ -52,9 +52,7 @@ def coerce_args(arguments: dict[str, Any] | str | None) -> dict[str, Any]:
         except json.JSONDecodeError as exc:
             raise MCPToolError(f"arguments must be a JSON object: {exc}") from exc
         if not isinstance(parsed, dict):
-            raise MCPToolError(
-                f"arguments JSON must decode to an object, got {type(parsed).__name__}"
-            )
+            raise MCPToolError(f"arguments JSON must decode to an object, got {type(parsed).__name__}")
         return dict(parsed)
     raise MCPToolError(f"unsupported arguments type: {type(arguments).__name__}")
 
@@ -72,9 +70,7 @@ def coerce_schema(schema: dict[str, Any] | str) -> dict[str, Any]:
         except json.JSONDecodeError as exc:
             raise MCPSchemaError(f"schema is not valid JSON: {exc}") from exc
         if not isinstance(loaded, dict):
-            raise MCPSchemaError(
-                f"schema must decode to a JSON object, got {type(loaded).__name__}"
-            )
+            raise MCPSchemaError(f"schema must decode to a JSON object, got {type(loaded).__name__}")
         return dict(loaded)
     if not os.path.exists(text):
         raise MCPSchemaError(f"schema not found: file or JSON expected, got {text!r}")
@@ -109,8 +105,7 @@ def tool_to_dict(tool: Any) -> dict[str, Any]:
         "name": getattr(tool, "name", None),
         "description": getattr(tool, "description", None),
         "inputSchema": getattr(tool, "inputSchema", None) or getattr(tool, "input_schema", None),
-        "outputSchema": getattr(tool, "outputSchema", None)
-        or getattr(tool, "output_schema", None),
+        "outputSchema": getattr(tool, "outputSchema", None) or getattr(tool, "output_schema", None),
     }
 
 
@@ -131,9 +126,7 @@ def prompt_to_dict(prompt: Any) -> dict[str, Any]:
     }
 
 
-def make_latency_runner(
-    name: str, args: dict[str, Any], runs: int, samples_ms: list[float]
-) -> Any:
+def make_latency_runner(name: str, args: dict[str, Any], runs: int, samples_ms: list[float]) -> Any:
     """Return a coroutine that warms up once then records `runs` per-call latencies (ms)."""
     import time
 

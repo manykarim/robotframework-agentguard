@@ -29,6 +29,8 @@ agentdb.rvf
 agentdb.rvf.lock
 ruvector.db
 _inspect_log/
+_robot_out/
+logs/
 
 # Robot Framework outputs
 output.xml

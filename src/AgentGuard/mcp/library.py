@@ -61,6 +61,7 @@ except Exception:  # pragma: no cover - foundation always ships this
 
         name: str
 
+
 logger = logging.getLogger("AgentGuard.mcp")
 
 # Per exp_01: in-memory transport median ~2.2 ms/call. Warn if we slip beyond 5 ms.
@@ -103,9 +104,7 @@ class MCPKeywords:
         except MCPTransportError:
             raise
         except Exception as exc:  # pragma: no cover - re-raised as MCPConnectionError
-            raise MCPConnectionError(
-                f"failed to interact with MCP server {handle.name!r}: {exc}"
-            ) from exc
+            raise MCPConnectionError(f"failed to interact with MCP server {handle.name!r}: {exc}") from exc
 
     # ---- lifecycle -------------------------------------------------------
 
@@ -165,18 +164,14 @@ class MCPKeywords:
         return cast(dict[str, list[str]], arun(self._with_client(handle, fetch_capabilities)))
 
     @keyword(name="MCP Server Should Implement Capabilities")
-    def mcp_server_should_implement_capabilities(
-        self, handle: ServerHandle, *expected: str
-    ) -> None:
+    def mcp_server_should_implement_capabilities(self, handle: ServerHandle, *expected: str) -> None:
         """Assert every ``expected`` name appears under tools/resources/prompts.
         Example: ``MCP Server Should Implement Capabilities  ${h}  add  echo``."""
         caps = self.get_mcp_capabilities(handle)
         flat = {*caps.get("tools", []), *caps.get("resources", []), *caps.get("prompts", [])}
         missing = [name for name in expected if name not in flat]
         if missing:
-            raise MCPCapabilityError(
-                f"server {handle.name!r} is missing capabilities: {missing}"
-            )
+            raise MCPCapabilityError(f"server {handle.name!r} is missing capabilities: {missing}")
 
     @keyword(name="List MCP Tools")
     def list_mcp_tools(self, handle: ServerHandle) -> list[dict[str, Any]]:
@@ -219,9 +214,7 @@ class MCPKeywords:
         return out
 
     @keyword(name="MCP Tool Output Should Match Schema")
-    def mcp_tool_output_should_match_schema(
-        self, result: dict[str, Any], schema: dict[str, Any] | str
-    ) -> None:
+    def mcp_tool_output_should_match_schema(self, result: dict[str, Any], schema: dict[str, Any] | str) -> None:
         """Validate ``result['data']`` against a JSON Schema (dict, JSON, or path).
         Example: ``MCP Tool Output Should Match Schema  ${r}  {"type":"integer"}``."""
         spec = coerce_schema(schema)
@@ -260,35 +253,25 @@ class MCPKeywords:
     # ---- inspector CLI ---------------------------------------------------
 
     @keyword(name="MCP Inspector Should Connect")
-    def mcp_inspector_should_connect(
-        self, target: str, transport: str = STDIO
-    ) -> dict[str, Any]:
+    def mcp_inspector_should_connect(self, target: str, transport: str = STDIO) -> dict[str, Any]:
         """Run ``inspector --cli ... --method tools/list``; assert exit 0.
         ``--method`` is undocumented in ``--help`` but works (exp_02); pinned in
         ``inspector_cli.INSPECTOR_PKG``.
         Example: ``MCP Inspector Should Connect  uv run python echo_server.py``."""
         result = inspector_cli.list_tools(target, transport)
         if not result.ok:
-            raise MCPInspectorError(
-                f"Inspector exited {result.returncode}: {result.stderr.strip()[:400]}"
-            )
+            raise MCPInspectorError(f"Inspector exited {result.returncode}: {result.stderr.strip()[:400]}")
         return {"parsed": result.parsed, "stdout": result.stdout}
 
     @keyword(name="MCP Inspector List Tools")
-    def mcp_inspector_list_tools(
-        self, target: str, transport: str = STDIO
-    ) -> list[dict[str, Any]]:
+    def mcp_inspector_list_tools(self, target: str, transport: str = STDIO) -> list[dict[str, Any]]:
         """Run ``inspector --cli --method tools/list``; return the tools array.
         Example: ``${tools}=  MCP Inspector List Tools  uv run python echo_server.py``."""
         result = inspector_cli.list_tools(target, transport)
         if not result.ok:
-            raise MCPInspectorError(
-                f"Inspector exited {result.returncode}: {result.stderr.strip()[:400]}"
-            )
+            raise MCPInspectorError(f"Inspector exited {result.returncode}: {result.stderr.strip()[:400]}")
         if isinstance(result.parsed, dict) and isinstance(result.parsed.get("tools"), list):
             return list(result.parsed["tools"])
         if isinstance(result.parsed, list):
             return result.parsed
-        raise MCPInspectorError(
-            f"Inspector returned no `tools` array; raw stdout: {result.stdout[:400]}"
-        )
+        raise MCPInspectorError(f"Inspector returned no `tools` array; raw stdout: {result.stdout[:400]}")

@@ -43,6 +43,7 @@ def pytest_configure(config: pytest.Config) -> None:
         "docker: requires Docker daemon (skipped in CI without it)",
     )
 
+
 from AgentGuard.providers.base import ChatResponse, Usage
 from AgentGuard.providers.mock import MockProvider
 from AgentGuard.telemetry.otel_listener import OTelListener
@@ -86,13 +87,16 @@ def mock_provider() -> MockProvider:
     return MockProvider(
         responses=[
             _resp(text="hello"),
-            _resp(text="world", tool_calls=[
-                {
-                    "id": "call_1",
-                    "type": "function",
-                    "function": {"name": "echo", "arguments": '{"text": "hi"}'},
-                }
-            ]),
+            _resp(
+                text="world",
+                tool_calls=[
+                    {
+                        "id": "call_1",
+                        "type": "function",
+                        "function": {"name": "echo", "arguments": '{"text": "hi"}'},
+                    }
+                ],
+            ),
         ]
     )
 
@@ -125,9 +129,7 @@ def echo_mcp_server() -> Any:
 def _write_skill(path: Path, frontmatter: dict[str, Any], body: str = "Body.") -> Path:
     yaml = pytest.importorskip("yaml")
     path.mkdir(parents=True, exist_ok=True)
-    (path / "SKILL.md").write_text(
-        "---\n" + yaml.safe_dump(frontmatter) + "---\n" + body + "\n"
-    )
+    (path / "SKILL.md").write_text("---\n" + yaml.safe_dump(frontmatter) + "---\n" + body + "\n")
     return path
 
 
@@ -261,10 +263,7 @@ def load_session_json(path: Path) -> Any:
 
     data = json.loads(Path(path).read_text(encoding="utf-8"))
 
-    msgs = [
-        Message(role=m["role"], content=m["content"], tool_calls=[])
-        for m in data.get("messages", [])
-    ]
+    msgs = [Message(role=m["role"], content=m["content"], tool_calls=[]) for m in data.get("messages", [])]
     tcs = [
         ToolCall(
             id=t["id"],
@@ -284,8 +283,7 @@ def load_session_json(path: Path) -> Any:
         for t in data.get("tool_responses", [])
     ]
     interrupts = [
-        Interrupt(timestamp=_parse_iso(i.get("timestamp")), reason=i.get("reason"))
-        for i in data.get("interrupts", [])
+        Interrupt(timestamp=_parse_iso(i.get("timestamp")), reason=i.get("reason")) for i in data.get("interrupts", [])
     ]
     hes = [
         HookEvent(

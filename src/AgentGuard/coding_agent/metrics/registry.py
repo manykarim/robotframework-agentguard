@@ -44,16 +44,27 @@ class MetricSpec:
 
 
 _MODULES = (
-    read_edit, edits_without_read, reasoning_loops, interrupts, stop_hook,
-    first_run_test, token_efficiency, self_admitted, write_ratio,
-    repeated_edits, simplest_word, convention,
+    read_edit,
+    edits_without_read,
+    reasoning_loops,
+    interrupts,
+    stop_hook,
+    first_run_test,
+    token_efficiency,
+    self_admitted,
+    write_ratio,
+    repeated_edits,
+    simplest_word,
+    convention,
 )
 
 #: Catalog order matches research §2.6 Table 2.
 METRICS: Final[dict[str, MetricSpec]] = {
     m.NAME: MetricSpec(
-        name=m.NAME, compute=m.compute,
-        default_threshold=m.DEFAULT_THRESHOLD, direction=m.DIRECTION,
+        name=m.NAME,
+        compute=m.compute,
+        default_threshold=m.DEFAULT_THRESHOLD,
+        direction=m.DIRECTION,
     )
     for m in _MODULES
 }

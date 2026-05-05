@@ -26,6 +26,8 @@ from typing import TYPE_CHECKING, Any
 
 from robot.api.deco import keyword
 
+from AgentGuard._assertions import AssertionOperator, assert_value
+
 from .base import RunResult, Task
 from .registry import BENCHMARK_NAMES, get_loader
 from .runner import (
@@ -53,12 +55,20 @@ if TYPE_CHECKING:  # pragma: no cover
 logger = logging.getLogger("AgentGuard.coding_agent.benchmarks")
 
 
-def _assert_above(value: float, threshold: float, *, label: str) -> float:
-    """Log + raise on threshold violation; return ``value`` on success."""
-    logger.info("%s = %.4f (threshold %g)", label, value, threshold)
-    if value <= threshold:
-        raise AssertionError(f"{label} = {value:.4f} not above {threshold:g}")
-    return value
+def _coerce_numeric(expected: Any) -> Any:
+    """Coerce string ``assertion_expected`` to ``float`` for pass@k assertions.
+
+    Robot Framework passes positional arguments as strings; AssertionEngine's
+    ``verify_assertion`` does not auto-coerce. Pass@k / pass-rate keywords all
+    return floats so we coerce string thresholds to floats. Non-numeric strings
+    pass through unchanged (e.g. ``validate`` Python expressions).
+    """
+    if isinstance(expected, str):
+        try:
+            return float(expected)
+        except ValueError:
+            return expected
+    return expected
 
 
 class CodingBenchmarkKeywords:
@@ -86,9 +96,7 @@ class CodingBenchmarkKeywords:
         """
         from . import swe_bench
 
-        return swe_bench.SWEBenchLoader.load(
-            split=split, limit=limit, verified_only=verified_only
-        )
+        return swe_bench.SWEBenchLoader.load(split=split, limit=limit, verified_only=verified_only)
 
     @keyword(name="Run SWE Bench Task")
     def run_swe_bench_task(
@@ -123,21 +131,25 @@ class CodingBenchmarkKeywords:
             driver_result=dr,
         )
 
-    @keyword(name="SWE Bench Pass At K Should Be Above")
-    def swe_bench_pass_at_k_should_be_above(
-        self, results: list[RunResult], k: int = 1, threshold: float = 0.4
+    @keyword(name="SWE Bench Pass At K")
+    def swe_bench_pass_at_k(
+        self,
+        results: list[RunResult],
+        k: int = 1,
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
     ) -> float:
-        """Assert SWE-bench % Resolved > ``threshold`` (default 0.4).
+        """Compute SWE-bench pass@k. With ``assertion_operator`` also asserts.
 
         ``k == 1`` (the leaderboard convention) collapses to the resolved-rate;
         ``k > 1`` delegates to HumanEval-style pass@k.
+
+        Typical assertion: ``SWE Bench Pass At K ${results} 1 >= 0.4``.
         """
-        value = (
-            resolved_rate(results)
-            if int(k) <= 1
-            else pass_at_k_from_results(results, int(k))
-        )
-        return _assert_above(value, float(threshold), label=f"SWE-bench pass@{int(k)}")
+        value = resolved_rate(results) if int(k) <= 1 else pass_at_k_from_results(results, int(k))
+        logger.info("SWE-bench pass@%d = %.4f", int(k), value)
+        return float(assert_value(value, assertion_operator, _coerce_numeric(assertion_expected), message=message))
 
     @keyword(name="Load Aider Benchmark Dataset")
     def load_aider_benchmark_dataset(self, limit: int | None = None) -> list[Task]:
@@ -153,16 +165,21 @@ class CodingBenchmarkKeywords:
         """Dispatch an Aider exercise; score with the upstream check()."""
         return self._run_with_validator(task, driver, model, aider_validate)
 
-    @keyword(name="Aider Benchmark Pass Rate Should Be Above")
-    def aider_benchmark_pass_rate_should_be_above(
-        self, results: list[RunResult], threshold: float = 0.5
+    @keyword(name="Aider Benchmark Pass Rate")
+    def aider_benchmark_pass_rate(
+        self,
+        results: list[RunResult],
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
     ) -> float:
-        """Assert Aider's first-run pass rate > ``threshold`` (default 0.5)."""
-        return _assert_above(
-            first_run_pass_rate(results),
-            float(threshold),
-            label="Aider first-run pass rate",
-        )
+        """Compute Aider's first-run pass rate. With ``assertion_operator`` also asserts.
+
+        Typical assertion: ``Aider Benchmark Pass Rate ${results} >= 0.5``.
+        """
+        value = first_run_pass_rate(results)
+        logger.info("Aider first-run pass rate = %.4f", value)
+        return float(assert_value(value, assertion_operator, _coerce_numeric(assertion_expected), message=message))
 
     @keyword(name="Load HumanEval Dataset")
     def load_humaneval_dataset(self, limit: int | None = None) -> list[Task]:
@@ -178,16 +195,22 @@ class CodingBenchmarkKeywords:
         """Dispatch a HumanEval task and score with the bundled ``check()``."""
         return self._run_with_validator(task, driver, model, humaneval_validate)
 
-    @keyword(name="HumanEval Pass At K Should Be Above")
-    def humaneval_pass_at_k_should_be_above(
-        self, results: list[RunResult], k: int = 1, threshold: float = 0.6
+    @keyword(name="HumanEval Pass At K")
+    def humaneval_pass_at_k(
+        self,
+        results: list[RunResult],
+        k: int = 1,
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
     ) -> float:
-        """Assert HumanEval pass@k > ``threshold`` (default 0.6)."""
-        return _assert_above(
-            pass_at_k_from_results(results, int(k)),
-            float(threshold),
-            label=f"HumanEval pass@{int(k)}",
-        )
+        """Compute HumanEval pass@k. With ``assertion_operator`` also asserts.
+
+        Typical assertion: ``HumanEval Pass At K ${results} 1 >= 0.6``.
+        """
+        value = pass_at_k_from_results(results, int(k))
+        logger.info("HumanEval pass@%d = %.4f", int(k), value)
+        return float(assert_value(value, assertion_operator, _coerce_numeric(assertion_expected), message=message))
 
     @keyword(name="Load MBPP Dataset")
     def load_mbpp_dataset(self, limit: int | None = None) -> list[Task]:
@@ -197,22 +220,26 @@ class CodingBenchmarkKeywords:
         return mbpp.MBPPLoader.load(limit=limit)
 
     @keyword(name="Run MBPP Task")
-    def run_mbpp_task(
-        self, task: Task | dict[str, Any], driver: str = "local", model: str | None = None
-    ) -> RunResult:
+    def run_mbpp_task(self, task: Task | dict[str, Any], driver: str = "local", model: str | None = None) -> RunResult:
         """Dispatch an MBPP task and exec the bundled ``test_list`` asserts."""
         return self._run_with_validator(task, driver, model, mbpp_validate)
 
-    @keyword(name="MBPP Pass At K Should Be Above")
-    def mbpp_pass_at_k_should_be_above(
-        self, results: list[RunResult], k: int = 1, threshold: float = 0.6
+    @keyword(name="MBPP Pass At K")
+    def mbpp_pass_at_k(
+        self,
+        results: list[RunResult],
+        k: int = 1,
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: Any = None,
+        message: str | None = None,
     ) -> float:
-        """Assert MBPP pass@k > ``threshold`` (default 0.6)."""
-        return _assert_above(
-            pass_at_k_from_results(results, int(k)),
-            float(threshold),
-            label=f"MBPP pass@{int(k)}",
-        )
+        """Compute MBPP pass@k. With ``assertion_operator`` also asserts.
+
+        Typical assertion: ``MBPP Pass At K ${results} 1 >= 0.6``.
+        """
+        value = pass_at_k_from_results(results, int(k))
+        logger.info("MBPP pass@%d = %.4f", int(k), value)
+        return float(assert_value(value, assertion_operator, _coerce_numeric(assertion_expected), message=message))
 
     @keyword(name="Load LiveCodeBench Dataset")
     def load_livecodebench_dataset(self, limit: int | None = None) -> list[Task]:
@@ -290,9 +317,7 @@ class CodingBenchmarkKeywords:
         try:
             return runners[canonical_name]
         except KeyError as exc:  # pragma: no cover - registry guards this
-            raise KeyError(
-                f"No runner for {canonical_name!r}; expected one of {BENCHMARK_NAMES}"
-            ) from exc
+            raise KeyError(f"No runner for {canonical_name!r}; expected one of {BENCHMARK_NAMES}") from exc
 
 
 # Backwards-compat alias used by ``DynamicCore`` registration patterns.

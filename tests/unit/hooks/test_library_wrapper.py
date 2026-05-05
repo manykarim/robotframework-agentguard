@@ -5,7 +5,6 @@ Mirrors the shape of ``tests/unit/security/test_library_wrapper.py``.
 
 from __future__ import annotations
 
-import json
 import stat
 from pathlib import Path
 from typing import Any
@@ -140,9 +139,7 @@ def test_hook_should_modify_tool_input_to(kw: HooksKeywords) -> None:
         exit_code=0,
         stdout="{}",
         stderr="",
-        decision=HookDecision(
-            decision="allow", modified_tool_input={"command": "ls -la"}
-        ),
+        decision=HookDecision(decision="allow", modified_tool_input={"command": "ls -la"}),
     )
     assert kw.hook_should_modify_tool_input_to(res, {"command": "ls -la"}) is res
 

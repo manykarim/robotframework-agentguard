@@ -62,17 +62,15 @@ def scan_file(path: Path, host_allowlist: Iterable[str] | None = None) -> list[F
 
 
 def _iter_findings(text: str, path: Path, allowlist: frozenset[str]) -> Iterator[Finding]:
-    location_for_line = lambda lineno: f"{path}:L{lineno}"  # noqa: E731
+    def location_for_line(lineno: int) -> str:
+        return f"{path}:L{lineno}"
 
     for match in _PIPE_TO_SHELL.finditer(text):
         yield Finding(
             stage=ScannerStage.SCRIPTS_STATIC,
             severity=Severity.CRITICAL,
             message=f"Pipe-to-shell installer pattern detected ({match.group(0)[:60]}...).",
-            remediation=(
-                "Replace `curl ... | sh` with a checksum-pinned download "
-                "verified before execution."
-            ),
+            remediation=("Replace `curl ... | sh` with a checksum-pinned download verified before execution."),
             location=location_for_line(_lineno(text, match.start())),
             rule_id="AGRD-S-101",
         )
@@ -159,9 +157,7 @@ def _iter_findings(text: str, path: Path, allowlist: frozenset[str]) -> Iterator
             yield Finding(
                 stage=ScannerStage.SCRIPTS_STATIC,
                 severity=Severity.HIGH,
-                message=(
-                    f"Embedded base64 blob ({len(blob)} chars) — possible obfuscated payload."
-                ),
+                message=(f"Embedded base64 blob ({len(blob)} chars) — possible obfuscated payload."),
                 remediation="Replace with plain text or load from a verified file.",
                 location=location_for_line(_lineno(text, match.start())),
                 rule_id="AGRD-S-160",

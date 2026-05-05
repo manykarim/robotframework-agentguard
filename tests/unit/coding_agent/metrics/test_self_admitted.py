@@ -33,9 +33,7 @@ def test_clean_message_zero() -> None:
 
 
 def test_detects_youre_right_lazy() -> None:
-    res = self_admitted.compute(
-        _session(msg="you're right, that was lazy", tool_calls=1)
-    )
+    res = self_admitted.compute(_session(msg="you're right, that was lazy", tool_calls=1))
     assert res.value > 0
 
 
@@ -50,16 +48,12 @@ def test_detects_i_was_wrong() -> None:
 
 
 def test_threshold_breach_marks_failed() -> None:
-    res = self_admitted.compute(
-        _session(msg="my apologies, sorry, I was wrong", tool_calls=1)
-    )
+    res = self_admitted.compute(_session(msg="my apologies, sorry, I was wrong", tool_calls=1))
     assert res.passed is False
 
 
 def test_threshold_none_yields_none_passed() -> None:
-    res = self_admitted.compute(
-        _session(msg="my apologies"), threshold=None
-    )
+    res = self_admitted.compute(_session(msg="my apologies"), threshold=None)
     assert res.passed is None
 
 

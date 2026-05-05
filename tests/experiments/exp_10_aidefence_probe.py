@@ -3,6 +3,7 @@
 Assumption: aidefence_scan is reachable from the harness — either via the ruflo
 CLI or via the claude-flow MCP server already declared in .mcp.json.
 """
+
 import json
 import os
 import shutil
@@ -12,9 +13,13 @@ from pathlib import Path
 
 def run(cmd, timeout=60):
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout,
-                              env={**os.environ, "CI": "1",
-                                   "npm_config_update_notifier": "false"})
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            env={**os.environ, "CI": "1", "npm_config_update_notifier": "false"},
+        )
         return proc.returncode, proc.stdout, proc.stderr
     except FileNotFoundError as e:
         return 127, "", f"FileNotFoundError: {e}"
@@ -44,10 +49,12 @@ def main() -> int:
         if shutil.which(bin_name):
             candidates.append([bin_name, "--help"])
     # NPX candidates last (slow when uncached)
-    candidates.extend([
-        ["npx", "--no-install", "ruflo", "--help"],
-        ["npx", "--no-install", "@claude-flow/cli", "--help"],
-    ])
+    candidates.extend(
+        [
+            ["npx", "--no-install", "ruflo", "--help"],
+            ["npx", "--no-install", "@claude-flow/cli", "--help"],
+        ]
+    )
 
     cli_reachable = False
     for cmd in candidates:
@@ -73,8 +80,10 @@ def main() -> int:
     print("    library should call it via an MCP client transport rather than via")
     print("    a CLI subprocess.")
 
-    print("PARTIAL exp_10_aidefence_probe — CLI surface unreliable (npm cache "
-          "issues observed); recommended integration path is the MCP transport.")
+    print(
+        "PARTIAL exp_10_aidefence_probe — CLI surface unreliable (npm cache "
+        "issues observed); recommended integration path is the MCP transport."
+    )
     return 0
 
 

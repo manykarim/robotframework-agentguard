@@ -39,10 +39,21 @@ def test_load_rubric_keyword(rubric_path: Path) -> None:
 
 def test_judge_uses_mock_response_when_no_provider(rubric_path: Path) -> None:
     kw = JudgeKeywords()
-    score = kw.llm_judge_should_score_at_least(
+    score = kw.llm_judge_score(
         responses="The answer is 42.",
         rubric=rubric_path,
-        threshold=0.9,
+        assertion_operator=">=",
+        assertion_expected=0.9,
+        mock_response='Reasoning: ok\n{"correctness": "good", "completeness": "complete"}',
+    )
+    assert score == pytest.approx(1.0)
+
+
+def test_judge_returns_score_without_operator(rubric_path: Path) -> None:
+    kw = JudgeKeywords()
+    score = kw.llm_judge_score(
+        responses="The answer is 42.",
+        rubric=rubric_path,
         mock_response='Reasoning: ok\n{"correctness": "good", "completeness": "complete"}',
     )
     assert score == pytest.approx(1.0)
@@ -51,10 +62,11 @@ def test_judge_uses_mock_response_when_no_provider(rubric_path: Path) -> None:
 def test_judge_below_threshold_raises(rubric_path: Path) -> None:
     kw = JudgeKeywords()
     with pytest.raises(AssertionError):
-        kw.llm_judge_should_score_at_least(
+        kw.llm_judge_score(
             responses="bad answer",
             rubric=rubric_path,
-            threshold=0.9,
+            assertion_operator=">=",
+            assertion_expected=0.9,
             mock_response='{"correctness": "bad", "completeness": "missing"}',
         )
 
@@ -67,10 +79,11 @@ def test_judge_uses_provider(rubric_path: Path) -> None:
         ]
     )
     kw = JudgeKeywords(provider=provider)
-    score = kw.llm_judge_should_score_at_least(
+    score = kw.llm_judge_score(
         responses=["resp1", "resp2"],
         rubric=rubric_path,
-        threshold=0.5,
+        assertion_operator=">=",
+        assertion_expected=0.5,
     )
     # mean of (1.0+1.0)/2 and (1.0+0.5)/2 = (1.0 + 0.75)/2 = 0.875
     assert score == pytest.approx(0.875)
@@ -78,9 +91,7 @@ def test_judge_uses_provider(rubric_path: Path) -> None:
 
 
 def test_pairwise_winner_extraction(rubric_path: Path) -> None:
-    provider = MockProvider(
-        responses=[ChatResponse(text='B looks better.\n{"winner": "B"}')]
-    )
+    provider = MockProvider(responses=[ChatResponse(text='B looks better.\n{"winner": "B"}')])
     kw = JudgeKeywords(provider=provider)
     winner = kw.llm_judge_pairwise("a output", "b output", rubric_path)
     assert winner == "B"
@@ -110,30 +121,30 @@ def test_reference_based(rubric_path: Path) -> None:
     assert results[1].score == pytest.approx(0.0)
 
 
-def test_calibrate_judge_passes_with_perfect_predictions(
-    rubric_path: Path, tmp_path: Path
-) -> None:
+def test_calibrate_judge_passes_with_perfect_predictions(rubric_path: Path, tmp_path: Path) -> None:
     samples = [
         CalibrationSample(
-            input="q1", response="r1",
+            input="q1",
+            response="r1",
             human_label={"correctness": "good", "completeness": "complete"},
         ),
         CalibrationSample(
-            input="q2", response="r2",
+            input="q2",
+            response="r2",
             human_label={"correctness": "bad", "completeness": "missing"},
         ),
         CalibrationSample(
-            input="q3", response="r3",
+            input="q3",
+            response="r3",
             human_label={"correctness": "good", "completeness": "complete"},
         ),
         CalibrationSample(
-            input="q4", response="r4",
+            input="q4",
+            response="r4",
             human_label={"correctness": "bad", "completeness": "missing"},
         ),
     ]
-    provider = MockProvider(
-        responses=[_mk_response(s.human_label) for s in samples]
-    )
+    provider = MockProvider(responses=[_mk_response(s.human_label) for s in samples])
     kw = JudgeKeywords(provider=provider, cache_path=tmp_path / "judge.json")
     report = kw.calibrate_judge(
         model="mock/test",
@@ -150,11 +161,13 @@ def test_calibrate_judge_passes_with_perfect_predictions(
 def test_calibrate_judge_fails_below_threshold(rubric_path: Path, tmp_path: Path) -> None:
     samples = [
         CalibrationSample(
-            input="q", response="r",
+            input="q",
+            response="r",
             human_label={"correctness": "good", "completeness": "complete"},
         ),
         CalibrationSample(
-            input="q", response="r",
+            input="q",
+            response="r",
             human_label={"correctness": "bad", "completeness": "missing"},
         ),
     ]
@@ -175,16 +188,16 @@ def test_calibrate_judge_fails_below_threshold(rubric_path: Path, tmp_path: Path
         )
 
 
-def test_calibrate_judge_record_only_does_not_raise(
-    rubric_path: Path, tmp_path: Path
-) -> None:
+def test_calibrate_judge_record_only_does_not_raise(rubric_path: Path, tmp_path: Path) -> None:
     samples = [
         CalibrationSample(
-            input="q", response="r",
+            input="q",
+            response="r",
             human_label={"correctness": "good", "completeness": "complete"},
         ),
         CalibrationSample(
-            input="q", response="r",
+            input="q",
+            response="r",
             human_label={"correctness": "bad", "completeness": "missing"},
         ),
     ]
@@ -214,9 +227,7 @@ def test_calibrate_judge_loads_jsonl_fixture(tmp_path: Path, rubric_path: Path) 
         if not line.strip():
             continue
         items.append(json.loads(line))
-    provider = MockProvider(
-        responses=[_mk_response(item["human_label"]) for item in items]
-    )
+    provider = MockProvider(responses=[_mk_response(item["human_label"]) for item in items])
     kw = JudgeKeywords(provider=provider, cache_path=tmp_path / "judge.json")
     report = kw.calibrate_judge(
         model="mock/jsonl",
@@ -231,17 +242,17 @@ def test_calibrate_judge_loads_jsonl_fixture(tmp_path: Path, rubric_path: Path) 
 def test_judge_should_be_calibrated_lookup(rubric_path: Path, tmp_path: Path) -> None:
     samples = [
         CalibrationSample(
-            input="q", response="r",
+            input="q",
+            response="r",
             human_label={"correctness": "good", "completeness": "complete"},
         ),
         CalibrationSample(
-            input="q", response="r",
+            input="q",
+            response="r",
             human_label={"correctness": "bad", "completeness": "missing"},
         ),
     ]
-    provider = MockProvider(
-        responses=[_mk_response(s.human_label) for s in samples]
-    )
+    provider = MockProvider(responses=[_mk_response(s.human_label) for s in samples])
     kw = JudgeKeywords(provider=provider, cache_path=tmp_path / "judge.json")
     kw.calibrate_judge(
         model="mock/test",

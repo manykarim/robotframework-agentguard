@@ -30,12 +30,7 @@ __all__ = ["HumanEvalLoader", "FIXTURE_PATH"]
 
 #: Bundled mini-fixture used when the HuggingFace dataset isn't reachable.
 FIXTURE_PATH = (
-    Path(__file__).resolve().parents[4]
-    / "tests"
-    / "fixtures"
-    / "coding_agent"
-    / "benchmarks"
-    / "humaneval_mini.json"
+    Path(__file__).resolve().parents[4] / "tests" / "fixtures" / "coding_agent" / "benchmarks" / "humaneval_mini.json"
 )
 
 

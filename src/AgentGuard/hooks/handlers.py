@@ -62,18 +62,12 @@ def run_command_hook(
             check=False,
         )
     except subprocess.TimeoutExpired as exc:
-        raise HookExecutionError(
-            f"Hook handler {resolved!s} timed out after {timeout}s."
-        ) from exc
+        raise HookExecutionError(f"Hook handler {resolved!s} timed out after {timeout}s.") from exc
     except OSError as exc:
-        raise HookExecutionError(
-            f"Hook handler {resolved!s} failed to execute: {exc}"
-        ) from exc
+        raise HookExecutionError(f"Hook handler {resolved!s} failed to execute: {exc}") from exc
 
     duration_ms = (time.perf_counter() - started) * 1000.0
-    decision = annotate_decision(
-        parse_decision(completed.stdout, completed.returncode), envelope
-    )
+    decision = annotate_decision(parse_decision(completed.stdout, completed.returncode), envelope)
     return HookResult(
         handler=str(handler),
         handler_type="command",
@@ -121,9 +115,7 @@ def run_prompt_hook(
 ) -> HookResult:
     """Ask ``provider`` to evaluate the envelope and return a JSON decision."""
     if provider is None:
-        raise HookExecutionError(
-            "run_prompt_hook requires a provider; pass one to HooksKeywords()."
-        )
+        raise HookExecutionError("run_prompt_hook requires a provider; pass one to HooksKeywords().")
     messages = [
         {"role": "system", "content": prompt},
         {"role": "user", "content": json.dumps(envelope)},

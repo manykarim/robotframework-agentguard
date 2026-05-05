@@ -71,10 +71,12 @@ def _ensure_tracer_provider() -> InMemorySpanExporter:
 
 def _span_to_dict(span: ReadableSpan) -> dict[str, Any]:
     ctx = span.get_span_context()
+    trace_id = format(ctx.trace_id, "032x") if ctx else ""
+    span_id = format(ctx.span_id, "016x") if ctx else ""
     return {
         "name": span.name,
-        "trace_id": format(ctx.trace_id, "032x"),
-        "span_id": format(ctx.span_id, "016x"),
+        "trace_id": trace_id,
+        "span_id": span_id,
         "start_time": span.start_time,
         "end_time": span.end_time,
         "duration_ns": (span.end_time or 0) - (span.start_time or 0),
@@ -133,7 +135,7 @@ class OTelListener:
     def _render_html(payload: dict[str, Any]) -> str:
         body = json.dumps(payload, default=str, indent=2, sort_keys=True)
         return (
-            '<details><summary>AgentGuard OTel spans</summary>'
+            "<details><summary>AgentGuard OTel spans</summary>"
             f'<pre style="white-space:pre-wrap">{escape(body)}</pre>'
             "</details>"
         )

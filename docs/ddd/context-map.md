@@ -74,6 +74,30 @@ flowchart LR
     SE -.->|PL events| TL
     PR -.->|PL events| TL
     ST -.->|PL events| TL
+
+    %% Phase 4-A/B/C — TestHarness / MCPScenario (proposed by ADR-021).
+    TH[TestHarness / MCPScenario]
+    MC -->|CS supplier: ServerHandle, Call MCP Tool| TH
+    CA -->|CS supplier: Driver, Session| TH
+    SK_C -.->|CS supplier (extension): Skill body as system msg| TH
+    TC -.->|OHS: optional per-call AST validation| TH
+    SE -->|CS supplier: Generated Robot suite scan| TH
+    JD -.->|OHS: validates expected_outcome| TH
+    ST -->|SK: Mann-Whitney + Cliff δ + pass@k| TH
+    TH -.->|PL events: ScenarioStarted, ToolCallRecorded, ScenarioCompleted| TL
+
+    %% AssertionEngine as utility Shared Kernel (ADR-022).
+    AE[AssertionEngine SK]
+    AE ===|SK| ST
+    AE ===|SK| MC
+    AE ===|SK| SK_C
+    AE ===|SK| JD
+    AE ===|SK| SE
+    AE ===|SK| HK
+    AE ===|SK| SA
+    AE ===|SK| CA
+    AE ===|SK| TH
+    AE ===|SK| TC
 ```
 
 ## Pattern Catalogue
@@ -82,6 +106,37 @@ flowchart LR
 
 - **Provider ↔ {MCP, Skills, Judge, CodingAgent, SubAgents}** — every context that needs an LLM agrees on Provider's `Model`, `ChatMessage`, `ToolDefinition`, `ChatResponse`, `Cost`, `ProviderCapability`. Changes to these types require coordination across all five. Provider is intentionally generic (default LiteLLM, §4.1, §4.4) so the kernel surface stays small.
 - **Statistics ↔ {Judge, BehavioralMetrics, ToolCallCorrectness}** — `Distribution`, `EffectSize`, `ConfidenceInterval`, `PassAtK`, `TARScore`, `Baseline` are shared types. Statistics has no scipy types in its public surface so the kernel is pure.
+
+### AssertionEngine as Shared Kernel
+
+Per **ADR-022** (`docs/adr/ADR-022-assertion-engine-shared-kernel.md`),
+PyPI `assertionengine` is adopted as a **utility-level Shared Kernel**, not a
+bounded context. The distinction matters:
+
+- **Context-level SK** (e.g., Provider, Statistics) shares *domain-shaped*
+  value objects (`Model`, `Distribution`) whose meaning is intrinsic to the
+  problem domain. Roadmap coordination is required; changes alter agreed
+  domain semantics.
+- **Utility-level SK** (AssertionEngine) shares a *primitive* — a
+  value-comparison operator algebra (`==`, `contains`, `validate`, …) plus
+  the formatter/polling protocol that wraps it. The vocabulary is independent
+  of any AgentGuard domain; AssertionEngine knows nothing about MCP servers,
+  skills, judges, or scenarios. It is shared in the same sense Python's
+  `dataclasses` is shared: cross-cutting plumbing, not a co-owned model.
+
+Why **not** a bounded context: a bounded context owns a model, aggregates,
+events, and a ubiquitous-language slice. AssertionEngine owns none of these
+inside AgentGuard. It exposes one function (`verify_assertion`) and one enum
+(`AssertionOperator`); it has no aggregates, emits no domain events, and
+holds no repository. Promoting it to a context would invent ceremony for a
+library that is correctly modelled as shared infrastructure.
+
+Why **SK** rather than **OHS**: every consuming context speaks the *same*
+operator vocabulary. There is no per-consumer translation of operator
+semantics — only per-consumer *policy* (which operators are allowed, whether
+polling is permitted, what formatter scope applies). Policy lives in the
+per-context **AssertionAdapter** ACL. Full DDD model in
+`docs/ddd/assertion-engine-shared-kernel.md`.
 
 ### Customer / Supplier — Security gates Skills (and CodingAgent)
 
@@ -95,6 +150,16 @@ flowchart LR
 ### Open Host Service — ToolCallCorrectness exposes BFCL matchers to many
 
 - **ToolCallCorrectness → {MCP, Skills, SubAgents}:** the BFCL AST matcher and trajectory matcher are surfaced through a stable API (`match_call`, `match_trajectory`, `score_dataset`) that takes published `ActualCall` / `ExpectedCall` value objects (§3.1, §6.6). MCP, Skills, and SubAgents each translate their native call shape into `ActualCall`. ToolCallCorrectness does not need to know whether the call came from a tool invocation, a graded skill prompt, or an A2A delegated trajectory — only that the published shape is satisfied.
+- **TestHarness ↔ ToolCallCorrectness (ADR-021):** TestHarness's per-call `ExpectedToolCall(name, min_calls, max_calls, required_params)` is *aggregate semantics*; ToolCallCorrectness's `ExpectedCall` is *per-call AST equality*. Both coexist — users reach for the aggregate shape when they only know multiplicity bounds, and the per-call shape when they can name the exact call to expect. TestHarness optionally calls into ToolCallCorrectness to upgrade the looser hit-rate gate to strict per-call AST equality (e.g., for replays of a known-good run).
+
+### TestHarness / MCPScenario as workflow orchestrator (ADR-021, proposed)
+
+- **MCP → TestHarness (Customer/Supplier):** MCP is the supplier; TestHarness is the customer. TestHarness wraps MCP's `ServerHandle` with a recording overlay so every `Call MCP Tool` invoked during a `Run MCP Scenario` emits a `ToolCallRecorded` event into the per-suite collector. MCP keeps its narrow protocol responsibility; TestHarness owns the recording-and-aggregation layer. Tracked recording is opt-in: callers who don't `Start Tracked MCP Session` keep the existing behaviour.
+- **CodingAgent → TestHarness (Customer/Supplier):** TestHarness uses any `CodingAgentDriver` (LocalDriver, ClaudeCodeDriver, …) as the autonomous-agent loop that drives the scenario prompt. The `Session` returned by a driver is mapped into a `ScenarioResult` via a tiny ACL — fields drop, `success` is derived from `tool_response.is_error`, the rest carries through.
+- **Security → TestHarness (Customer/Supplier):** when TestHarness's `Generated Robot Suite Should Pass` keyword is invoked, Security's scanner pre-flights the agent-emitted suite per ADR-006 and the sandbox per ADR-013 gates any actual execution. Default mode is `--dryrun` (no execution).
+- **Stats → TestHarness (Shared Kernel):** the cross-scenario comparison keywords (`Tool Hit Rate Distribution Should Stochastically Dominate`, `Compare Scenarios Pass Rate`) reach into Statistics for `mann_whitney_u`, `cliffs_delta`, `pass_at_k`. No new statistics math.
+- **TestHarness → Telemetry (Published Language):** every domain event (`ScenarioStarted`, `ToolCallRecorded`, `ScenarioCompleted`, `ArtifactProduced`, `ScenarioBaselineDrifted`) is an OTel span tagged with `scenario.id` so traces from multiple runs aggregate cleanly in Grafana / Jaeger / Honeycomb.
+- **TestHarness ⇄ Skills (extension, Phase 4-B):** when a scenario is run with `skill=<Skill>`, the skill's body is injected as the system message in the driver's prompt. Skills' invariants (frontmatter validation, security scan) still apply. The hit-rate then measures "given this skill is loaded, did the agent invoke the right MCP tools?" — a useful generalization unique to the unified-harness vision.
 
 ### Vertical (MCP) and Horizontal (A2A) Split
 

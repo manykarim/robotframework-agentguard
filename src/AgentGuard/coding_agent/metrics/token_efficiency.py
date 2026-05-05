@@ -25,9 +25,7 @@ DIRECTION: Final = "below"
 
 
 def _user_prompt_count(session: SessionLike) -> int:
-    return sum(
-        1 for m in session.messages if getattr(m, "role", None) == "user"
-    )
+    return sum(1 for m in session.messages if getattr(m, "role", None) == "user")
 
 
 def compute(session: SessionLike, *, threshold: float | None = None) -> MetricResult:

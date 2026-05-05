@@ -23,9 +23,7 @@ class ContinueDriver:
         prompt: str,
         config: DriverConfig | None = None,
     ) -> DriverResult:
-        raise DriverUnavailable(
-            "Phase 4 — workspace-based Continue driver pending implementation."
-        )
+        raise DriverUnavailable("Phase 4 — workspace-based Continue driver pending implementation.")
 
 
 __all__ = ["ContinueDriver"]

@@ -32,11 +32,7 @@ class RunState:
 
 def now_iso() -> str:
     """ISO-8601 UTC timestamp with millisecond precision and ``Z`` suffix."""
-    return (
-        datetime.now(tz=UTC)
-        .isoformat(timespec="milliseconds")
-        .replace("+00:00", "Z")
-    )
+    return datetime.now(tz=UTC).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
 def _safe_args(raw: Any) -> dict[str, Any]:

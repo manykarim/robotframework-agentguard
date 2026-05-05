@@ -88,10 +88,7 @@ def test_parse_judge_response_extracts_trailing_json() -> None:
             ),
         ),
     )
-    text = (
-        "Reasoning: the answer is correct.\n"
-        '{"correctness": "good"}\n'
-    )
+    text = 'Reasoning: the answer is correct.\n{"correctness": "good"}\n'
     out = parse_judge_response(text, rubric)
     assert out == {"correctness": "good"}
 

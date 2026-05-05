@@ -20,9 +20,9 @@ from typing import Any, Protocol
 
 from robot.api.deco import keyword
 
+from AgentGuard._assertions import AssertionOperator, assert_value
 from AgentGuard.subagents import a2a_client as _client_mod
 from AgentGuard.subagents.exceptions import (
-    SubAgentError,
     TaskFailed,
 )
 from AgentGuard.subagents.trajectory import (
@@ -109,9 +109,7 @@ class SubAgentsKeywords:
         ``transport`` ∈ ``{auto, memory, http}``. ``auto`` infers from the
         URL scheme: ``inproc://`` → memory, ``http(s)://`` → http.
         """
-        return _client_mod.connect_to_a2a_agent(
-            target, transport=transport, timeout=timeout
-        )
+        return _client_mod.connect_to_a2a_agent(target, transport=transport, timeout=timeout)
 
     @keyword(name="Send Task")
     def send_task(
@@ -126,9 +124,7 @@ class SubAgentsKeywords:
         For the in-process transport the task is already terminal on
         return; for HTTP, follow up with ``Wait For Task Completion``.
         """
-        task = _client_mod.send_task(
-            target, message, metadata=metadata, timeout=timeout
-        )
+        task = _client_mod.send_task(target, message, metadata=metadata, timeout=timeout)
         logger.info("submitted task %s -> status=%s", task.id, task.status.value)
         return task
 
@@ -145,9 +141,7 @@ class SubAgentsKeywords:
         Raises :class:`AgentGuard.subagents.exceptions.TaskTimeout` if the
         task is still non-terminal at the deadline.
         """
-        return _client_mod.wait_for_task_completion(
-            handle, task, timeout=timeout, poll_interval=poll_interval
-        )
+        return _client_mod.wait_for_task_completion(handle, task, timeout=timeout, poll_interval=poll_interval)
 
     @keyword(name="Cancel Task")
     def cancel_task(
@@ -158,9 +152,7 @@ class SubAgentsKeywords:
         """Request cancellation of ``task`` and assert the transition."""
         updated = _client_mod.cancel_task(handle, task)
         if updated.status != TaskStatus.CANCELED:
-            raise TaskFailed(
-                f"cancel failed: task {task.id} is in state {updated.status.value!r}"
-            )
+            raise TaskFailed(f"cancel failed: task {task.id} is in state {updated.status.value!r}")
         return updated
 
     # ------------------------------------------------------------------
@@ -168,28 +160,61 @@ class SubAgentsKeywords:
     # ------------------------------------------------------------------
 
     @keyword(name="Get Task Status")
-    def get_task_status(self, task: Task) -> str:
-        """Return the current status string of ``task``."""
-        return task.status.value
-
-    @keyword(name="Task Should Have Status")
-    def task_should_have_status(
+    def get_task_status(
         self,
         task: Task,
-        expected: str | TaskStatus,
-    ) -> None:
-        """Assert ``task.status == expected`` (case-insensitive string ok)."""
-        expected_status = TaskStatus.from_str(expected)
-        if task.status != expected_status:
-            err: type[SubAgentError] = (
-                TaskFailed if expected_status == TaskStatus.COMPLETED else SubAgentError
+        assertion_operator: AssertionOperator | None = None,
+        assertion_expected: str | TaskStatus | None = None,
+        message: str | None = None,
+    ) -> str:
+        """Return ``task.status.value``; optionally assert against it.
+
+        ADR-022 collapse: replaces the old ``Task Should Have Status`` Should-
+        pair keyword. Call without an operator to read; pair with ``==`` /
+        ``!=`` / ``*=`` / ``validate`` to assert in-place::
+
+            ${status}=    Get Task Status    ${task}
+            Get Task Status    ${task}    ==    completed
+
+        When the operator is ``==`` and the expected value normalises to
+        ``completed`` but the actual status differs, a :class:`TaskFailed`
+        exception is raised (preserving the legacy behaviour of the deleted
+        ``Task Should Have Status`` keyword for the most common assertion).
+        """
+        actual_value = task.status.value
+        if assertion_operator is None:
+            return actual_value
+
+        # Normalise the expected value so callers can pass either a string
+        # like ``"completed"`` (case-insensitive) or a :class:`TaskStatus`.
+        expected_for_engine: Any = assertion_expected
+        if assertion_expected is not None:
+            try:
+                expected_status = TaskStatus.from_str(assertion_expected)
+                expected_for_engine = expected_status.value
+            except ValueError:
+                expected_status = None
+        else:
+            expected_status = None
+
+        # AssertionEngine raises a plain AssertionError on mismatch. For the
+        # canonical "expected completed" case keep the historical ``TaskFailed``
+        # so existing exception-catching tests still work.
+        try:
+            return assert_value(  # type: ignore[no-any-return]
+                actual_value,
+                assertion_operator,
+                expected_for_engine,
+                message=message,
             )
-            err_text = task.error or ""
-            extra = f" (error: {err_text})" if err_text else ""
-            raise err(
-                f"task {task.id}: expected status {expected_status.value!r}, "
-                f"got {task.status.value!r}{extra}"
-            )
+        except AssertionError:
+            if expected_status == TaskStatus.COMPLETED and task.status != TaskStatus.COMPLETED:
+                err_text = task.error or ""
+                extra = f" (error: {err_text})" if err_text else ""
+                raise TaskFailed(
+                    f"task {task.id}: expected status {expected_status.value!r}, got {task.status.value!r}{extra}"
+                ) from None
+            raise
 
     @keyword(name="Get Task Artifact")
     def get_task_artifact(
@@ -210,9 +235,7 @@ class SubAgentsKeywords:
     @keyword(name="Get Task Artifact Text")
     def get_task_artifact_text(self, task: Task, delimiter: str = "\n") -> str:
         """Concatenate text content of all artifacts on ``task``."""
-        return delimiter.join(
-            artifact_text(a, delimiter=delimiter) for a in task.artifacts
-        )
+        return delimiter.join(artifact_text(a, delimiter=delimiter) for a in task.artifacts)
 
     # ------------------------------------------------------------------
     # Trajectory

@@ -49,9 +49,7 @@ def scan_skill(
 
     sig_status, sig_findings = stages.stage5_signature(skill_dir, frontmatter)
     findings.extend(sig_findings)
-    findings.extend(
-        stages.stage6_marketplace(skill_dir, skill_name, marketplace_allowlist)
-    )
+    findings.extend(stages.stage6_marketplace(skill_dir, skill_name, marketplace_allowlist))
     findings.extend(stages.stage7_pii(body))
 
     decision, reason = _decide(
@@ -67,7 +65,7 @@ def scan_skill(
         findings=tuple(findings),
         decision=decision,
         decision_reason=reason,
-        signature_status=sig_status,
+        signature_status=sig_status,  # type: ignore[arg-type]
     )
 
 
@@ -86,8 +84,7 @@ def _decide(
     if signature_status in {"missing", "invalid", "untrusted_root"} and not is_first_party:
         if not allow_unsigned:
             return "deny", (
-                f"Unsigned third-party skill (signature_status={signature_status}) "
-                "and allow_unsigned=False."
+                f"Unsigned third-party skill (signature_status={signature_status}) and allow_unsigned=False."
             )
 
     if any(f.severity == Severity.HIGH for f in findings):
@@ -98,11 +95,9 @@ def _decide(
 
 def _resolve_skill(skill: object | Path | str) -> tuple[Path, Path]:
     if hasattr(skill, "path"):
-        skill = skill.path  # type: ignore[assignment]
+        skill = skill.path
     if not isinstance(skill, (str, Path)):
-        raise TypeError(
-            f"Cannot scan {type(skill).__name__}: provide a path or a Skill object with `.path`."
-        )
+        raise TypeError(f"Cannot scan {type(skill).__name__}: provide a path or a Skill object with `.path`.")
     path = Path(skill).expanduser().resolve()
     if path.is_file() and path.name == "SKILL.md":
         return path.parent, path

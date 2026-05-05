@@ -126,9 +126,7 @@ class TestMockProvider:
 
 
 class _FakeMessage:
-    def __init__(
-        self, content: str = "", tool_calls: list[Any] | None = None
-    ) -> None:
+    def __init__(self, content: str = "", tool_calls: list[Any] | None = None) -> None:
         self.content = content
         self.tool_calls = tool_calls
 
@@ -172,9 +170,7 @@ class _FakeResponse:
 
 
 class TestLiteLLMAdapter:
-    def test_normalises_text_and_usage(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_normalises_text_and_usage(self, monkeypatch: pytest.MonkeyPatch) -> None:
         adapter = LiteLLMAdapter(model="mockllm/model")
 
         import litellm
@@ -222,9 +218,7 @@ class TestLiteLLMAdapter:
         from litellm import exceptions as lex
 
         def boom(**_kw: Any) -> Any:
-            raise lex.RateLimitError(
-                "429 quota exceeded", llm_provider="openrouter", model="m"
-            )
+            raise lex.RateLimitError("429 quota exceeded", llm_provider="openrouter", model="m")
 
         monkeypatch.setattr(litellm, "completion", boom)
         with pytest.raises(RateLimitError):
@@ -236,9 +230,7 @@ class TestLiteLLMAdapter:
         from litellm import exceptions as lex
 
         def boom(**_kw: Any) -> Any:
-            raise lex.AuthenticationError(
-                "401 invalid key", llm_provider="openrouter", model="m"
-            )
+            raise lex.AuthenticationError("401 invalid key", llm_provider="openrouter", model="m")
 
         monkeypatch.setattr(litellm, "completion", boom)
         with pytest.raises(AuthenticationError):
@@ -250,17 +242,13 @@ class TestLiteLLMAdapter:
         from litellm import exceptions as lex
 
         def boom(**_kw: Any) -> Any:
-            raise lex.APIError(
-                500, "upstream 500", llm_provider="openrouter", model="m"
-            )
+            raise lex.APIError(500, "upstream 500", llm_provider="openrouter", model="m")
 
         monkeypatch.setattr(litellm, "completion", boom)
         with pytest.raises(ProviderAPIError):
             adapter.chat([{"role": "user", "content": "x"}])
 
-    def test_unknown_exception_normalised(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_unknown_exception_normalised(self, monkeypatch: pytest.MonkeyPatch) -> None:
         adapter = LiteLLMAdapter(model="mockllm/model")
         import litellm
 

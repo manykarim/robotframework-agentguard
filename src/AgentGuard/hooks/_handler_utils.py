@@ -30,15 +30,11 @@ def resolve_command(handler: str | Path) -> str:
     if candidate.exists():
         resolved = candidate.resolve()
         if resolved.is_file() and not os.access(resolved, os.X_OK):
-            raise HookExecutionError(
-                f"Hook handler {resolved!s} is not executable (chmod +x missing)."
-            )
+            raise HookExecutionError(f"Hook handler {resolved!s} is not executable (chmod +x missing).")
         return str(resolved)
     on_path = shutil.which(handler_str)
     if on_path is None:
-        raise HookExecutionError(
-            f"Hook handler {handler_str!r} not found on disk or PATH."
-        )
+        raise HookExecutionError(f"Hook handler {handler_str!r} not found on disk or PATH.")
     return on_path
 
 
@@ -59,9 +55,7 @@ def stop_hook_active(envelope: dict[str, Any] | str) -> bool:
     return bool(loaded.get("stop_hook_active", False))
 
 
-def annotate_decision(
-    decision: HookDecision, envelope: dict[str, Any] | str
-) -> HookDecision:
+def annotate_decision(decision: HookDecision, envelope: dict[str, Any] | str) -> HookDecision:
     """Stamp the envelope's stop_hook_active onto decision.raw for loop_detect."""
     raw = dict(decision.raw)
     raw["_stop_hook_active"] = stop_hook_active(envelope)
@@ -93,20 +87,14 @@ def resolve_agent(agent: Callable[..., Any] | str) -> Callable[..., Any]:
         try:
             module = importlib.import_module(module_name)
         except ImportError as exc:
-            raise HookExecutionError(
-                f"Agent hook import failed for {module_name!r}: {exc}"
-            ) from exc
+            raise HookExecutionError(f"Agent hook import failed for {module_name!r}: {exc}") from exc
         if not hasattr(module, attr):
-            raise HookExecutionError(
-                f"Agent hook attribute {attr!r} not found in {module_name!r}."
-            )
+            raise HookExecutionError(f"Agent hook attribute {attr!r} not found in {module_name!r}.")
         resolved = getattr(module, attr)
         if not callable(resolved):
             raise HookExecutionError(f"Agent hook {agent!r} is not callable.")
         return resolved  # type: ignore[no-any-return]
-    raise HookExecutionError(
-        f"Agent hook must be a callable or 'pkg.module:attr' string; got {agent!r}."
-    )
+    raise HookExecutionError(f"Agent hook must be a callable or 'pkg.module:attr' string; got {agent!r}.")
 
 
 def coerce_agent_result(result: Any) -> tuple[str, HookDecision]:

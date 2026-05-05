@@ -135,7 +135,7 @@ def test_load_bfcl_dataset_returns_list(kw: ToolCallKeywords) -> None:
     assert isinstance(cases, list)
 
 
-def test_bfcl_score_should_be_above_passes(kw: ToolCallKeywords) -> None:
+def test_bfcl_score_returns_value_passes(kw: ToolCallKeywords) -> None:
     case = BFCLCase(
         case_id="t1",
         prompt="add 1+2",
@@ -144,25 +144,32 @@ def test_bfcl_score_should_be_above_passes(kw: ToolCallKeywords) -> None:
         category="simple",
     )
     pred = Prediction(case=case, actual=[ToolCall(name="add", arguments={"x": 1, "y": 2})])
-    score = kw.bfcl_score_should_be_above([pred], threshold=0.5)
+    score = kw.bfcl_score([pred])
+    assert score == pytest.approx(1.0)
+
+
+def test_bfcl_score_with_ge_operator_passes(kw: ToolCallKeywords) -> None:
+    """ADR-022 collapse: replaces deleted `BFCL Score Should Be Above`."""
+    case = BFCLCase(
+        case_id="t1",
+        prompt="add 1+2",
+        tools=[],
+        expected=[ExpectedCall(name="add", arguments={"x": 1, "y": 2})],
+        category="simple",
+    )
+    pred = Prediction(case=case, actual=[ToolCall(name="add", arguments={"x": 1, "y": 2})])
+    score = kw.bfcl_score([pred], assertion_operator=">=", assertion_expected=0.5)
     assert score == pytest.approx(1.0)
 
 
 def test_bfcl_score_raises_on_empty(kw: ToolCallKeywords) -> None:
     with pytest.raises(AssertionError, match="empty"):
-        kw.bfcl_score_should_be_above([], threshold=0.5)
+        kw.bfcl_score([])
 
 
-def test_bfcl_score_raises_on_invalid_threshold(kw: ToolCallKeywords) -> None:
-    case = BFCLCase(
-        case_id="x", prompt="", tools=[], expected=[], category="simple"
-    )
-    pred = Prediction(case=case, actual=[])
-    with pytest.raises(ValueError, match="threshold"):
-        kw.bfcl_score_should_be_above([pred], threshold=1.5)
-
-
-def test_bfcl_score_raises_when_below_threshold(kw: ToolCallKeywords) -> None:
+def test_bfcl_score_with_ge_raises_when_below_threshold(
+    kw: ToolCallKeywords,
+) -> None:
     case = BFCLCase(
         case_id="t1",
         prompt="add",
@@ -171,8 +178,8 @@ def test_bfcl_score_raises_when_below_threshold(kw: ToolCallKeywords) -> None:
         category="simple",
     )
     pred = Prediction(case=case, actual=[ToolCall(name="multiply", arguments={"x": 9})])
-    with pytest.raises(AssertionError, match="score"):
-        kw.bfcl_score_should_be_above([pred], threshold=0.9)
+    with pytest.raises(AssertionError):
+        kw.bfcl_score([pred], assertion_operator=">=", assertion_expected=0.9)
 
 
 # ---------------- Generate Tool Call ----------------

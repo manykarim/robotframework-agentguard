@@ -60,10 +60,7 @@ def _run_in_sandbox_or_skip() -> Any:
 
     fn = getattr(sandbox, "run_in_sandbox", None)
     if fn is None:
-        pytest.skip(
-            "AgentGuard.security.sandbox.run_in_sandbox not implemented yet "
-            "(Phase 2 sandbox dispatch)"
-        )
+        pytest.skip("AgentGuard.security.sandbox.run_in_sandbox not implemented yet (Phase 2 sandbox dispatch)")
     return fn
 
 
@@ -129,8 +126,7 @@ def test_sandbox_docker_echo_cold(benchmark: Any) -> None:
     cold_s = float(benchmark.stats.stats.mean)
     if cold_s > BUDGET_COLD_S:
         pytest.fail(
-            f"sandbox docker cold-start {cold_s:.2f} s exceeds budget "
-            f"{BUDGET_COLD_S} s (Phase-2 sandbox budget)"
+            f"sandbox docker cold-start {cold_s:.2f} s exceeds budget {BUDGET_COLD_S} s (Phase-2 sandbox budget)"
         )
 
 
@@ -183,6 +179,5 @@ def test_sandbox_docker_echo_warm(benchmark: Any) -> None:
     median_s = sorted(samples)[len(samples) // 2]
     if median_s > BUDGET_WARM_S:
         pytest.fail(
-            f"sandbox docker warm-run median {median_s:.2f} s exceeds budget "
-            f"{BUDGET_WARM_S} s (Phase-2 sandbox budget)"
+            f"sandbox docker warm-run median {median_s:.2f} s exceeds budget {BUDGET_WARM_S} s (Phase-2 sandbox budget)"
         )

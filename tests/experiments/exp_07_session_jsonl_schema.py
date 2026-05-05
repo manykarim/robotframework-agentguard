@@ -4,8 +4,8 @@ Assumption: `~/.claude/projects/*/...jsonl` files contain per-line JSON records
 with stable top-level keys we can normalize to messages/tool_calls/tool_responses/
 thinking_blocks/interrupts/hook_events/usage for the #42796 metric pack.
 """
+
 import json
-import os
 from collections import Counter
 from pathlib import Path
 
@@ -57,8 +57,16 @@ def main() -> int:
     print("type counts:", dict(types))
 
     # The canonical schema fields from research §7.2
-    canonical = {"messages", "tool_calls", "tool_responses", "thinking_blocks",
-                 "signature_lengths", "interrupts", "hook_events", "usage"}
+    canonical = {
+        "messages",
+        "tool_calls",
+        "tool_responses",
+        "thinking_blocks",
+        "signature_lengths",
+        "interrupts",
+        "hook_events",
+        "usage",
+    }
     # Per-line records are typically NOT pre-aggregated; we expect to *derive* the
     # schema. Mark PASS if we can identify message/tool_use records by `type` field.
     derivable = any(k in union for k in ("message", "type", "role", "content", "uuid"))
