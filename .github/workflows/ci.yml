@@ -114,7 +114,7 @@ jobs:
       - name: robot examples (Phase-1+2+3 + integrations)
         run: |
           PYTHONPATH=. uv run robot --exclude live --exclude docker --outputdir _robot_out examples/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: robot-acceptance-output
@@ -196,7 +196,7 @@ jobs:
             PYTHONPATH=. uv run robot --include live --outputdir _robot_live tests/acceptance/ || true
           fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: live-test-output
