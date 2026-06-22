@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v4
         with:
           version: ${{ env.UV_VERSION }}
@@ -55,7 +55,7 @@ jobs:
       matrix:
         python-version: ["3.12", "3.13"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v4
         with:
           version: ${{ env.UV_VERSION }}
@@ -78,7 +78,7 @@ jobs:
     timeout-minutes: 20
     needs: test-unit
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v4
         with:
           version: ${{ env.UV_VERSION }}
@@ -97,7 +97,7 @@ jobs:
     timeout-minutes: 20
     needs: test-unit
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v4
         with:
           version: ${{ env.UV_VERSION }}
@@ -140,7 +140,7 @@ jobs:
     env:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v4
         with:
           version: ${{ env.UV_VERSION }}
@@ -209,7 +209,7 @@ jobs:
     timeout-minutes: 20
     needs: test-unit
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v4
         with:
           version: ${{ env.UV_VERSION }}
@@ -229,7 +229,7 @@ jobs:
     timeout-minutes: 5
     needs: test-unit
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v4
         with:
           version: ${{ env.UV_VERSION }}
