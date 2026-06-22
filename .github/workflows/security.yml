@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v4
         with:
           version: ${{ env.UV_VERSION }}
@@ -48,7 +48,7 @@ jobs:
     timeout-minutes: 10
     continue-on-error: true   # advisory; do not block PRs on transient feed flakes
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v4
         with:
           version: ${{ env.UV_VERSION }}
@@ -66,7 +66,7 @@ jobs:
     timeout-minutes: 10
     continue-on-error: true   # best-effort: bearer occasionally fails on cold cache
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Bearer scan
         run: |
           npx --yes @bearer/bearer scan . --format json > bearer-report.json || true
@@ -82,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: sigstore/cosign-installer@v3
       - name: cosign version
         run: cosign version
